@@ -1,16 +1,16 @@
 import jsLogger from '@map-colonies/js-logger';
-import { ResourceNameManager } from '../../../../src/resourceName/models/resourceNameManager';
+import { ExportManager } from '../../../../src/export/models/exportManager';
 
-let resourceNameManager: ResourceNameManager;
+let exportManager: ExportManager;
 
-describe('ResourceNameManager', () => {
+describe('ExportManager', () => {
   beforeEach(function () {
-    resourceNameManager = new ResourceNameManager(jsLogger({ enabled: false }));
+    exportManager = new ExportManager(jsLogger({ enabled: false }));
   });
   describe('#getResource', () => {
     it('return the resource of id 1', function () {
       // action
-      const resource = resourceNameManager.getResource();
+      const resource = exportManager.getResource();
 
       // expectation
       expect(resource.id).toBe(1);
@@ -21,7 +21,7 @@ describe('ResourceNameManager', () => {
   describe('#createResource', () => {
     it('return the resource of id 1', function () {
       // action
-      const resource = resourceNameManager.createResource({ description: 'meow', name: 'cat' });
+      const resource = exportManager.createResource({ description: 'meow', name: 'cat' });
 
       // expectation
       expect(resource.id).toBeLessThanOrEqual(100);

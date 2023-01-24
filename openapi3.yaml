@@ -1,53 +1,52 @@
 openapi: 3.0.1
 info:
-  title: service-name
-  description: basic template for map colonies service
+  title: 3d exporter trigger
+  description: Exporting 3d model to S3/NFS
   version: 1.0.0
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
 
 paths:
-  /anotherResource:
-    get:
-      operationId: getAnotherResource
-      tags:
-        - anotherResource
-      summary: gets the resource
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/anotherResource'
-  /resourceName:
-    get:
-      operationId: getResourceName
-      tags:
-        - resourceName
-      summary: gets the resource
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/resource'
+  # /anotherResource:
+  #   get:
+  #     operationId: getAnotherResource
+  #     tags:
+  #       - anotherResource
+  #     summary: gets the resource
+  #     responses:
+  #       200:
+  #         description: OK
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/anotherResource'
+  /export:
     post:
-      operationId: createResource
+      operationId: createModel
       tags:
-        - resourceName
-      summary: creates a new record of type resource
+        - export
+      summary: creates a new job and invokes a new model exporter flow
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/payload'
       responses:
         201:
           description: created
+          # content:
+          #   application/json:
+          #     schema:
+          #       $ref: '#/components/schemas/job'
+        400:
+          description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/resource'
-        400:
-          description: Bad Request
+                $ref: '#/components/schemas/error'
+        '5XX':
+          description: Unexpected Error
           content:
             application/json:
               schema:
@@ -61,27 +60,37 @@ components:
       properties:
         message:
           type: string
-    resource:
+    payload:
       type: object
+      description: 3d model payload
       required:
-        - id
-        - name
-        - description
+        - modelId
+        - modelPath
+        - tilesetFileName
+        - metadata
       properties:
-        id:
-          type: number
-          format: int64
-        name:
+        modelId:
           type: string
-        description:
+          description: Model identifier
+          example: 'a2234fdf'
+        modelPath:
           type: string
-    anotherResource:
+          description: Model files location path
+          example: '//domtest/mimi/archi/maz/silver/libot/NewYork'
+        tilesetFileName:
+          type: string
+          description: Model tileset filename
+          example: 'tileset.json'
+        metadata:
+          $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/payload'
+      additionalProperties: false
+    job:
       type: object
+      description: The job response
       required:
-        - kind
-        - isAlive
+        - message
       properties:
-        kind:
+        message:
           type: string
-        isAlive:
-          type: boolean
+          description: response
+          

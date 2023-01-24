@@ -4,11 +4,11 @@ import httpStatusCodes from 'http-status-codes';
 
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
-import { IResourceNameModel } from '../../../src/resourceName/models/resourceNameManager';
-import { ResourceNameRequestSender } from './helpers/requestSender';
+import { IExportModel } from '../../../src/export/models/exportManager';
+import { ExportRequestSender } from './helpers/requestSender';
 
-describe('resourceName', function () {
-  let requestSender: ResourceNameRequestSender;
+describe('export', function () {
+  let requestSender: ExportRequestSender;
   beforeEach(function () {
     const app = getApp({
       override: [
@@ -17,7 +17,7 @@ describe('resourceName', function () {
       ],
       useChild: true,
     });
-    requestSender = new ResourceNameRequestSender(app);
+    requestSender = new ExportRequestSender(app);
   });
 
   describe('Happy Path', function () {
@@ -26,7 +26,7 @@ describe('resourceName', function () {
 
       expect(response.status).toBe(httpStatusCodes.OK);
 
-      const resource = response.body as IResourceNameModel;
+      const resource = response.body as IExportModel;
       expect(response).toSatisfyApiSpec();
       expect(resource.id).toBe(1);
       expect(resource.name).toBe('ronin');

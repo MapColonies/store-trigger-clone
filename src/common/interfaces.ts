@@ -1,3 +1,7 @@
+import { Layer3DMetadata } from '@map-colonies/mc-model-types';
+import { ICreateJobBody, IJobResponse } from '@map-colonies/mc-priority-queue';
+import { Providers } from './enums';
+
 export interface IConfig {
   get: <T>(setting: string) => T;
   has: (setting: string) => boolean;
@@ -9,3 +13,54 @@ export interface OpenApiConfig {
   jsonPath: string;
   uiPath: string;
 }
+
+export interface Payload {
+  /**
+   * Ingestion model unique identifier
+   */
+  modelId: string;
+  /**
+   * Model files location path
+   */
+  modelPath: string;
+  /**
+   * Model tileset filename
+   */
+  tilesetFileName: string;
+  /**
+   * Metadata
+   */
+  metadata: Layer3DMetadata;
+}
+
+export interface IConfigProvider {
+  listFiles: (model: string) => Promise<string[]>;
+}
+
+export interface IExportConfig {
+  configProvider: Providers;
+}
+
+export interface IJobParameters {
+  metadata: Layer3DMetadata;
+}
+
+export interface ITaskParameters {
+  paths: string[];
+}
+
+export interface IS3Config {
+  accessKeyId: string;
+  secretAccessKey: string;
+  endpointUrl: string;
+  bucket: string;
+  sslEnabled: boolean;
+  forcePathStyle: boolean;
+}
+
+export interface IResponse {
+  
+}
+
+export type JobResponse = IJobResponse<IJobParameters, ITaskParameters>;
+export type CreateJobBody = ICreateJobBody<IJobParameters, ITaskParameters>;
