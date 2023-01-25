@@ -1,5 +1,5 @@
 import { Layer3DMetadata } from '@map-colonies/mc-model-types';
-import { ICreateJobBody, IJobResponse } from '@map-colonies/mc-priority-queue';
+import { ICreateJobBody, IJobResponse, OperationStatus } from '@map-colonies/mc-priority-queue';
 import { Providers } from './enums';
 
 export interface IConfig {
@@ -58,8 +58,22 @@ export interface IS3Config {
   forcePathStyle: boolean;
 }
 
-export interface IResponse {
-  
+export interface IFSConfig {
+  pvPath: string;
+}
+
+export interface IExportResponse {
+  jobID: string;
+  status: OperationStatus;
+}
+
+export interface IJobStatusResponse {
+  percentage: number;
+  status: OperationStatus;
+}
+
+export interface JobStatusParams {
+  jobID: string;
 }
 
 export type JobResponse = IJobResponse<IJobParameters, ITaskParameters>;

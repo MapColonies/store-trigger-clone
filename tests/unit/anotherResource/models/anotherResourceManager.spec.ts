@@ -1,16 +1,16 @@
 import jsLogger from '@map-colonies/js-logger';
-import { AnotherResourceManager } from '../../../../src/anotherResource/models/anotherResourceManager';
+import { JobStatusManager } from '../../../../src/jobStatus/models/jobStatusManager';
 
-let anotherResourceManager: AnotherResourceManager;
+let jobStatusManager: JobStatusManager;
 
 describe('ExportManager', () => {
   beforeEach(function () {
-    anotherResourceManager = new AnotherResourceManager(jsLogger({ enabled: false }));
+    jobStatusManager = new JobStatusManager(jsLogger({ enabled: false }));
   });
   describe('#getResource', () => {
     it('should return resource of kind avi', function () {
       // action
-      const resource = anotherResourceManager.getResource();
+      const resource = jobStatusManager.getResource();
 
       // expectation
       expect(resource.kind).toBe('avi');

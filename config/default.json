@@ -33,6 +33,9 @@
     "forcePathStyle": true,
     "sslEnabled": false
   },
+  "FS": {
+    "pvPath": "/home/netanel/3DModels"
+  },
   "exporter": {
     "configProvider": "S3",
     "batches": 2

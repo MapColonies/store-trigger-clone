@@ -3,11 +3,11 @@ import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
-import { IAnotherResourceModel } from '../../../src/anotherResource/models/anotherResourceManager';
-import { AnotherResourceRequestSender } from './helpers/requestSender';
+import { IJobStatusModel } from '../../../src/jobStatus/models/jobStatusManager';
+import { JobStatusRequestSender } from './helpers/requestSender';
 
 describe('export', function () {
-  let requestSender: AnotherResourceRequestSender;
+  let requestSender: JobStatusRequestSender;
   beforeEach(function () {
     const app = getApp({
       override: [
@@ -16,7 +16,7 @@ describe('export', function () {
       ],
       useChild: true,
     });
-    requestSender = new AnotherResourceRequestSender(app);
+    requestSender = new JobStatusRequestSender(app);
   });
 
   describe('Happy Path', function () {
@@ -26,7 +26,7 @@ describe('export', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
       expect(response).toSatisfyApiSpec();
 
-      const resource = response.body as IAnotherResourceModel;
+      const resource = response.body as IJobStatusModel;
       expect(resource.kind).toBe('avi');
       expect(resource.isAlive).toBe(false);
     });

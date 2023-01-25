@@ -10,7 +10,8 @@ import httpLogger from '@map-colonies/express-access-log-middleware';
 import { SERVICES } from './common/constants';
 import { IConfig } from './common/interfaces';
 import { EXPORT_ROUTER_SYMBOL } from './export/routes/exportRouter';
-import { ANOTHER_RESOURECE_ROUTER_SYMBOL } from './anotherResource/routes/anotherResourceRouter';
+import { JOB_STATUS_ROUTER_SYMBOL } from './jobStatus/routes/jobStatusRouter';
+import { handleError } from './common/handleError';
 
 @injectable()
 export class ServerBuilder {
@@ -20,7 +21,7 @@ export class ServerBuilder {
     @inject(SERVICES.CONFIG) private readonly config: IConfig,
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(EXPORT_ROUTER_SYMBOL) private readonly exportRouter: Router,
-    @inject(ANOTHER_RESOURECE_ROUTER_SYMBOL) private readonly anotherResourceRouter: Router
+    @inject(JOB_STATUS_ROUTER_SYMBOL) private readonly jobStatusRouter: Router
   ) {
     this.serverInstance = express();
   }
@@ -41,7 +42,7 @@ export class ServerBuilder {
 
   private buildRoutes(): void {
     this.serverInstance.use('/export', this.exportRouter);
-    this.serverInstance.use('/anotherResource', this.anotherResourceRouter);
+    this.serverInstance.use('/jobStatus', this.jobStatusRouter);
     this.buildDocsRoutes();
   }
 
@@ -61,5 +62,6 @@ export class ServerBuilder {
 
   private registerPostRoutesMiddleware(): void {
     this.serverInstance.use(getErrorHandlerMiddleware());
+    this.serverInstance.use(handleError);
   }
 }

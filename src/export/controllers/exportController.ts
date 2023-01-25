@@ -1,14 +1,12 @@
 import { Logger } from '@map-colonies/js-logger';
-import { Meter } from '@map-colonies/telemetry';
-import { BoundCounter } from '@opentelemetry/api-metrics';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
-import { IResponse, Payload } from '../../common/interfaces';
+import { IExportResponse, Payload } from '../../common/interfaces';
 import { ExportManager } from '../models/exportManager';
 
-type CreateResourceHandler = RequestHandler<undefined, IResponse, Payload>;
+type CreateResourceHandler = RequestHandler<undefined, IExportResponse, Payload>;
 
 @injectable()
 export class ExportController {
@@ -16,7 +14,6 @@ export class ExportController {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(ExportManager) private readonly manager: ExportManager,
-    @inject(SERVICES.METER) private readonly meter: Meter
   ) {}
 
   public create: CreateResourceHandler = (req, res, next) => {

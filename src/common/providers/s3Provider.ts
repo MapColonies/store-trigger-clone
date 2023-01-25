@@ -29,8 +29,7 @@ export class S3Provider implements IConfigProvider {
   }
 
   public async listFiles(model: string): Promise<string[]> {
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    const modelName = model.split('/').slice(-1)[0] + '/';
+    const modelName = model + '/';
   
     const params: ListObjectsRequest = {
       Bucket: this.s3Config.bucket,
