@@ -16,12 +16,12 @@ export class ExportController {
     @inject(ExportManager) private readonly manager: ExportManager,
   ) {}
 
-  public create: CreateResourceHandler = (req, res, next) => {
+  public create: CreateResourceHandler = async (req, res, next) => {
     const userInput: Payload = req.body;
     try {
       const jobCreated = this.manager.createModel(userInput);
       this.logger.debug(`User input: ${JSON.stringify(userInput)}`);
-      return res.status(httpStatus.CREATED).json(jobCreated);
+      return res.status(httpStatus.CREATED).json(await jobCreated);
     } catch (err) {
       next(err);
     }

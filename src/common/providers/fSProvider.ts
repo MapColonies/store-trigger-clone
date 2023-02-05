@@ -19,7 +19,7 @@ export class FSProvider implements IConfigProvider {
   public async listFiles(model: string): Promise<string[]> {
   
     if (!fs.existsSync(`${this.config.pvPath}/${model}`)) {
-      throw new AppError('', httpStatus.BAD_REQUEST, `Model ${model} doesn't exists in the agreed folder`, false);
+      throw new AppError('', httpStatus.BAD_REQUEST, `Model ${model} doesn't exists in the agreed folder`, true);
     }
   
     const folders: string[] = [model];
@@ -40,8 +40,5 @@ export class FSProvider implements IConfigProvider {
     }
   
     return files;
-
-    
-    // return count;
   }
 }

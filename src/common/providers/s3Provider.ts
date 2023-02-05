@@ -57,7 +57,7 @@ export class S3Provider implements IConfigProvider {
     }
   
     if (files.length == 0) {
-      throw new AppError('', httpStatus.BAD_REQUEST, `Model ${modelName} doesn't exists in bucket ${this.s3Config.bucket}!`, false);
+      throw new AppError('', httpStatus.BAD_REQUEST, `Model ${modelName} doesn't exists in bucket ${this.s3Config.bucket}!`, true);
     }
     
     return files;
@@ -67,7 +67,7 @@ export class S3Provider implements IConfigProvider {
     const data = await this.s3.send(new ListObjectsCommand(params));
   
     if (data.$metadata.httpStatusCode != httpStatus.OK) {
-      throw new Error("Didn't get status code 200 when tried to read the model in S3 ");
+      throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't get status code 200 when tried to read the model in S3`, false);
     }
     if (data.Contents) {
       keysList = keysList.concat(data.Contents.map((item) => (item.Key != undefined ? item.Key : '')));

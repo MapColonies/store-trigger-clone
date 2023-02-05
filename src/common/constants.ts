@@ -15,6 +15,5 @@ export const SERVICES: Record<string, symbol> = {
   CONFIGPROVIDER: Symbol('ConfigProvider'),
   FS: Symbol('FS'),
   S3: Symbol('S3'),
-  // PG: Symbol('PG'),
 };
 /* eslint-enable @typescript-eslint/naming-convention */
