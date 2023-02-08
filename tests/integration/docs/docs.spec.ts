@@ -4,7 +4,7 @@ import httpStatusCodes from 'http-status-codes';
 
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
-import { IExportModel } from '../../../src/export/models/exportManager';
+import { IIngestionModel } from '../../../src/export/models/exportManager';
 import { DocsRequestSender } from './helpers/docsRequestSender';
 
 describe('export', function () {

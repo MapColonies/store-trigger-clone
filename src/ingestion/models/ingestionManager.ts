@@ -3,11 +3,11 @@ import { ICreateTaskBody, OperationStatus } from '@map-colonies/mc-priority-queu
 import { inject, injectable } from 'tsyringe';
 import { JobManagerWrapper } from '../../clients/jobManagerWrapper';
 import { SERVICES } from '../../common/constants';
-import { CreateJobBody, IConfig, IConfigProvider, IExportResponse, ITaskParameters, Payload } from '../../common/interfaces';
+import { CreateJobBody, IConfig, IConfigProvider, IIngestionResponse, ITaskParameters, Payload } from '../../common/interfaces';
 import { filesToTasks } from '../../common/utilities';
 
 @injectable()
-export class ExportManager {
+export class IngestionManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(SERVICES.CONFIG) private readonly config: IConfig,
@@ -15,29 +15,33 @@ export class ExportManager {
     @inject(SERVICES.CONFIGPROVIDER) private readonly configProvider: IConfigProvider
     ) {}
 
-  public async createModel(payload: Payload): Promise<IExportResponse> {
+  public async createModel(payload: Payload): Promise<IIngestionResponse> {
 
-    this.logger.info({ msg: 'creating tasks', path: payload.modelPath });
-    
+    this.logger.info({ msg: 'creating tasks', path: payload.modelPath, provider: this.config.get<string>('ingestion.configProvider') });
+  
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     const modelName: string = payload.modelPath.split('/').slice(-1)[0];
-    const files: string[] = await this.configProvider.listFiles(modelName);
-    const type = payload.metadata.type ?? 'unknown3D';
-
+    
     const createJobRequest: CreateJobBody = {
       resourceId: payload.modelId,
       version: '1',
-      type: type,
+      type: 'Ingestion_New',
       parameters: { metadata: payload.metadata },
       productType: payload.metadata.productType,
       productName: payload.metadata.productName,
       percentage: 0,
       producerName: payload.metadata.producerName,
       status: OperationStatus.IN_PROGRESS,
+      domain: '3D'
     }
-
-    const res: IExportResponse = await this.jobManagerClient.create(createJobRequest, files);
-
-    return res;
+    try {
+      const files: string[] = await this.configProvider.listFiles(modelName);
+      const res: IIngestionResponse = await this.jobManagerClient.create(createJobRequest, files);
+      this.logger.info({ msg: "Tasks created successfuly" });
+      return res;
+    } catch(error) {
+      this.logger.error({ msg: "Failed in creating tasks" });
+      throw error;
+    }
   }
 }

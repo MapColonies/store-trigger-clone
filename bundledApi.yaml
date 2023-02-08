@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
-  title: 3d exporter trigger
-  description: Exporting 3d model to S3/NFS
+  title: 3D ingestion trigger
+  description: Ingesting 3D model to S3/NFS
   version: 1.0.0
   license:
     name: MIT
@@ -28,12 +28,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /export:
+  /ingestion:
     post:
       operationId: createModel
       tags:
-        - export
-      summary: creates a new job and invokes a new model exporter flow
+        - ingestion
+      summary: creates a new job and invokes a new model ingestion flow
       requestBody:
         content:
           application/json:

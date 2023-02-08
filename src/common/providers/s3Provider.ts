@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { container } from 'tsyringe';
-import { ListObjectsCommand, ListObjectsRequest, S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
+import { ListObjectsCommand, ListObjectsRequest, S3Client, S3ClientConfig, S3ServiceException } from '@aws-sdk/client-s3';
 import { Logger } from '@map-colonies/js-logger';
 import httpStatus from 'http-status-codes';
 import { IConfigProvider, IS3Config } from '../interfaces';
@@ -64,23 +64,29 @@ export class S3Provider implements IConfigProvider {
   }
 
   private async listOneLevelS3(params: ListObjectsRequest, keysList: string[]): Promise<string[]> {
-    const data = await this.s3.send(new ListObjectsCommand(params));
-  
-    if (data.$metadata.httpStatusCode != httpStatus.OK) {
-      throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't get status code 200 when tried to read the model in S3`, false);
+    try {
+
+      const data = await this.s3.send(new ListObjectsCommand(params));
+    
+      if (data.Contents) {
+        keysList = keysList.concat(data.Contents.map((item) => (item.Key != undefined ? item.Key : '')));
+      }
+    
+      if (data.CommonPrefixes) {
+        keysList = keysList.concat(data.CommonPrefixes.map((item) => (item.Prefix != undefined ? item.Prefix : '')));
+      }
+    
+      if (data.IsTruncated == true) {
+        params.Marker = data.NextMarker;
+        await this.listOneLevelS3(params, keysList);
+      }
+      return keysList;
+    } catch (e) {
+        if (e instanceof S3ServiceException) {
+            throw new AppError('', e.$metadata.httpStatusCode ?? httpStatus.INTERNAL_SERVER_ERROR, `${e.name}, message: ${e.message}, bucket: ${this.s3Config.bucket}}`, false);
+        }
+        this.logger.error({msg: e});
+        throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, "Didn't throw a S3 exception in listing files", false);
     }
-    if (data.Contents) {
-      keysList = keysList.concat(data.Contents.map((item) => (item.Key != undefined ? item.Key : '')));
-    }
-  
-    if (data.CommonPrefixes) {
-      keysList = keysList.concat(data.CommonPrefixes.map((item) => (item.Prefix != undefined ? item.Prefix : '')));
-    }
-  
-    if (data.IsTruncated == true) {
-      params.Marker = data.NextMarker;
-      await this.listOneLevelS3(params, keysList);
-    }
-    return keysList;
   }
 }

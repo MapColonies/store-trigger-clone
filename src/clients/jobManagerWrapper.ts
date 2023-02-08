@@ -1,31 +1,15 @@
 import { inject, injectable } from 'tsyringe';
 import config from 'config';
 import { Logger } from '@map-colonies/js-logger';
-import booleanEqual from '@turf/boolean-equal';
-import bboxPolygon from '@turf/bbox-polygon';
 import { ICreateTaskBody, JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
-import { getUTCDate } from '@map-colonies/mc-utils';
 import { SERVICES } from '../common/constants';
 import {
   CreateJobBody,
   IJobParameters,
-  IExportResponse,
+  IIngestionResponse,
   ITaskParameters,
-  JobResponse,
 } from '../common/interfaces';
 import { filesToTasks } from '../common/utilities';
-//this is the job manager api for find job DO NOT MODIFY
-interface IFindJob {
-  resourceId?: string;
-  version?: string;
-  isCleaned?: string;
-  status?: string;
-  type?: string;
-  shouldReturnTasks?: string;
-  fromDate?: Date;
-  tillData?: Date;
-  productType?: string;
-}
 
 @injectable()
 export class JobManagerWrapper extends JobManagerClient {
@@ -47,7 +31,7 @@ export class JobManagerWrapper extends JobManagerClient {
     // this.jobDomain = config.get<string>('jobManager.jobDomain');
   }
 
-  public async create(job: CreateJobBody,files: string[]): Promise<IExportResponse> {
+  public async create(job: CreateJobBody,files: string[]): Promise<IIngestionResponse> {
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + this.expirationDays);
     job.expirationDate = expirationDate;
@@ -56,7 +40,7 @@ export class JobManagerWrapper extends JobManagerClient {
 
     const jobResponse = await this.createJob<IJobParameters, ITaskParameters>(job);
     
-    const res: IExportResponse = {
+    const res: IIngestionResponse = {
       jobID: jobResponse.id,
       status: OperationStatus.IN_PROGRESS
     }

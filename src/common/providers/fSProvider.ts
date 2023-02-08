@@ -23,7 +23,7 @@ export class FSProvider implements IConfigProvider {
     }
   
     const folders: string[] = [model];
-    const files: string[] = [model];
+    const files: string[] = [];
   
     while (folders.length > 0) {
       await Promise.all(fs.readdirSync(`${this.config.pvPath}/${folders[0]}`)

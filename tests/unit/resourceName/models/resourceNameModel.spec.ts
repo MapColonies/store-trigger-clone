@@ -1,11 +1,11 @@
 import jsLogger from '@map-colonies/js-logger';
-import { ExportManager } from '../../../../src/export/models/exportManager';
+import { IngestionManager } from '../../../../src/export/models/exportManager';
 
-let exportManager: ExportManager;
+let exportManager: IngestionManager;
 
-describe('ExportManager', () => {
+describe('IngestionManager', () => {
   beforeEach(function () {
-    exportManager = new ExportManager(jsLogger({ enabled: false }));
+    exportManager = new IngestionManager(jsLogger({ enabled: false }));
   });
   describe('#getResource', () => {
     it('return the resource of id 1', function () {

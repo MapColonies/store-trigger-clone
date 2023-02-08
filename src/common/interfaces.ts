@@ -37,7 +37,7 @@ export interface IConfigProvider {
   listFiles: (model: string) => Promise<string[]>;
 }
 
-export interface IExportConfig {
+export interface IIngestionConfig {
   configProvider: Providers;
 }
 
@@ -62,7 +62,7 @@ export interface IFSConfig {
   pvPath: string;
 }
 
-export interface IExportResponse {
+export interface IIngestionResponse {
   jobID: string;
   status: OperationStatus;
 }

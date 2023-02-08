@@ -6,10 +6,10 @@ import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { Metrics } from '@map-colonies/telemetry';
 import { SERVICES, SERVICE_NAME } from './common/constants';
 import { tracing } from './common/tracing';
-import { exportRouterFactory, EXPORT_ROUTER_SYMBOL } from './export/routes/exportRouter';
+import { ingestionRouterFactory, INGESTION_ROUTER_SYMBOL } from './ingestion/routes/ingestionRouter';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 import { jobStatusRouterFactory, JOB_STATUS_ROUTER_SYMBOL } from './jobStatus/routes/jobStatusRouter';
-import { IConfigProvider, IExportConfig, IFSConfig, IS3Config } from './common/interfaces';
+import { IConfigProvider, IIngestionConfig, IFSConfig, IS3Config } from './common/interfaces';
 import { getProvider } from './getProvider';
 
 export interface RegisterOptions {
@@ -21,7 +21,7 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
   const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
   const fsConfig = config.get<IFSConfig>('FS');
   const s3Config = config.get<IS3Config>('S3');
-  const exportConfig = config.get<IExportConfig>('exporter');
+  const ingestionConfig = config.get<IIngestionConfig>('ingestion');
   // @ts-expect-error the signature is wrong
   const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, hooks: { logMethod } });
 
@@ -36,7 +36,7 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
     { token: SERVICES.LOGGER, provider: { useValue: logger } },
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
     { token: SERVICES.METER, provider: { useValue: meter } },
-    { token: EXPORT_ROUTER_SYMBOL, provider: { useFactory: exportRouterFactory } },
+    { token: INGESTION_ROUTER_SYMBOL, provider: { useFactory: ingestionRouterFactory } },
     { token: JOB_STATUS_ROUTER_SYMBOL, provider: { useFactory: jobStatusRouterFactory } },
     { token: SERVICES.FS, provider: { useValue: fsConfig } },
     { token: SERVICES.S3, provider: { useValue: s3Config } },
@@ -44,7 +44,7 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
       token: SERVICES.CONFIGPROVIDER,
       provider: {
         useFactory: (): IConfigProvider => {
-          return getProvider(exportConfig.configProvider);
+          return getProvider(ingestionConfig.configProvider);
         },
       },
     },

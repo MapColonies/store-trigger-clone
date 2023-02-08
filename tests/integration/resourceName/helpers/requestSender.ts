@@ -1,6 +1,6 @@
 import * as supertest from 'supertest';
 
-export class ExportRequestSender {
+export class IngestionRequestSender {
   public constructor(private readonly app: Express.Application) {}
 
   public async getResource(): Promise<supertest.Response> {

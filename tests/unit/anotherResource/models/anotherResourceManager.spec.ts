@@ -3,7 +3,7 @@ import { JobStatusManager } from '../../../../src/jobStatus/models/jobStatusMana
 
 let jobStatusManager: JobStatusManager;
 
-describe('ExportManager', () => {
+describe('IngestionManager', () => {
   beforeEach(function () {
     jobStatusManager = new JobStatusManager(jsLogger({ enabled: false }));
   });

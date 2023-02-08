@@ -12,7 +12,7 @@
     }
   },
   "server": {
-    "port": "8084",
+    "port": "8083",
     "request": {
       "payload": {
         "limit": "1mb"
@@ -36,9 +36,9 @@
   "FS": {
     "pvPath": "/home/netanel/3DModels"
   },
-  "exporter": {
+  "ingestion": {
     "configProvider": "S3",
-    "batches": 2
+    "batches": 100
   },
   "jobManager": {
     "url": "http://127.0.0.1:8080",
