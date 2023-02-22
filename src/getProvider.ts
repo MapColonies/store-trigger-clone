@@ -13,6 +13,11 @@ export const getProvider = (provider: string): IConfigProvider => {
     case 's3':
       return new S3Provider();
     default:
-      throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Invalid config provider received: ${provider} - available values:  "fs" or "s3"`, false);
+      throw new AppError(
+        '',
+        httpStatus.INTERNAL_SERVER_ERROR,
+        `Invalid config provider received: ${provider} - available values:  "fs" or "s3"`,
+        false
+      );
   }
 };

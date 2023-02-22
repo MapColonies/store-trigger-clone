@@ -11,7 +11,7 @@ import { IJobParameters, IJobStatusResponse, ITaskParameters } from '../../commo
 export class JobStatusManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(JobManagerWrapper) private readonly jobManagerClient: JobManagerWrapper,
+    @inject(JobManagerWrapper) private readonly jobManagerClient: JobManagerWrapper
   ) {}
 
   public async checkStatus(jobID: string): Promise<IJobStatusResponse> {
@@ -22,7 +22,7 @@ export class JobStatusManager {
     }
     const jobResponse: IJobStatusResponse = {
       percentage: job.percentage,
-      status: job.status
+      status: job.status,
     };
     return jobResponse;
   }

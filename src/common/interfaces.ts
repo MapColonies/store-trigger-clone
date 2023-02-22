@@ -26,7 +26,7 @@ export interface Payload {
   /**
    * Model tileset filename
    */
-  tilesetFileName: string;
+  tilesetFilename: string;
   /**
    * Metadata
    */
@@ -47,6 +47,7 @@ export interface IJobParameters {
 
 export interface ITaskParameters {
   paths: string[];
+  modelId: string;
 }
 
 export interface IS3Config {

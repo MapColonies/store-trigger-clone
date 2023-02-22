@@ -11,10 +11,9 @@ type CreateResourceHandler = RequestHandler<undefined, IIngestionResponse, Paylo
 
 @injectable()
 export class IngestionController {
-
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(IngestionManager) private readonly manager: IngestionManager,
+    @inject(IngestionManager) private readonly manager: IngestionManager
   ) {}
 
   public create: CreateResourceHandler = async (req, res, next) => {

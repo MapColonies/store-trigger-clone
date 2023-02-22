@@ -23,23 +23,23 @@ export class S3Provider implements IConfigProvider {
         accessKeyId: this.s3Config.accessKeyId,
         secretAccessKey: this.s3Config.secretAccessKey,
       },
-    }
+    };
 
     this.s3 = new S3Client(s3ClientConfig);
   }
 
   public async listFiles(model: string): Promise<string[]> {
     const modelName = model + '/';
-  
+
     const params: ListObjectsRequest = {
       Bucket: this.s3Config.bucket,
       Delimiter: '/',
       Prefix: modelName,
     };
-  
+
     const folders: string[] = [modelName];
     const files: string[] = [];
-  
+
     while (folders.length > 0) {
       params.Prefix = folders[0];
       await Promise.all(
@@ -55,38 +55,42 @@ export class S3Provider implements IConfigProvider {
       );
       folders.shift();
     }
-  
+
     if (files.length == 0) {
       throw new AppError('', httpStatus.BAD_REQUEST, `Model ${modelName} doesn't exists in bucket ${this.s3Config.bucket}!`, true);
     }
-    
+
     return files;
   }
 
   private async listOneLevelS3(params: ListObjectsRequest, keysList: string[]): Promise<string[]> {
     try {
-
       const data = await this.s3.send(new ListObjectsCommand(params));
-    
+
       if (data.Contents) {
         keysList = keysList.concat(data.Contents.map((item) => (item.Key != undefined ? item.Key : '')));
       }
-    
+
       if (data.CommonPrefixes) {
         keysList = keysList.concat(data.CommonPrefixes.map((item) => (item.Prefix != undefined ? item.Prefix : '')));
       }
-    
+
       if (data.IsTruncated == true) {
         params.Marker = data.NextMarker;
         await this.listOneLevelS3(params, keysList);
       }
       return keysList;
     } catch (e) {
-        if (e instanceof S3ServiceException) {
-            throw new AppError('', e.$metadata.httpStatusCode ?? httpStatus.INTERNAL_SERVER_ERROR, `${e.name}, message: ${e.message}, bucket: ${this.s3Config.bucket}}`, false);
-        }
-        this.logger.error({msg: e});
-        throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, "Didn't throw a S3 exception in listing files", false);
+      if (e instanceof S3ServiceException) {
+        throw new AppError(
+          '',
+          e.$metadata.httpStatusCode ?? httpStatus.INTERNAL_SERVER_ERROR,
+          `${e.name}, message: ${e.message}, bucket: ${this.s3Config.bucket}}`,
+          false
+        );
+      }
+      this.logger.error({ msg: e });
+      throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, "Didn't throw a S3 exception in listing files", false);
     }
   }
 }

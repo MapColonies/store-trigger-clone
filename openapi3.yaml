@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
-  title: 3d ingestion trigger
-  description: Ingesting 3d model to S3/NFS
+  title: 3d store-sync
+  description: Ingesting and exporting 3d model to S3/NFS
   version: 1.0.0
   license:
     name: MIT
@@ -122,4 +122,3 @@ components:
             - Failed
             - Expired
             - Aborted
-          

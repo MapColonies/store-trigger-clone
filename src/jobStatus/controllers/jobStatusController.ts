@@ -10,10 +10,9 @@ type GetResourceHandler = RequestHandler<JobStatusParams, IJobStatusResponse>;
 
 @injectable()
 export class JobStatusController {
-
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(JobStatusManager) private readonly manager: JobStatusManager,
+    @inject(JobStatusManager) private readonly manager: JobStatusManager
   ) {}
 
   public checkStatus: GetResourceHandler = async (req, res) => {

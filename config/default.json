@@ -12,7 +12,7 @@
     }
   },
   "server": {
-    "port": "8083",
+    "port": "8081",
     "request": {
       "payload": {
         "limit": "1mb"
@@ -31,7 +31,8 @@
     "endpointUrl": "http://127.0.0.1:9000",
     "bucket": "3dtiles",
     "forcePathStyle": true,
-    "sslEnabled": false
+    "sslEnabled": false,
+    "maxAttempts": 3
   },
   "FS": {
     "pvPath": "/home/netanel/3DModels"
