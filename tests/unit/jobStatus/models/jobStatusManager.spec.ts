@@ -29,27 +29,21 @@ describe('jobStatusManager', () => {
       };
       jobsManagerMock.getJob.mockResolvedValue(jobResponse);
 
-      const created: IJobStatusResponse = await jobStatusManager.checkStatus(jobId);
-
-      expect(created).toStrictEqual(jobResponse);
+      await expect(jobStatusManager.checkStatus(jobId)).resolves.toStrictEqual(jobResponse);
     });
 
     it(`rejects if job id doesn't exists`, async function () {
       const jobId = createUuid();
       jobsManagerMock.getJob.mockResolvedValue(undefined);
 
-      const created: IJobStatusResponse = await jobStatusManager.checkStatus(jobId);
-
-      await expect(created).rejects.toThrow(new AppError('', httpStatus.NOT_FOUND, 'The Job ID is not exists!', true));
+      await expect(jobStatusManager.checkStatus(jobId)).rejects.toThrow(new AppError('', httpStatus.NOT_FOUND, 'The Job ID is not exists!', true));
     });
 
     it('rejects if jobManager fails', async () => {
       const jobId = createUuid();
       jobsManagerMock.getJob.mockRejectedValue(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, '', false));
 
-      const created = await jobStatusManager.checkStatus(jobId);
-
-      await expect(created).rejects.toThrow(AppError);
+      await expect(jobStatusManager.checkStatus(jobId)).rejects.toThrow(AppError);
     });
   });
 });

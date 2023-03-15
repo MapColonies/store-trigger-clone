@@ -38,12 +38,12 @@
     "pvPath": "/home/netanel/3DModels"
   },
   "ingestion": {
-    "configProvider": "S3",
-    "batches": 100
+    "configProvider": "FS",
+    "batches": 100,
+    "queueFile": "./tempFilesNames.txt"
   },
   "jobManager": {
-    "url": "http://127.0.0.1:8080",
-    "expirationDays": 30
+    "url": "http://127.0.0.1:8080"
   },
   "worker": {
     "jobType": "3D",

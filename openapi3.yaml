@@ -83,7 +83,7 @@ components:
       required:
         - modelId
         - modelPath
-        - tilesetFileName
+        - tilesetFilename
         - metadata
       properties:
         modelId:
@@ -94,7 +94,7 @@ components:
           type: string
           description: Model files location path
           example: '//domtest/mimi/archi/maz/silver/libot/NewYork'
-        tilesetFileName:
+        tilesetFilename:
           type: string
           description: Model tileset filename
           example: 'tileset.json'

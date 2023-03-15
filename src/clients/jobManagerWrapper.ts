@@ -17,9 +17,9 @@ export class JobManagerWrapper extends JobManagerClient {
     this.tilesTaskType = config.get<string>('worker.taskType');
   }
 
-  public async create(job: CreateJobBody, files: string[], modelId: string): Promise<IIngestionResponse> {
+  public async create(job: CreateJobBody): Promise<IIngestionResponse> {
     const batchSize: number = config.get<number>('ingestion.batches');
-    const tasks: ICreateTaskBody<ITaskParameters>[] = filesToTasks(files, batchSize, this.tilesTaskType, modelId, []);
+    const tasks: ICreateTaskBody<ITaskParameters>[] = filesToTasks(batchSize, this.tilesTaskType, job.resourceId);
     job.tasks = tasks;
 
     const jobResponse = await this.createJob<IJobParameters, ITaskParameters>(job);

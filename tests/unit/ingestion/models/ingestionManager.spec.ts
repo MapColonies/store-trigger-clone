@@ -18,51 +18,38 @@ describe('ingestionManager', () => {
   };
 
   beforeEach(() => {
-    ingestionManager = new IngestionManager(
-      jsLogger({ enabled: false }), 
-      config as never, 
-      jobsManagerMock as never, 
-      configProviderMock as never
-    );
+    ingestionManager = new IngestionManager(jsLogger({ enabled: false }), config as never, jobsManagerMock as never, configProviderMock as never);
   });
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   describe('#createModel', () => {
+    const payload: Payload = createPayload('model1');
     it('resolves without errors', async () => {
-      const payload: Payload = createPayload('model1');
-      const files = ['a.txt', 'b.txt'];
       const response: IIngestionResponse = {
         jobID: createUuid(),
         status: OperationStatus.IN_PROGRESS,
       };
-      configProviderMock.listFiles.mockResolvedValue(files);
+      configProviderMock.listFiles.mockResolvedValue(undefined);
       jobsManagerMock.create.mockResolvedValue(response);
 
-      const created = await ingestionManager.createModel(payload);
-
-      expect(created).toMatchObject(response);
+      await expect(ingestionManager.createModel(payload)).resolves.toMatchObject(response);
     });
 
     it('rejects if listFiles fails', async () => {
       const payload: Payload = createPayload('model1');
       configProviderMock.listFiles.mockRejectedValue(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, '', false));
 
-      const created = await ingestionManager.createModel(payload);
-
-      expect(created).toThrow(AppError);
+      await expect(ingestionManager.createModel(payload)).rejects.toThrow(AppError);
     });
 
     it('rejects if jobManager fails', async () => {
       const payload: Payload = createPayload('model1');
-      const files = ['a.txt', 'b.txt'];
-      configProviderMock.listFiles.mockResolvedValue(files);
+      configProviderMock.listFiles.mockResolvedValue(undefined);
       jobsManagerMock.create.mockRejectedValue(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, '', false));
 
-      const created = await ingestionManager.createModel(payload);
-
-      expect(created).toThrow(AppError);
+      await expect(ingestionManager.createModel(payload)).rejects.toThrow(AppError);
     });
   });
 });

@@ -6,7 +6,7 @@ import { Polygon } from 'geojson';
 import { Layer3DMetadata, ProductType, RecordStatus, RecordType } from '@map-colonies/mc-model-types';
 import jsLogger from '@map-colonies/js-logger';
 import { OperationStatus } from '@map-colonies/mc-priority-queue';
-import { CreateJobBody, Payload } from '../../src/common/interfaces';
+import { CreateJobBody, IJobParameters, Payload } from '../../src/common/interfaces';
 import { RegisterOptions } from '../../src/containerConfig';
 import { SERVICES } from '../../src/common/constants';
 
@@ -106,7 +106,7 @@ export const createJobPayload = (payload: Payload): CreateJobBody => {
     resourceId: payload.modelId,
     version: '1',
     type: 'Ingestion_New',
-    parameters: { metadata: payload.metadata },
+    parameters: createJobParameters(),
     productType: payload.metadata.productType,
     productName: payload.metadata.productName,
     percentage: 0,
@@ -121,7 +121,7 @@ export const createTaskPayload = (payload: Payload): CreateJobBody => {
     resourceId: payload.modelId,
     version: '1',
     type: 'Ingestion_New',
-    parameters: { metadata: payload.metadata },
+    parameters: createJobParameters(),
     productType: payload.metadata.productType,
     productName: payload.metadata.productName,
     percentage: 0,
@@ -130,3 +130,11 @@ export const createTaskPayload = (payload: Payload): CreateJobBody => {
     domain: '3D',
   };
 };
+
+export const createJobParameters = (): IJobParameters => {
+  return {
+    metadata: createMetadata(),
+    modelId: createUuid(),
+    tilesetFilename: 'tileset.json'
+  }
+}

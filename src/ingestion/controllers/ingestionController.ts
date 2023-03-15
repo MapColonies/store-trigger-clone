@@ -26,7 +26,7 @@ export class IngestionController {
       if (error instanceof AppError) {
         this.logger.error({ msg: `Failed in ingesting a new model! Reason: ${error.message}` });
       }
-      next(error);
+      return next(error);
     }
   };
 }

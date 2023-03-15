@@ -1,8 +1,10 @@
+import fs from 'fs';
+import config from 'config';
 import jsLogger from '@map-colonies/js-logger';
 import { ICreateTaskBody, OperationStatus } from '@map-colonies/mc-priority-queue';
 import { JobManagerWrapper } from '../../../src/clients/jobManagerWrapper';
-import { CreateJobBody, IIngestionResponse, ITaskParameters } from '../../../src/common/interfaces';
-import { createMetadata, createUuid } from '../../helpers/helpers';
+import { CreateJobBody, ITaskParameters } from '../../../src/common/interfaces';
+import { createJobParameters, createMetadata, createUuid } from '../../helpers/helpers';
 
 describe('jobManagerWrapper', () => {
   let jobManagerWrapper: JobManagerWrapper;
@@ -22,8 +24,9 @@ describe('jobManagerWrapper', () => {
   });
 
   describe('create tests', () => {
+    const queueFile = config.get<string>('ingestion.queueFile');
+
     it(`should return the ingestion's response`, async () => {
-      const files = ['a'];
       const modelId = createUuid();
       const tasks: ICreateTaskBody<ITaskParameters>[] = [
         {
@@ -32,23 +35,20 @@ describe('jobManagerWrapper', () => {
       ];
       const job: CreateJobBody = {
         tasks: tasks,
-        resourceId: 'bla',
+        resourceId: modelId,
         version: 's',
         type: 'bla',
-        parameters: {
-          metadata: createMetadata(),
-        },
-      };
-      const res: IIngestionResponse = {
-        jobID: '12',
-        status: OperationStatus.IN_PROGRESS,
+        parameters: createJobParameters(),
       };
       utilitiesMock.filesToTasks.mockReturnValue(tasks);
       jobsManagerMock.createJob.mockResolvedValue(job);
+      fs.writeFileSync(queueFile, 'a\nf', { encoding: 'utf8', flag: 'w' });
 
-      const created = await jobManagerWrapper.create(job, files, modelId);
+      const created = await jobManagerWrapper.create(job);
 
-      expect(created).toMatchObject(res);
+      expect(created).toHaveProperty('jobID');
+      expect(created).toHaveProperty('status');
+      expect(created.status).toBe(OperationStatus.IN_PROGRESS);
     });
   });
 });

@@ -6,6 +6,7 @@ import config from 'config';
 import { SERVICES } from '../constants';
 import { IConfigProvider, IFSConfig } from '../interfaces';
 import { AppError } from '../appError';
+import { writeFileNameToQueueFile } from '../utilities';
 
 export class FSProvider implements IConfigProvider {
   private readonly logger: Logger;
@@ -16,13 +17,13 @@ export class FSProvider implements IConfigProvider {
     this.config = config.get<IFSConfig>('FS');
   }
 
-  public async listFiles(model: string): Promise<string[]> {
+  public async listFiles(model: string): Promise<void> {
     if (!fs.existsSync(`${this.config.pvPath}/${model}`)) {
       throw new AppError('', httpStatus.BAD_REQUEST, `Model ${model} doesn't exists in the agreed folder`, true);
     }
 
     const folders: string[] = [model];
-    const files: string[] = [];
+    // const files: string[] = [];
 
     while (folders.length > 0) {
       await Promise.all(
@@ -30,14 +31,17 @@ export class FSProvider implements IConfigProvider {
           if (fs.lstatSync(`${this.config.pvPath}/${folders[0]}/${file}`).isDirectory()) {
             folders.push(`${folders[0]}/${file}`);
           } else {
-            files.push(`${folders[0]}/${file}`);
+            try {
+              writeFileNameToQueueFile(`${folders[0]}/${file}`);
+            } catch (err) {
+              this.logger.error({ msg: `Didn't write the file: '${folders[0]}/${file}' in FS.` });
+            }
+            // files.push(`${folders[0]}/${file}`);
           }
         })
       );
 
       folders.shift();
     }
-
-    return files;
   }
 }

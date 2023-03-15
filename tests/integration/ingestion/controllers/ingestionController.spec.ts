@@ -3,7 +3,6 @@ import jsLogger from '@map-colonies/js-logger';
 import httpStatusCodes from 'http-status-codes';
 import config from 'config';
 import mockAxios from 'jest-mock-axios';
-import { container } from 'tsyringe';
 import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import { ListObjectsCommandOutput, S3ServiceException } from '@aws-sdk/client-s3';
 import { getApp } from '../../../../src/app';

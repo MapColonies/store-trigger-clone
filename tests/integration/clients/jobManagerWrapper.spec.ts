@@ -1,8 +1,8 @@
 import jsLogger from '@map-colonies/js-logger';
 import { ICreateTaskBody, OperationStatus } from '@map-colonies/mc-priority-queue';
 import { JobManagerWrapper } from '../../../src/clients/jobManagerWrapper';
-import { CreateJobBody, IIngestionResponse, ITaskParameters } from '../../../src/common/interfaces';
-import { createMetadata, createUuid } from '../../helpers/helpers';
+import { CreateJobBody, ITaskParameters } from '../../../src/common/interfaces';
+import { createJobParameters, createUuid } from '../../helpers/helpers';
 
 describe('jobManagerWrapper', () => {
   let jobManagerWrapper: JobManagerWrapper;
@@ -20,7 +20,6 @@ describe('jobManagerWrapper', () => {
 
   describe('create tests', () => {
     it(`should return the ingestion's response`, async () => {
-      const files = ['a'];
       const modelId = createUuid();
       const tasks: ICreateTaskBody<ITaskParameters>[] = [
         {
@@ -32,23 +31,18 @@ describe('jobManagerWrapper', () => {
         resourceId: 'bla',
         version: 's',
         type: 'bla',
-        parameters: {
-          metadata: createMetadata(),
-        },
-      };
-      const res: IIngestionResponse = {
-        jobID: '12',
-        status: OperationStatus.IN_PROGRESS,
+        parameters: createJobParameters(),
       };
       jobsManagerMock.createJob.mockResolvedValue(job);
 
-      const created = await jobManagerWrapper.create(job, files, modelId);
+      const created = await jobManagerWrapper.create(job);
 
-      expect(created).toMatchObject(res);
+      expect(created).toHaveProperty('jobID');
+      expect(created).toHaveProperty('status');
+      expect(created.status).toBe(OperationStatus.IN_PROGRESS);
     });
 
     it(`should return an error when jobService is not avaliable`, async () => {
-      const files = ['a'];
       const modelId = createUuid();
       const tasks: ICreateTaskBody<ITaskParameters>[] = [
         {
@@ -60,15 +54,11 @@ describe('jobManagerWrapper', () => {
         resourceId: 'bla',
         version: 's',
         type: 'bla',
-        parameters: {
-          metadata: createMetadata(),
-        },
+        parameters: createJobParameters(),
       };
       jobsManagerMock.createJob.mockRejectedValue(new Error('Job Service is not avaliable'));
 
-      const created = await jobManagerWrapper.create(job, files, modelId);
-
-      expect(created).toThrow('Job Service is not avaliable');
+      await expect(jobManagerWrapper.create(job)).rejects.toThrow('Job Service is not avaliable');
     });
   });
 });

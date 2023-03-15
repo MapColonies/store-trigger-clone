@@ -34,7 +34,7 @@ export interface Payload {
 }
 
 export interface IConfigProvider {
-  listFiles: (model: string) => Promise<string[]>;
+  listFiles: (model: string) => Promise<void>;
 }
 
 export interface IIngestionConfig {
@@ -42,6 +42,8 @@ export interface IIngestionConfig {
 }
 
 export interface IJobParameters {
+  tilesetFilename: string;
+  modelId: string;
   metadata: Layer3DMetadata;
 }
 

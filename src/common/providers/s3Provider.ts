@@ -6,6 +6,7 @@ import httpStatus from 'http-status-codes';
 import { IConfigProvider, IS3Config } from '../interfaces';
 import { SERVICES } from '../constants';
 import { AppError } from '../appError';
+import { checkIfTempFileEmpty, writeFileNameToQueueFile } from '../utilities';
 
 export class S3Provider implements IConfigProvider {
   private readonly s3: S3Client;
@@ -28,7 +29,7 @@ export class S3Provider implements IConfigProvider {
     this.s3 = new S3Client(s3ClientConfig);
   }
 
-  public async listFiles(model: string): Promise<string[]> {
+  public async listFiles(model: string): Promise<void> {
     const modelName = model + '/';
 
     const params: ListObjectsRequest = {
@@ -38,7 +39,7 @@ export class S3Provider implements IConfigProvider {
     };
 
     const folders: string[] = [modelName];
-    const files: string[] = [];
+    // const files: string[] = [];
 
     while (folders.length > 0) {
       params.Prefix = folders[0];
@@ -49,18 +50,21 @@ export class S3Provider implements IConfigProvider {
           if (item.endsWith('/')) {
             folders.push(item);
           } else {
-            files.push(item);
+            try {
+              writeFileNameToQueueFile(item);
+            } catch (err) {
+              this.logger.error({ msg: `Didn't write the file: '${item}' in S3.` });
+            }
+            // files.push(item);
           }
         })
       );
       folders.shift();
     }
 
-    if (files.length == 0) {
+    if (checkIfTempFileEmpty()) {
       throw new AppError('', httpStatus.BAD_REQUEST, `Model ${modelName} doesn't exists in bucket ${this.s3Config.bucket}!`, true);
     }
-
-    return files;
   }
 
   private async listOneLevelS3(params: ListObjectsRequest, keysList: string[]): Promise<string[]> {

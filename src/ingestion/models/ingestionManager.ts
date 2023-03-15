@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe';
 import { JobManagerWrapper } from '../../clients/jobManagerWrapper';
 import { SERVICES } from '../../common/constants';
 import { CreateJobBody, IConfig, IConfigProvider, IIngestionResponse, Payload } from '../../common/interfaces';
+import { emptyQueueFile } from '../../common/utilities';
 
 @injectable()
 export class IngestionManager {
@@ -15,16 +16,15 @@ export class IngestionManager {
   ) {}
 
   public async createModel(payload: Payload): Promise<IIngestionResponse> {
-    this.logger.info({ msg: 'creating tasks', path: payload.modelPath, provider: this.config.get<string>('ingestion.configProvider') });
+    this.logger.info({ msg: 'Creating job for model', path: payload.modelPath, provider: this.config.get<string>('ingestion.configProvider') });
 
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     const modelName: string = payload.modelPath.split('/').slice(-1)[0];
-
     const createJobRequest: CreateJobBody = {
       resourceId: payload.modelId,
       version: '1',
       type: 'Ingestion_New',
-      parameters: { metadata: payload.metadata },
+      parameters: { metadata: payload.metadata, modelId: payload.modelId, tilesetFilename: payload.tilesetFilename },
       productType: payload.metadata.productType,
       productName: payload.metadata.productName,
       percentage: 0,
@@ -32,13 +32,17 @@ export class IngestionManager {
       status: OperationStatus.IN_PROGRESS,
       domain: '3D',
     };
+    this.logger.info({ msg: 'Starts writing content to queue file' });
     try {
-      const files: string[] = await this.configProvider.listFiles(modelName);
-      const res: IIngestionResponse = await this.jobManagerClient.create(createJobRequest, files, payload.modelId);
+      await this.configProvider.listFiles(modelName);
+      this.logger.info({ msg: 'Finished writing content to queue file. Creating Tasks' });
+      const res: IIngestionResponse = await this.jobManagerClient.create(createJobRequest);
       this.logger.info({ msg: 'Tasks created successfuly' });
+      emptyQueueFile();
       return res;
     } catch (error) {
       this.logger.error({ msg: 'Failed in creating tasks' });
+      emptyQueueFile();
       throw error;
     }
   }
