@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import config from 'config';
 import RandExp from 'randexp';
 import { randBetweenDate, randNumber, randPastDate, randUuid, randWord } from '@ngneat/falso';

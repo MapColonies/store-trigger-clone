@@ -4,7 +4,7 @@ import jsLogger from '@map-colonies/js-logger';
 import { ICreateTaskBody, OperationStatus } from '@map-colonies/mc-priority-queue';
 import { JobManagerWrapper } from '../../../src/clients/jobManagerWrapper';
 import { CreateJobBody, ITaskParameters } from '../../../src/common/interfaces';
-import { createJobParameters, createMetadata, createUuid } from '../../helpers/helpers';
+import { createJobParameters, createUuid } from '../../helpers/helpers';
 
 describe('jobManagerWrapper', () => {
   let jobManagerWrapper: JobManagerWrapper;

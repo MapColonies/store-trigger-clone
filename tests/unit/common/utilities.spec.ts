@@ -23,7 +23,7 @@ describe('utilities tests', () => {
       fs.writeFileSync(queueFile, "a\nf");
       const extected: ICreateTaskBody<ITaskParameters>[] = [{ type: taskType, parameters: { paths: ['a', 'f'], modelId: modelId } }];
 
-      const result = utils.filesToTasks(batchSize, modelId, taskType);
+      const result = utils.filesToTasks(batchSize, modelId);
 
       expect(result).toStrictEqual(extected);
     });
@@ -37,7 +37,7 @@ describe('utilities tests', () => {
         { type: taskType, parameters: { paths: ['f'], modelId: modelId } },
       ];
 
-      const result = utils.filesToTasks(batchSize, modelId, taskType);
+      const result = utils.filesToTasks(batchSize, modelId);
 
       expect(result).toStrictEqual(extected);
     });

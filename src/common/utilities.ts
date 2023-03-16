@@ -6,9 +6,10 @@ import config from 'config';
 import { ITaskParameters } from './interfaces';
 import { AppError } from './appError';
 
-export const filesToTasks = (batchSize: number, modelId: string, taskType: string): ICreateTaskBody<ITaskParameters>[] => {
+export const filesToTasks = (batchSize: number, modelId: string): ICreateTaskBody<ITaskParameters>[] => {
   const tasks: ICreateTaskBody<ITaskParameters>[] = [];
   const queueFilePath: string = config.get<string>('ingestion.queueFile');
+  const taskType: string = config.get<string>('worker.taskType');
   const liner = new LineByLine(queueFilePath);
   let line = liner.next();
   let chunk: string[] = [];
