@@ -3,12 +3,13 @@ import { ICreateTaskBody, OperationStatus } from '@map-colonies/mc-priority-queu
 import { JobManagerWrapper } from '../../../src/clients/jobManagerWrapper';
 import { CreateJobBody, ITaskParameters } from '../../../src/common/interfaces';
 import { createJobParameters, createUuid } from '../../helpers/mockCreator';
+import { FileHandler } from "../../../src/clients/fileHandler";
 
 describe('jobManagerWrapper', () => {
   let jobManagerWrapper: JobManagerWrapper;
 
   beforeAll(() => {
-    jobManagerWrapper = new JobManagerWrapper(jsLogger({ enabled: false }));
+    jobManagerWrapper = new JobManagerWrapper(jsLogger({ enabled: false }), new FileHandler());
   });
 
   afterEach(() => {
