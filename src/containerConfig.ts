@@ -10,7 +10,7 @@ import { ingestionRouterFactory, INGESTION_ROUTER_SYMBOL } from './ingestion/rou
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 import { jobStatusRouterFactory, JOB_STATUS_ROUTER_SYMBOL } from './jobStatus/routes/jobStatusRouter';
 import { IConfigProvider, IIngestionConfig, INFSConfig, IS3Config } from './common/interfaces';
-import { getProvider } from './getProvider';
+import getProvider from './common/providers/getProvider';
 import { QueueFileHandler } from './handlers/queueFileHandler';
 
 export interface RegisterOptions {
@@ -20,7 +20,7 @@ export interface RegisterOptions {
 
 export const registerExternalValues = (options?: RegisterOptions): DependencyContainer => {
   const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
-  const fsConfig = config.get<INFSConfig>('FS');
+  const fsConfig = config.get<INFSConfig>('NFS');
   const s3Config = config.get<IS3Config>('S3');
   const ingestionConfig = config.get<IIngestionConfig>('ingestion');
   // @ts-expect-error the signature is wrong
@@ -39,7 +39,7 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
     { token: SERVICES.METER, provider: { useValue: meter } },
     { token: INGESTION_ROUTER_SYMBOL, provider: { useFactory: ingestionRouterFactory } },
     { token: JOB_STATUS_ROUTER_SYMBOL, provider: { useFactory: jobStatusRouterFactory } },
-    { token: SERVICES.FS, provider: { useValue: fsConfig } },
+    { token: SERVICES.NFS, provider: { useValue: fsConfig } },
     { token: SERVICES.S3, provider: { useValue: s3Config } },
     { token: SERVICES.QUEUE_FILE_HANDLER, provider: { useClass: QueueFileHandler } },
     {

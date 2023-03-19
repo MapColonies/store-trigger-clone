@@ -1,13 +1,13 @@
 import fs from 'fs';
-import { singleton } from 'tsyringe';
+import { injectable } from 'tsyringe';
 import config from 'config';
-import LineByLine = require('n-readlines');
+import LineByLine from 'n-readlines';
 import httpStatus from 'http-status-codes';
 import { ICreateTaskBody } from '@map-colonies/mc-priority-queue';
 import { ITaskParameters } from '../common/interfaces';
 import { AppError } from '../common/appError';
 
-@singleton()
+@injectable()
 export class QueueFileHandler {
   private readonly queueFilePath: string;
 
