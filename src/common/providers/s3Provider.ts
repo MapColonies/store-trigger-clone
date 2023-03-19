@@ -90,11 +90,11 @@ export class S3Provider implements IConfigProvider {
           '',
           e.$metadata.httpStatusCode ?? httpStatus.INTERNAL_SERVER_ERROR,
           `${e.name}, message: ${e.message}, bucket: ${this.s3Config.bucket}}`,
-          false
+          true
         );
       }
       this.logger.error({ msg: e });
-      throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, "Didn't throw a S3 exception in listing files", false);
+      throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, "Didn't throw a S3 exception in listing files", true);
     }
   }
 }

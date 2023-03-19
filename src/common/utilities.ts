@@ -49,7 +49,7 @@ export const writeFileNameToQueueFile = (fileName: string): void => {
     // writeStream.end();
     fs.appendFileSync(queueFilePath, fileName + '\n');
   } catch (err) {
-    throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't write the file: '${fileName}'`, false);
+    throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't write the file: '${fileName}'`, true);
   }
 };
 
@@ -58,7 +58,7 @@ export const checkIfTempFileEmpty = (): boolean => {
   try {
     return fs.statSync(queueFilePath).size === 0 ? true : false;
   } catch (err) {
-    throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Problem with fs. Can't see if the file is empty or not`, false);
+    throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Problem with fs. Can't see if the file is empty or not`, true);
   }
 };
 
@@ -66,7 +66,7 @@ export const emptyQueueFile = (): void => {
   const queueFilePath: string = config.get<string>('ingestion.queueFile');
   fs.truncate(queueFilePath, 0, (err) => {
     if (err) {
-      throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, false);
+      throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, true);
     }
   });
 };
