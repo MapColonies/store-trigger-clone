@@ -41,7 +41,7 @@ describe('jobStatusManager', () => {
 
     it('rejects if jobManager fails', async () => {
       const jobId = createUuid();
-      jobsManagerMock.getJob.mockRejectedValue(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, '', false));
+      jobsManagerMock.getJob.mockRejectedValue(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, '', true));
 
       await expect(jobStatusManager.checkStatus(jobId)).rejects.toThrow(AppError);
     });

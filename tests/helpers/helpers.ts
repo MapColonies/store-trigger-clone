@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import config from 'config';
 import RandExp from 'randexp';
 import { randBetweenDate, randNumber, randPastDate, randUuid, randWord } from '@ngneat/falso';
@@ -105,7 +104,7 @@ export const createJobPayload = (payload: Payload): CreateJobBody => {
   return {
     resourceId: payload.modelId,
     version: '1',
-    type: 'Ingestion_New',
+    type: config.get<string>('worker.jobType'),
     parameters: createJobParameters(),
     productType: payload.metadata.productType,
     productName: payload.metadata.productName,
@@ -120,7 +119,7 @@ export const createTaskPayload = (payload: Payload): CreateJobBody => {
   return {
     resourceId: payload.modelId,
     version: '1',
-    type: 'Ingestion_New',
+    type: config.get<string>('worker.jobType'),
     parameters: createJobParameters(),
     productType: payload.metadata.productType,
     productName: payload.metadata.productName,

@@ -44,10 +44,10 @@ paths:
       responses:
         201:
           description: created
-          # content:
-          #   application/json:
-          #     schema:
-          #       $ref: '#/components/schemas/job'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createResponse'
         400:
           description: Bad Request
           content:
@@ -101,6 +101,25 @@ components:
         metadata:
           $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/payload'
       additionalProperties: false
+    createResponse:
+      type: object
+      description: The ingestion response
+      required:
+        - jobId
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - Completed
+            - In-Progress
+            - Pending
+            - Failed
+            - Expired
+            - Aborted
+        jobId:
+          type: string
+          description: job id
     jobStatus:
       type: object
       description: The job response

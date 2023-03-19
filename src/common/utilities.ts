@@ -6,9 +6,10 @@ import config from 'config';
 import { ITaskParameters } from './interfaces';
 import { AppError } from './appError';
 
-export const filesToTasks = (batchSize: number, modelId: string, taskType: string): ICreateTaskBody<ITaskParameters>[] => {
+export const filesToTasks = (batchSize: number, modelId: string): ICreateTaskBody<ITaskParameters>[] => {
   const tasks: ICreateTaskBody<ITaskParameters>[] = [];
   const queueFilePath: string = config.get<string>('ingestion.queueFile');
+  const taskType: string = config.get<string>('worker.taskType');
   const liner = new LineByLine(queueFilePath);
   let line = liner.next();
   let chunk: string[] = [];
@@ -48,7 +49,7 @@ export const writeFileNameToQueueFile = (fileName: string): void => {
     // writeStream.end();
     fs.appendFileSync(queueFilePath, fileName + '\n');
   } catch (err) {
-    throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't write the file: '${fileName}'`, false);
+    throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't write the file: '${fileName}'`, true);
   }
 };
 
@@ -57,7 +58,7 @@ export const checkIfTempFileEmpty = (): boolean => {
   try {
     return fs.statSync(queueFilePath).size === 0 ? true : false;
   } catch (err) {
-    throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Problem with fs. Can't see if the file is empty or not`, false);
+    throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Problem with fs. Can't see if the file is empty or not`, true);
   }
 };
 
@@ -65,7 +66,7 @@ export const emptyQueueFile = (): void => {
   const queueFilePath: string = config.get<string>('ingestion.queueFile');
   fs.truncate(queueFilePath, 0, (err) => {
     if (err) {
-      throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, false);
+      throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, true);
     }
   });
 };

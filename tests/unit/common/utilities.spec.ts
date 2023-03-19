@@ -23,7 +23,7 @@ describe('utilities tests', () => {
       fs.writeFileSync(queueFile, "a\nf");
       const extected: ICreateTaskBody<ITaskParameters>[] = [{ type: taskType, parameters: { paths: ['a', 'f'], modelId: modelId } }];
 
-      const result = utils.filesToTasks(batchSize, modelId, taskType);
+      const result = utils.filesToTasks(batchSize, modelId);
 
       expect(result).toStrictEqual(extected);
     });
@@ -37,7 +37,7 @@ describe('utilities tests', () => {
         { type: taskType, parameters: { paths: ['f'], modelId: modelId } },
       ];
 
-      const result = utils.filesToTasks(batchSize, modelId, taskType);
+      const result = utils.filesToTasks(batchSize, modelId);
 
       expect(result).toStrictEqual(extected);
     });
@@ -61,7 +61,7 @@ describe('utilities tests', () => {
       const file = 'bla.txt';
       fsMock.appendFile.mockRejectedValue(new Error());
 
-      expect(utils.writeFileNameToQueueFile(file)).toThrow(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't write the file: '${file}'`, false));
+      expect(utils.writeFileNameToQueueFile(file)).toThrow(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't write the file: '${file}'`, true));
     });
   });
 
@@ -69,7 +69,7 @@ describe('utilities tests', () => {
     beforeEach(() => {
       fs.truncate(queueFile, 0, (err) => {
         if (err) {
-          throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, false);
+          throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, true);
         }
       });
     });
@@ -93,7 +93,7 @@ describe('utilities tests', () => {
         throw new Error();
       });
             
-      expect(utils.checkIfTempFileEmpty()).toThrow(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Problem with fs. Can't see if the file is empty or not`, false));
+      expect(utils.checkIfTempFileEmpty()).toThrow(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Problem with fs. Can't see if the file is empty or not`, true));
     });
 
   });
@@ -111,7 +111,7 @@ describe('utilities tests', () => {
     it('should throw an error when there is a problem', () => {
       fsMock.truncate.mockRejectedValue(new Error());
             
-      expect(utils.emptyQueueFile()).toThrow(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, false));
+      expect(utils.emptyQueueFile()).toThrow(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, true));
     });
   });
 });

@@ -8,18 +8,16 @@ import { filesToTasks } from '../common/utilities';
 
 @injectable()
 export class JobManagerWrapper extends JobManagerClient {
-  private readonly tilesJobType: string;
-  private readonly tilesTaskType: string;
-
   public constructor(@inject(SERVICES.LOGGER) protected readonly logger: Logger) {
-    super(logger, config.get<string>('worker.jobType'), config.get<string>('worker.taskType'), config.get<string>('jobManager.url'));
-    this.tilesJobType = config.get<string>('worker.jobType');
-    this.tilesTaskType = config.get<string>('worker.taskType');
+    super(
+      logger, 
+      config.get<string>('worker.jobType'), 
+      config.get<string>('jobManager.url'));
   }
 
   public async create(job: CreateJobBody): Promise<IIngestionResponse> {
     const batchSize: number = config.get<number>('ingestion.batches');
-    const tasks: ICreateTaskBody<ITaskParameters>[] = filesToTasks(batchSize, this.tilesTaskType, job.resourceId);
+    const tasks: ICreateTaskBody<ITaskParameters>[] = filesToTasks(batchSize, job.resourceId);
     job.tasks = tasks;
 
     const jobResponse = await this.createJob<IJobParameters, ITaskParameters>(job);
