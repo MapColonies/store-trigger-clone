@@ -23,7 +23,7 @@ export class IngestionManager {
     const createJobRequest: CreateJobBody = {
       resourceId: payload.modelId,
       version: '1',
-      type: 'Ingestion_New',
+      type: this.config.get<string>('worker.jobType'),
       parameters: { metadata: payload.metadata, modelId: payload.modelId, tilesetFilename: payload.tilesetFilename },
       productType: payload.metadata.productType,
       productName: payload.metadata.productName,

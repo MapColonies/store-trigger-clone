@@ -4,7 +4,7 @@ import config from 'config';
 import httpStatus from 'http-status-codes';
 import { ITaskParameters } from '../../../src/common/interfaces';
 import * as utils from '../../../src/common/utilities';
-import { createUuid } from '../../helpers/helpers';
+import { createUuid } from '../../helpers/mockCreator';
 import { AppError } from '../../../src/common/appError';
 
 describe('utilities tests', () => {
@@ -61,7 +61,7 @@ describe('utilities tests', () => {
       const file = 'bla.txt';
       fsMock.appendFile.mockRejectedValue(new Error());
 
-      expect(utils.writeFileNameToQueueFile(file)).toThrow(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't write the file: '${file}'`, false));
+      expect(utils.writeFileNameToQueueFile(file)).toThrow(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't write the file: '${file}'`, true));
     });
   });
 
@@ -69,7 +69,7 @@ describe('utilities tests', () => {
     beforeEach(() => {
       fs.truncate(queueFile, 0, (err) => {
         if (err) {
-          throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, false);
+          throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, true);
         }
       });
     });
@@ -93,7 +93,7 @@ describe('utilities tests', () => {
         throw new Error();
       });
             
-      expect(utils.checkIfTempFileEmpty()).toThrow(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Problem with fs. Can't see if the file is empty or not`, false));
+      expect(utils.checkIfTempFileEmpty()).toThrow(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Problem with fs. Can't see if the file is empty or not`, true));
     });
 
   });
@@ -111,7 +111,7 @@ describe('utilities tests', () => {
     it('should throw an error when there is a problem', () => {
       fsMock.truncate.mockRejectedValue(new Error());
             
-      expect(utils.emptyQueueFile()).toThrow(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, false));
+      expect(utils.emptyQueueFile()).toThrow(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, true));
     });
   });
 });

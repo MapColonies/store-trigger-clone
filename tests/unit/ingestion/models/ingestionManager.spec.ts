@@ -4,7 +4,7 @@ import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import httpStatus from 'http-status-codes';
 import { AppError } from '../../../../src/common/appError';
 import { IngestionManager } from '../../../../src/ingestion/models/ingestionManager';
-import { createPayload, createUuid } from '../../../helpers/helpers';
+import { createPayload, createUuid } from '../../../helpers/mockCreator';
 import { IIngestionResponse, Payload } from '../../../../src/common/interfaces';
 
 let ingestionManager: IngestionManager;
@@ -39,7 +39,7 @@ describe('ingestionManager', () => {
 
     it('rejects if listFiles fails', async () => {
       const payload: Payload = createPayload('model1');
-      configProviderMock.listFiles.mockRejectedValue(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, '', false));
+      configProviderMock.listFiles.mockRejectedValue(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, '', true));
 
       await expect(ingestionManager.createModel(payload)).rejects.toThrow(AppError);
     });
@@ -47,7 +47,7 @@ describe('ingestionManager', () => {
     it('rejects if jobManager fails', async () => {
       const payload: Payload = createPayload('model1');
       configProviderMock.listFiles.mockResolvedValue(undefined);
-      jobsManagerMock.create.mockRejectedValue(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, '', false));
+      jobsManagerMock.create.mockRejectedValue(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, '', true));
 
       await expect(ingestionManager.createModel(payload)).rejects.toThrow(AppError);
     });
