@@ -1,25 +1,19 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-import { container, inject, injectable } from 'tsyringe';
 import { ListObjectsCommand, ListObjectsRequest, S3Client, S3ClientConfig, S3ServiceException } from '@aws-sdk/client-s3';
 import { Logger } from '@map-colonies/js-logger';
 import httpStatus from 'http-status-codes';
-import { IConfigProvider, IS3Config } from '../interfaces';
-import { SERVICES } from '../constants';
-import { AppError } from '../appError';
+import { inject, injectable } from 'tsyringe';
 import { QueueFileHandler } from '../../handlers/queueFileHandler';
+import { AppError } from '../appError';
+import { SERVICES } from '../constants';
+import { IConfigProvider, IS3Config } from '../interfaces';
 
 @injectable()
 export class S3Provider implements IConfigProvider {
   private readonly s3: S3Client;
-  private readonly logger: Logger;
-  private readonly s3Config: IS3Config;
-  private readonly queueFileHandler: QueueFileHandler
 
-  public constructor(@inject(SERVICES.FILE_HANDLER) protected readonly fileHandler: FileHandler) {
-    this.logger = container.resolve(SERVICES.LOGGER);
-    this.s3Config = container.resolve(SERVICES.S3);
-    this.queueFileHandler = container.resolve(SERVICES.QUEUE_FILE_HANDLER);
-
+  public constructor(@inject(SERVICES.S3) protected readonly s3Config: IS3Config,
+    @inject(SERVICES.LOGGER) protected readonly logger: Logger,
+    @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler) {
     const s3ClientConfig: S3ClientConfig = {
       endpoint: this.s3Config.endpointUrl,
       forcePathStyle: this.s3Config.forcePathStyle,
@@ -35,6 +29,7 @@ export class S3Provider implements IConfigProvider {
   public async listFiles(model: string): Promise<void> {
     const modelName = model + '/';
 
+    /* eslint-disable @typescript-eslint/naming-convention */
     const params: ListObjectsRequest = {
       Bucket: this.s3Config.bucket,
       Delimiter: '/',
@@ -42,7 +37,6 @@ export class S3Provider implements IConfigProvider {
     };
 
     const folders: string[] = [modelName];
-    // const files: string[] = [];
 
     while (folders.length > 0) {
       params.Prefix = folders[0];

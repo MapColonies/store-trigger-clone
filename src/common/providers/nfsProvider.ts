@@ -1,22 +1,17 @@
 import fs from 'fs';
 import { Logger } from '@map-colonies/js-logger';
-import config from 'config';
 import httpStatus from 'http-status-codes';
-import { container, inject } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import { QueueFileHandler } from '../../handlers/queueFileHandler';
 import { AppError } from '../appError';
 import { SERVICES } from '../constants';
 import { IConfigProvider, INFSConfig } from '../interfaces';
 
+@injectable()
 export class NFSProvider implements IConfigProvider {
-  private readonly logger: Logger;
-  private readonly config: INFSConfig;
-  private readonly queueFileHandler:  QueueFileHandler;
-
-  public constructor(@inject(SERVICES.FILE_HANDLER) protected readonly fileHandler: FileHandler) {
-    this.logger = container.resolve(SERVICES.LOGGER);
-    this.config = config.get<INFSConfig>('NFS');
-    this.queueFileHandler = container.resolve(SERVICES.QUEUE_FILE_HANDLER);
+  public constructor(@inject(SERVICES.S3) protected readonly config: INFSConfig,
+  @inject(SERVICES.LOGGER) protected readonly logger: Logger,
+  @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler) {
   }
 
   public async listFiles(model: string): Promise<void> {
