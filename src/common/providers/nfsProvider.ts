@@ -1,21 +1,20 @@
 import * as fs from 'fs';
 import { Logger } from '@map-colonies/js-logger';
-import httpStatus from 'http-status-codes';
-import { container, inject, injectable } from 'tsyringe';
 import config from 'config';
-import { SERVICES } from '../constants';
-import { IConfigProvider, IFSConfig } from '../interfaces';
+import httpStatus from 'http-status-codes';
+import { container, inject } from 'tsyringe';
+import { QueueFileHandler } from '../../handlers/queueFileHandler';
 import { AppError } from '../appError';
-import { FileHandler } from '../../clients/FileHandler';
+import { SERVICES } from '../constants';
+import { IConfigProvider, INFSConfig } from '../interfaces';
 
-@injectable()
-export class FSProvider implements IConfigProvider {
+export class NFSProvider implements IConfigProvider {
   private readonly logger: Logger;
-  private readonly config: IFSConfig;
+  private readonly config: INFSConfig;
 
-  public constructor(@inject(SERVICES.FILE_HANDLER) protected readonly fileHandler: FileHandler) {
+  public constructor(@inject(SERVICES.FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler) {
     this.logger = container.resolve(SERVICES.LOGGER);
-    this.config = config.get<IFSConfig>('FS');
+    this.config = config.get<INFSConfig>('NFS');
   }
 
   public async listFiles(model: string): Promise<void> {
@@ -24,7 +23,6 @@ export class FSProvider implements IConfigProvider {
     }
 
     const folders: string[] = [model];
-    // const files: string[] = [];
 
     while (folders.length > 0) {
       await Promise.all(
@@ -33,11 +31,11 @@ export class FSProvider implements IConfigProvider {
             folders.push(`${folders[0]}/${file}`);
           } else {
             try {
-              this.fileHandler.writeFileNameToQueueFile(`${folders[0]}/${file}`);
+              this.queueFileHandler.writeFileNameToQueueFile(`${folders[0]}/${file}`);
             } catch (err) {
               this.logger.error({ msg: `Didn't write the file: '${folders[0]}/${file}' in FS.` });
+              throw err;
             }
-            // files.push(`${folders[0]}/${file}`);
           }
         })
       );

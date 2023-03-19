@@ -18,7 +18,11 @@ describe('ingestionManager', () => {
   };
 
   beforeEach(() => {
-    ingestionManager = new IngestionManager(jsLogger({ enabled: false }), config as never, jobsManagerMock as never, configProviderMock as never, 1);
+    ingestionManager = new IngestionManager(
+      jsLogger({ enabled: false }), 
+      config as never, 
+      jobsManagerMock as never, 
+      configProviderMock as never);
   });
   afterEach(() => {
     jest.clearAllMocks();

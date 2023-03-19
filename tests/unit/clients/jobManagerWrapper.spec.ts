@@ -2,14 +2,14 @@ import jsLogger from '@map-colonies/js-logger';
 import { ICreateTaskBody, OperationStatus } from '@map-colonies/mc-priority-queue';
 import { JobManagerWrapper } from '../../../src/clients/jobManagerWrapper';
 import { CreateJobBody, ITaskParameters } from '../../../src/common/interfaces';
+import { QueueFileHandler } from '../../../src/handlers/queueFileHandler';
 import { createJobParameters, createUuid } from '../../helpers/mockCreator';
-import { FileHandler } from "../../../src/clients/fileHandler";
 
 describe('jobManagerWrapper', () => {
   let jobManagerWrapper: JobManagerWrapper;
 
   beforeAll(() => {
-    jobManagerWrapper = new JobManagerWrapper(jsLogger({ enabled: false }), new FileHandler());
+    jobManagerWrapper = new JobManagerWrapper(jsLogger({ enabled: false }), new QueueFileHandler());
   });
 
   afterEach(() => {

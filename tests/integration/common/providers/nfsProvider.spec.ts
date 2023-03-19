@@ -1,14 +1,14 @@
 import * as fs from 'fs';
 import config from 'config';
 import httpStatus from 'http-status-codes';
-import { FSProvider } from '../../../../src/common/providers/fSProvider';
+import { NFSProvider } from '../../../../src/common/providers/nfsProvider';
 import { AppError } from '../../../../src/common/appError';
 
 describe('FSProvider', () => {
-  let provider: FSProvider;
+  let provider: NFSProvider;
 
   beforeEach(() => {
-    provider = new FSProvider();
+    provider = new NFSProvider();
   });
   afterEach(() => {
     jest.clearAllMocks();
