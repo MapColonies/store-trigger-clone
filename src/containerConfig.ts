@@ -11,6 +11,7 @@ import { InjectionObject, registerDependencies } from './common/dependencyRegist
 import { jobStatusRouterFactory, JOB_STATUS_ROUTER_SYMBOL } from './jobStatus/routes/jobStatusRouter';
 import { IConfigProvider, IIngestionConfig, IFSConfig, IS3Config } from './common/interfaces';
 import { getProvider } from './getProvider';
+import { FileHandler } from './clients/FileHandler';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -40,6 +41,7 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
     { token: JOB_STATUS_ROUTER_SYMBOL, provider: { useFactory: jobStatusRouterFactory } },
     { token: SERVICES.FS, provider: { useValue: fsConfig } },
     { token: SERVICES.S3, provider: { useValue: s3Config } },
+    { token: SERVICES.FILE_HANDLER, provider: { useClass: FileHandler } },
     {
       token: SERVICES.CONFIGPROVIDER,
       provider: {

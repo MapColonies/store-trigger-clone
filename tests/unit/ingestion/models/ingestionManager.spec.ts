@@ -4,7 +4,7 @@ import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import httpStatus from 'http-status-codes';
 import { AppError } from '../../../../src/common/appError';
 import { IngestionManager } from '../../../../src/ingestion/models/ingestionManager';
-import { createPayload, createUuid } from '../../../helpers/helpers';
+import { createPayload, createUuid } from '../../../helpers/mockCreator';
 import { IIngestionResponse, Payload } from '../../../../src/common/interfaces';
 
 let ingestionManager: IngestionManager;

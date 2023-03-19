@@ -4,7 +4,7 @@ import config from 'config';
 import httpStatus from 'http-status-codes';
 import { ITaskParameters } from '../../../src/common/interfaces';
 import * as utils from '../../../src/common/utilities';
-import { createUuid } from '../../helpers/helpers';
+import { createUuid } from '../../helpers/mockCreator';
 import { AppError } from '../../../src/common/appError';
 
 describe('utilities tests', () => {
