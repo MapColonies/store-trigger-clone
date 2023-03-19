@@ -1,19 +1,20 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { container } from 'tsyringe';
+import { container, inject, injectable } from 'tsyringe';
 import { ListObjectsCommand, ListObjectsRequest, S3Client, S3ClientConfig, S3ServiceException } from '@aws-sdk/client-s3';
 import { Logger } from '@map-colonies/js-logger';
 import httpStatus from 'http-status-codes';
 import { IConfigProvider, IS3Config } from '../interfaces';
 import { SERVICES } from '../constants';
 import { AppError } from '../appError';
-import { checkIfTempFileEmpty, writeFileNameToQueueFile } from '../utilities';
+import { FileHandler } from '../../clients/FileHandler';
 
+@injectable()
 export class S3Provider implements IConfigProvider {
   private readonly s3: S3Client;
   private readonly logger: Logger;
   private readonly s3Config: IS3Config;
 
-  public constructor() {
+  public constructor(@inject(SERVICES.FILE_HANDLER) protected readonly fileHandler: FileHandler) {
     this.logger = container.resolve(SERVICES.LOGGER);
     this.s3Config = container.resolve(SERVICES.S3);
 
@@ -51,7 +52,7 @@ export class S3Provider implements IConfigProvider {
             folders.push(item);
           } else {
             try {
-              writeFileNameToQueueFile(item);
+              this.fileHandler.writeFileNameToQueueFile(item);
             } catch (err) {
               this.logger.error({ msg: `Didn't write the file: '${item}' in S3.` });
             }
@@ -62,7 +63,7 @@ export class S3Provider implements IConfigProvider {
       folders.shift();
     }
 
-    if (checkIfTempFileEmpty()) {
+    if (this.fileHandler.checkIfTempFileEmpty()) {
       throw new AppError('', httpStatus.BAD_REQUEST, `Model ${modelName} doesn't exists in bucket ${this.s3Config.bucket}!`, true);
     }
   }

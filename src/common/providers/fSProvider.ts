@@ -1,18 +1,19 @@
 import * as fs from 'fs';
 import { Logger } from '@map-colonies/js-logger';
 import httpStatus from 'http-status-codes';
-import { container } from 'tsyringe';
+import { container, inject, injectable } from 'tsyringe';
 import config from 'config';
 import { SERVICES } from '../constants';
 import { IConfigProvider, IFSConfig } from '../interfaces';
 import { AppError } from '../appError';
-import { writeFileNameToQueueFile } from '../utilities';
+import { FileHandler } from '../../clients/FileHandler';
 
+@injectable()
 export class FSProvider implements IConfigProvider {
   private readonly logger: Logger;
   private readonly config: IFSConfig;
 
-  public constructor() {
+  public constructor(@inject(SERVICES.FILE_HANDLER) protected readonly fileHandler: FileHandler) {
     this.logger = container.resolve(SERVICES.LOGGER);
     this.config = config.get<IFSConfig>('FS');
   }
@@ -32,7 +33,7 @@ export class FSProvider implements IConfigProvider {
             folders.push(`${folders[0]}/${file}`);
           } else {
             try {
-              writeFileNameToQueueFile(`${folders[0]}/${file}`);
+              this.fileHandler.writeFileNameToQueueFile(`${folders[0]}/${file}`);
             } catch (err) {
               this.logger.error({ msg: `Didn't write the file: '${folders[0]}/${file}' in FS.` });
             }
