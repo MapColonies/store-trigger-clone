@@ -61,7 +61,7 @@ export interface IS3Config {
   forcePathStyle: boolean;
 }
 
-export interface IFSConfig {
+export interface INFSConfig {
   pvPath: string;
 }
 
