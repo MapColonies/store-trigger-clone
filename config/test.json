@@ -14,13 +14,17 @@
   "ingestion": {
     "configProvider": "S3",
     "batches": 100,
-    "queueFile": "./dist/tempFilesNames.txt"
+    "queueFile": "./dist/queueFile.txt"
   },
   "jobManager": {
     "url": "http://127.0.0.1:8080"
   },
   "worker": {
-    "jobType": "3D",
-    "taskType": "3D"
+    "job": {
+      "type": "Ingestion_New_3D"
+    },
+    "task": {
+      "type": "Ingestion"
+    }
   }
 }

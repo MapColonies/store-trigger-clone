@@ -6,16 +6,18 @@ import httpStatus from 'http-status-codes';
 import { IConfigProvider, IS3Config } from '../interfaces';
 import { SERVICES } from '../constants';
 import { AppError } from '../appError';
-import { checkIfTempFileEmpty, writeFileNameToQueueFile } from '../utilities';
+import { QueueFileHandler } from '../../handlers/queueFileHandler';
 
 export class S3Provider implements IConfigProvider {
   private readonly s3: S3Client;
   private readonly logger: Logger;
   private readonly s3Config: IS3Config;
+  private readonly queueFileHandler: QueueFileHandler
 
   public constructor() {
     this.logger = container.resolve(SERVICES.LOGGER);
     this.s3Config = container.resolve(SERVICES.S3);
+    this.queueFileHandler = container.resolve(SERVICES.QUEUE_FILE_HANDLER);
 
     const s3ClientConfig: S3ClientConfig = {
       endpoint: this.s3Config.endpointUrl,
@@ -51,18 +53,17 @@ export class S3Provider implements IConfigProvider {
             folders.push(item);
           } else {
             try {
-              writeFileNameToQueueFile(item);
+              this.queueFileHandler.writeFileNameToQueueFile(item);
             } catch (err) {
               this.logger.error({ msg: `Didn't write the file: '${item}' in S3.` });
             }
-            // files.push(item);
           }
         })
       );
       folders.shift();
     }
 
-    if (checkIfTempFileEmpty()) {
+    if (this.queueFileHandler.checkIfTempFileEmpty()) {
       throw new AppError('', httpStatus.BAD_REQUEST, `Model ${modelName} doesn't exists in bucket ${this.s3Config.bucket}!`, true);
     }
   }
