@@ -4,7 +4,7 @@ import httpStatus from 'http-status-codes';
 import { AppError } from '../../../../src/common/appError';
 import { IJobStatusResponse } from '../../../../src/common/interfaces';
 import { JobStatusManager } from '../../../../src/jobStatus/models/jobStatusManager';
-import { createUuid } from '../../../helpers/helpers';
+import { createUuid } from '../../../helpers/mockCreator';
 
 let jobStatusManager: JobStatusManager;
 
