@@ -19,10 +19,12 @@ export class JobStatusManager {
     if (job == undefined) {
       throw new AppError('', httpStatus.NOT_FOUND, 'The Job ID is not exists!', true);
     }
+    
     const jobResponse: IJobStatusResponse = {
       percentage: job.percentage,
       status: job.status,
     };
+    
     return jobResponse;
   }
 }
