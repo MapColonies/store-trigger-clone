@@ -1,55 +1,65 @@
-import config from 'config';
 import jsLogger from '@map-colonies/js-logger';
 import { OperationStatus } from '@map-colonies/mc-priority-queue';
+import config from 'config';
 import httpStatus from 'http-status-codes';
+import { JobManagerWrapper } from '../../../../src/clients/jobManagerWrapper';
 import { AppError } from '../../../../src/common/appError';
+import { IConfig, IConfigProvider, IIngestionResponse, Payload } from '../../../../src/common/interfaces';
+import { QueueFileHandler } from '../../../../src/handlers/queueFileHandler';
 import { IngestionManager } from '../../../../src/ingestion/models/ingestionManager';
-import { createPayload, createUuid } from '../../../helpers/mockCreator';
-import { IIngestionResponse, Payload } from '../../../../src/common/interfaces';
+import { createPayload } from '../../../helpers/mockCreator';
 
 let ingestionManager: IngestionManager;
+let payload: Payload;
 
 describe('ingestionManager', () => {
   const jobsManagerMock = {
     create: jest.fn(),
   };
+
   const configProviderMock = {
     listFiles: jest.fn(),
   };
 
-  beforeEach(() => {
-    ingestionManager = new IngestionManager(
-      jsLogger({ enabled: false }), 
-      config as never, 
-      jobsManagerMock as never, 
-      configProviderMock as never);
+  const queueFileHandlerMock = {
+    emptyQueueFile: jest.fn(),
+  }
+
+  beforeAll(() => {
+    payload = createPayload('model1');
+    ingestionManager = new IngestionManager(jsLogger({ enabled: false }),
+      config as IConfig,
+      jobsManagerMock as unknown as JobManagerWrapper,
+      configProviderMock as unknown as IConfigProvider,
+      queueFileHandlerMock as unknown as QueueFileHandler);
   });
+
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   describe('#createModel', () => {
-    const payload: Payload = createPayload('model1');
-    it('resolves without errors', async () => {
+    it('returns create model response', async () => {
       const response: IIngestionResponse = {
-        jobID: createUuid(),
+        jobID: '1234',
         status: OperationStatus.IN_PROGRESS,
       };
+
       configProviderMock.listFiles.mockResolvedValue(undefined);
       jobsManagerMock.create.mockResolvedValue(response);
 
-      await expect(ingestionManager.createModel(payload)).resolves.toMatchObject(response);
+      const modelResponse = await ingestionManager.createModel(payload)
+
+      expect(modelResponse).toMatchObject(response);
     });
 
     it('rejects if listFiles fails', async () => {
-      const payload: Payload = createPayload('model1');
       configProviderMock.listFiles.mockRejectedValue(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, '', true));
 
       await expect(ingestionManager.createModel(payload)).rejects.toThrow(AppError);
     });
 
     it('rejects if jobManager fails', async () => {
-      const payload: Payload = createPayload('model1');
       configProviderMock.listFiles.mockResolvedValue(undefined);
       jobsManagerMock.create.mockRejectedValue(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, '', true));
 
