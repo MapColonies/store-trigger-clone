@@ -1,53 +1,29 @@
 import fs from 'fs';
-import { injectable } from 'tsyringe';
 import config from 'config';
-import LineByLine from 'n-readlines';
 import httpStatus from 'http-status-codes';
-import { ICreateTaskBody } from '@map-colonies/mc-priority-queue';
-import { ITaskParameters } from '../common/interfaces';
+import LineByLine from 'n-readlines';
+import { injectable } from 'tsyringe';
 import { AppError } from '../common/appError';
 
 @injectable()
 export class QueueFileHandler {
   private readonly queueFilePath: string;
+  private readonly liner;
 
   public constructor() {
     this.queueFilePath = config.get<string>('ingestion.queueFile');
+    this.liner = new LineByLine(this.queueFilePath);
   }
 
-  public filesToTasks(batchSize: number, modelId: string): ICreateTaskBody<ITaskParameters>[] {
-    const tasks: ICreateTaskBody<ITaskParameters>[] = [];
-    const taskType: string = config.get<string>('worker.taskType');
-    const liner = new LineByLine(this.queueFilePath);
-    let line = liner.next();
-    let chunk: string[] = [];
+  public readline(): string | null {
+    const line = this.liner.next();
 
-    while (line != false) {
-      chunk.push(line.toString('ascii'));
-
-      if (chunk.length === batchSize) {
-        const parameters: ITaskParameters = { paths: chunk, modelId: modelId };
-        const task: ICreateTaskBody<ITaskParameters> = {
-          type: taskType,
-          parameters: parameters,
-        };
-        tasks.push(task);
-        chunk = [];
-      }
-      line = liner.next();
+    if (line === false) {
+      return null;
     }
 
-    if (chunk.length > 0) {
-      const parameters: ITaskParameters = { paths: chunk, modelId: modelId };
-      const task: ICreateTaskBody<ITaskParameters> = {
-        type: taskType,
-        parameters: parameters,
-      };
-      tasks.push(task);
-    }
-
-    return tasks;
-  };
+    return line.toString('ascii');
+  }
 
   public writeFileNameToQueueFile(fileName: string): void {
     try {
