@@ -1,17 +1,22 @@
 import fs from 'fs';
+import path from 'path';
+import { Logger } from '@map-colonies/js-logger';
 import config from 'config';
 import httpStatus from 'http-status-codes';
 import LineByLine from 'n-readlines';
-import { injectable } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import { AppError } from '../common/appError';
+import { SERVICES } from '../common/constants';
 
 @injectable()
 export class QueueFileHandler {
   private readonly queueFilePath: string;
   private readonly liner;
 
-  public constructor() {
+  public constructor(@inject(SERVICES.LOGGER) private readonly logger: Logger) {
     this.queueFilePath = config.get<string>('ingestion.queueFile');
+    console.log(this.queueFilePath);
+    this.createQueueFile();
     this.liner = new LineByLine(this.queueFilePath);
   }
 
@@ -42,10 +47,20 @@ export class QueueFileHandler {
   };
 
   public emptyQueueFile(): void {
-    fs.truncate(this.queueFilePath, 0, (err) => {
-      if (err) {
-        throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, true);
-      }
-    });
+    try {
+      fs.truncateSync(this.queueFilePath, 0,);
+    } catch (err) {
+      throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, true);
+    };
   };
+
+  private createQueueFile(): void {
+    try {
+      if (!fs.existsSync(this.queueFilePath)) {
+        fs.writeFileSync(this.queueFilePath, 'Hello, world!', 'utf8');
+      }
+    } catch (err) {
+      throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Cant create queue file`, true);
+    };
+  }
 }
