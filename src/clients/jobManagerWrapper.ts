@@ -17,7 +17,7 @@ export class JobManagerWrapper extends JobManagerClient {
       config.get<string>('worker.job.type'),
       config.get<string>('jobManager.url'));
 
-    this.taskType = config.get<string>('worker.taskType');
+    this.taskType = config.get<string>('worker.task.type');
   }
 
   public async create(job: CreateJobBody): Promise<IIngestionResponse> {
