@@ -9,6 +9,7 @@ import { QueueFileHandler } from '../handlers/queueFileHandler';
 @injectable()
 export class JobManagerWrapper extends JobManagerClient {
   private readonly taskType: string;
+  private readonly batchSize: number;
 
   public constructor(@inject(SERVICES.LOGGER) protected readonly logger: Logger,
     @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler) {
@@ -18,11 +19,11 @@ export class JobManagerWrapper extends JobManagerClient {
       config.get<string>('jobManager.url'));
 
     this.taskType = config.get<string>('worker.task.type');
+    this.batchSize = config.get<number>('worker.task.batches');
   }
 
   public async create(job: CreateJobBody): Promise<IIngestionResponse> {
-    const batchSize: number = config.get<number>('worker.task.batches');
-    const tasks: ICreateTaskBody<ITaskParameters>[] = this.createTasks(batchSize, job.resourceId);
+    const tasks: ICreateTaskBody<ITaskParameters>[] = this.createTasks(this.batchSize, job.resourceId);
     job.tasks = tasks;
 
     const jobResponse = await this.createJob<IJobParameters, ITaskParameters>(job);

@@ -6,9 +6,10 @@ import { AppError } from '../../../../src/common/appError';
 import { IJobStatusResponse } from '../../../../src/common/interfaces';
 import { JobStatusManager } from '../../../../src/jobStatus/models/jobStatusManager';
 
-let jobStatusManager: JobStatusManager;
 
 describe('jobStatusManager', () => {
+  let jobStatusManager: JobStatusManager;
+  
   const jobManagerWrapperMock = {
     getJob: jest.fn(),
   }
