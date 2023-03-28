@@ -1,5 +1,4 @@
 import fs from 'fs';
-import path from 'path';
 import { Logger } from '@map-colonies/js-logger';
 import config from 'config';
 import httpStatus from 'http-status-codes';
@@ -57,7 +56,7 @@ export class QueueFileHandler {
   private createQueueFile(): void {
     try {
       if (!fs.existsSync(this.queueFilePath)) {
-        fs.writeFileSync(this.queueFilePath, 'Hello, world!', 'utf8');
+        fs.writeFileSync(this.queueFilePath, '', 'utf8');
       }
     } catch (err) {
       throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Cant create queue file`, true);
