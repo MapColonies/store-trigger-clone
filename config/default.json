@@ -39,7 +39,7 @@
   },
   "ingestion": {
     "provider": "S3",
-    "queueFile": "./queueFile.txt"
+    "queueFileName": "queueFile.txt"
   },
   "jobManager": {
     "url": "http://127.0.0.1:8080"
