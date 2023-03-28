@@ -31,8 +31,8 @@ function getProviderConfig(provider: string): INFSConfig | IS3Config {
       httpStatus.INTERNAL_SERVER_ERROR,
       `Invalid config provider received: ${provider} - available values:  "nfs" or "s3"`,
       false
-      );
-    }
+    );
+  }
 };
 
-export {getProvider, getProviderConfig};
+export { getProvider, getProviderConfig };

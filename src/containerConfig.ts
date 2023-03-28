@@ -22,7 +22,7 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
   const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
   // const fsConfig = config.get<INFSConfig>('NFS');
   // const s3Config = config.get<IS3Config>('S3');
-  const ingestionConfig = config.get<IIngestionConfig>('ingestion');
+  const provider = config.get<string>('ingestion.provider');
   // @ts-expect-error the signature is wrong
   const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, hooks: { logMethod } });
 
@@ -43,7 +43,7 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
       token: SERVICES.PROVIDER_CONFIG,
       provider: {
         useFactory: (): INFSConfig | IS3Config => {
-          return getProviderConfig(ingestionConfig.configProvider);
+          return getProviderConfig(provider);
         },
       },
     },
@@ -53,7 +53,7 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
       token: SERVICES.PROVIDER,
       provider: {
         useFactory: (): IProvider => {
-          return getProvider(ingestionConfig.configProvider);
+          return getProvider(provider);
         },
       },
     },
