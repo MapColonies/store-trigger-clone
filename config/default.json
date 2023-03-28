@@ -38,7 +38,7 @@
     "pvPath": "/home/netanel/3DModels"
   },
   "ingestion": {
-    "configProvider": "S3",
+    "provider": "S3",
     "queueFile": "./queueFile.txt"
   },
   "jobManager": {

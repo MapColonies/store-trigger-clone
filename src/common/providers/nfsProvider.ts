@@ -5,11 +5,12 @@ import { inject, injectable } from 'tsyringe';
 import { QueueFileHandler } from '../../handlers/queueFileHandler';
 import { AppError } from '../appError';
 import { SERVICES } from '../constants';
-import { IConfigProvider, INFSConfig } from '../interfaces';
+import { IProvider, INFSConfig } from '../interfaces';
 
 @injectable()
-export class NFSProvider implements IConfigProvider {
-  public constructor(@inject(SERVICES.S3) protected readonly config: INFSConfig,
+export class NFSProvider implements IProvider {
+  // public constructor(@inject(SERVICES.S3) protected readonly config: INFSConfig,
+  public constructor(@inject(SERVICES.PROVIDER_CONFIG) protected readonly config: INFSConfig,
   @inject(SERVICES.LOGGER) protected readonly logger: Logger,
   @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler) {
   }

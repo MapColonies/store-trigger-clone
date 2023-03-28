@@ -5,13 +5,14 @@ import { inject, injectable } from 'tsyringe';
 import { QueueFileHandler } from '../../handlers/queueFileHandler';
 import { AppError } from '../appError';
 import { SERVICES } from '../constants';
-import { IConfigProvider, IS3Config } from '../interfaces';
+import { IProvider, IS3Config } from '../interfaces';
 
 @injectable()
-export class S3Provider implements IConfigProvider {
+export class S3Provider implements IProvider {
   private readonly s3: S3Client;
 
-  public constructor(@inject(SERVICES.S3) protected readonly s3Config: IS3Config,
+  // public constructor(@inject(SERVICES.S3) protected readonly s3Config: IS3Config,
+  public constructor(@inject(SERVICES.PROVIDER_CONFIG) protected readonly s3Config: IS3Config,
     @inject(SERVICES.LOGGER) protected readonly logger: Logger,
     @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler) {
     const s3ClientConfig: S3ClientConfig = {

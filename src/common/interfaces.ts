@@ -33,7 +33,7 @@ export interface Payload {
   metadata: Layer3DMetadata;
 }
 
-export interface IConfigProvider {
+export interface IProvider {
   listFiles: (model: string) => Promise<void>;
 }
 
