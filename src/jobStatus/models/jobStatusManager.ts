@@ -17,7 +17,7 @@ export class JobStatusManager {
   public async checkStatus(jobID: string): Promise<IJobStatusResponse> {
     const job: IJobResponse<IJobParameters, ITaskParameters> | undefined = await this.jobManagerClient.getJob(jobID);
     if (job == undefined) {
-      throw new AppError('', httpStatus.NOT_FOUND, 'The Job ID is not exists!', true);
+      throw new AppError(httpStatus.NOT_FOUND, 'The Job ID is not exists!', true);
     }
     
     const jobResponse: IJobStatusResponse = {

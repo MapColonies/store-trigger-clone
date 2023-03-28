@@ -54,14 +54,14 @@ describe('ingestionManager', () => {
     });
 
     it('rejects if listFiles fails', async () => {
-      configProviderMock.listFiles.mockRejectedValue(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, '', true));
+      configProviderMock.listFiles.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
 
       await expect(ingestionManager.createModel(payload)).rejects.toThrow(AppError);
     });
 
     it('rejects if jobManager fails', async () => {
       configProviderMock.listFiles.mockResolvedValue(undefined);
-      jobsManagerMock.create.mockRejectedValue(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, '', true));
+      jobsManagerMock.create.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
 
       await expect(ingestionManager.createModel(payload)).rejects.toThrow(AppError);
     });

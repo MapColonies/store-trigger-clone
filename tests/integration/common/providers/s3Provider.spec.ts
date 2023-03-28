@@ -32,7 +32,7 @@ describe('S3Provider', () => {
       const result = await provider.listFiles(model);
 
       expect(result).toThrow(
-        new AppError('', httpStatus.BAD_REQUEST, `Model ${model} doesn't exists in bucket ${config.get<string>('S3.bucket')}!`, true)
+        new AppError(httpStatus.BAD_REQUEST, `Model ${model} doesn't exists in bucket ${config.get<string>('S3.bucket')}!`, true)
       );
     });
   });

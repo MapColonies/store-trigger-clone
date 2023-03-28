@@ -60,7 +60,7 @@ export class S3Provider implements IProvider {
     }
 
     if (this.queueFileHandler.checkIfTempFileEmpty()) {
-      throw new AppError('', httpStatus.BAD_REQUEST, `Model ${modelName} doesn't exists in bucket ${this.s3Config.bucket}!`, true);
+      throw new AppError(httpStatus.BAD_REQUEST, `Model ${modelName} doesn't exists in bucket ${this.s3Config.bucket}!`, true);
     }
   }
 
@@ -84,14 +84,13 @@ export class S3Provider implements IProvider {
     } catch (e) {
       if (e instanceof S3ServiceException) {
         throw new AppError(
-          '',
           e.$metadata.httpStatusCode ?? httpStatus.INTERNAL_SERVER_ERROR,
           `${e.name}, message: ${e.message}, bucket: ${this.s3Config.bucket}}`,
           true
         );
       }
       this.logger.error({ msg: e });
-      throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, "Didn't throw a S3 exception in listing files", true);
+      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Didn't throw a S3 exception in listing files", true);
     }
   }
 }

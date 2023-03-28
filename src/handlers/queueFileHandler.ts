@@ -33,7 +33,7 @@ export class QueueFileHandler {
     try {
       fs.appendFileSync(this.queueFileName, fileName + '\n');
     } catch (err) {
-      throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't write the file: '${fileName}'`, true);
+      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Didn't write the file: '${fileName}'`, true);
     }
   };
 
@@ -41,7 +41,7 @@ export class QueueFileHandler {
     try {
       return fs.statSync(this.queueFileName).size === 0 ? true : false;
     } catch (err) {
-      throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Problem with fs. Can't see if the file is empty or not`, true);
+      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Problem with fs. Can't see if the file is empty or not`, true);
     }
   };
 
@@ -49,7 +49,7 @@ export class QueueFileHandler {
     try {
       fs.truncateSync(this.queueFileName, 0,);
     } catch (err) {
-      throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, true);
+      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, true);
     };
   };
 
@@ -60,7 +60,7 @@ export class QueueFileHandler {
         fs.writeFileSync(filePath, '', 'utf8');
       }
     } catch (err) {
-      throw new AppError('', httpStatus.INTERNAL_SERVER_ERROR, `Cant create queue file`, true);
+      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Cant create queue file`, true);
     };
   }
 }

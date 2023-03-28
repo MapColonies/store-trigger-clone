@@ -41,12 +41,12 @@ describe('jobStatusManager', () => {
       const jobId = '123';
       jobManagerWrapperMock.getJob.mockResolvedValue(undefined);
 
-      await expect(jobStatusManager.checkStatus(jobId)).rejects.toThrow(new AppError('', httpStatus.NOT_FOUND, 'The Job ID is not exists!', true));
+      await expect(jobStatusManager.checkStatus(jobId)).rejects.toThrow(new AppError(httpStatus.NOT_FOUND, 'The Job ID is not exists!', true));
     });
 
     it('rejects if jobManager fails', async () => {
       const jobId = '123';
-      jobManagerWrapperMock.getJob.mockRejectedValue(new AppError('', httpStatus.INTERNAL_SERVER_ERROR, '', true));
+      jobManagerWrapperMock.getJob.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
 
        await expect(jobStatusManager.checkStatus(jobId)).rejects.toThrow(AppError);
     });

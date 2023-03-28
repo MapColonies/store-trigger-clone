@@ -17,7 +17,7 @@ export class NFSProvider implements IProvider {
 
   public async listFiles(model: string): Promise<void> {
     if (!fs.existsSync(`${this.config.pvPath}/${model}`)) {
-      throw new AppError('', httpStatus.BAD_REQUEST, `Model ${model} doesn't exists in the agreed folder`, true);
+      throw new AppError(httpStatus.BAD_REQUEST, `Model ${model} doesn't exists in the agreed folder`, true);
     }
 
     const folders: string[] = [model];

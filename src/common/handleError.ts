@@ -8,5 +8,5 @@ export function handleError(error: AppError, request: Request, response: Respons
     throw error;
   }
 
-  next();
+  next(error);
 }
