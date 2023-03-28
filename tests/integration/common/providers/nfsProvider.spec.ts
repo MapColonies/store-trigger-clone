@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { container } from 'tsyringe';
 import config from 'config';
 import httpStatus from 'http-status-codes';
 import { NFSProvider } from '../../../../src/common/providers/nfsProvider';
@@ -8,7 +9,7 @@ describe('FSProvider', () => {
   let provider: NFSProvider;
 
   beforeEach(() => {
-    provider = new NFSProvider();
+    provider = container.resolve(NFSProvider);
   });
   afterEach(() => {
     jest.clearAllMocks();

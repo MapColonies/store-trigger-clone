@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { container } from 'tsyringe';
 import config from 'config';
 import httpStatus from 'http-status-codes';
 import { S3Provider } from '../../../../src/common/providers/s3Provider';
@@ -8,7 +9,7 @@ describe('S3Provider', () => {
   let provider: S3Provider;
 
   beforeEach(() => {
-    provider = new S3Provider();
+    provider = container.resolve(S3Provider);
   });
   afterEach(() => {
     jest.clearAllMocks();

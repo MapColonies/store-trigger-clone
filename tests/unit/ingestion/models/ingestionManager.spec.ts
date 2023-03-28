@@ -4,7 +4,7 @@ import config from 'config';
 import httpStatus from 'http-status-codes';
 import { JobManagerWrapper } from '../../../../src/clients/jobManagerWrapper';
 import { AppError } from '../../../../src/common/appError';
-import { IConfig, IConfigProvider, IIngestionResponse, Payload } from '../../../../src/common/interfaces';
+import { IConfig, IIngestionResponse, IProvider, Payload } from '../../../../src/common/interfaces';
 import { QueueFileHandler } from '../../../../src/handlers/queueFileHandler';
 import { IngestionManager } from '../../../../src/ingestion/models/ingestionManager';
 import { createPayload } from '../../../helpers/mockCreator';
@@ -30,7 +30,7 @@ describe('ingestionManager', () => {
     ingestionManager = new IngestionManager(jsLogger({ enabled: false }),
       config as IConfig,
       jobsManagerMock as unknown as JobManagerWrapper,
-      configProviderMock as unknown as IConfigProvider,
+      configProviderMock as unknown as IProvider,
       queueFileHandlerMock as unknown as QueueFileHandler);
   });
 
