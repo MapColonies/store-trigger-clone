@@ -1,8 +1,7 @@
 import { Logger } from '@map-colonies/js-logger';
-import { IJobResponse } from '@map-colonies/mc-priority-queue';
+import { IJobResponse, JobManagerClient } from '@map-colonies/mc-priority-queue';
 import { inject, injectable } from 'tsyringe';
 import httpStatus from 'http-status-codes';
-import { JobManagerWrapper } from '../../clients/jobManagerWrapper';
 import { AppError } from '../../common/appError';
 import { SERVICES } from '../../common/constants';
 import { IJobParameters, IJobStatusResponse, ITaskParameters } from '../../common/interfaces';
@@ -11,7 +10,7 @@ import { IJobParameters, IJobStatusResponse, ITaskParameters } from '../../commo
 export class JobStatusManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(JobManagerWrapper) private readonly jobManagerClient: JobManagerWrapper
+    @inject(JobManagerClient) private readonly jobManagerClient: JobManagerClient
   ) {}
 
   public async checkStatus(jobID: string): Promise<IJobStatusResponse> {

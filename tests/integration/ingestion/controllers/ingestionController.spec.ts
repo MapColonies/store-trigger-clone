@@ -7,8 +7,8 @@ import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import { ListObjectsCommandOutput, S3ServiceException } from '@aws-sdk/client-s3';
 import { getApp } from '../../../../src/app';
 import { SERVICES } from '../../../../src/common/constants';
-import { createPayload } from '../../../helpers/helpers';
 import { IngestionRequestSender } from '../helpers/requestSender';
+import { createPayload } from '../../../helpers/mockCreator';
 
 describe('ModelsController', function () {
   let requestSender: IngestionRequestSender;

@@ -7,7 +7,7 @@
     "test:unit": "jest --config=./tests/configurations/unit/jest.config.js",
     "test:myTest": "jest ./tests/unit/common/utilities.spec.ts",
     "test:integration": "jest --config=./tests/configurations/integration/jest.config.js",
-    "test:integration:job-status": "jest --config=./tests/configurations/integration/jest.config.js tests/integration/jobStatus/jobStatusController.spec.ts",
+    "test:integration:one": "jest --config=./tests/configurations/integration/jest.config.js tests/integration/ingestion/controllers/ingestionController.spec.ts",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "prelint:fix": "npm run format:fix",
