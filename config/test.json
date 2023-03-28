@@ -12,9 +12,8 @@
     "pvPath": "./tests/helpers/3Dmodels"
   },
   "ingestion": {
-    "configProvider": "S3",
-    "batches": 100,
-    "queueFileName": "./queueFile.txt"
+    "provider": "S3",
+    "queueFileName": "queueFile.txt"
   },
   "jobManager": {
     "url": "http://127.0.0.1:8080"
@@ -24,6 +23,7 @@
       "type": "Ingestion_New_3D"
     },
     "task": {
+      "batches": 100,
       "type": "Ingestion"
     }
   }

@@ -2,6 +2,7 @@ import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import httpStatusCodes from 'http-status-codes';
 import mockAxios from 'jest-mock-axios';
 import { getApp } from '../../../src/app';
+import { JobManagerWrapper } from '../../../src/clients/jobManagerWrapper';
 import { JobStatusRequestSender } from './helpers/requestSender';
 
 describe('jobStatusController', function () {
@@ -10,8 +11,13 @@ describe('jobStatusController', function () {
     getJob: jest.fn(),
   };
 
-  beforeEach(function () {
-    const app = getApp();
+  beforeAll(() => {
+    const app = getApp({
+      override: [
+        { token: JobManagerWrapper, provider: { useValue: jobManagerClientMock } },
+      ],
+    });
+
     requestSender = new JobStatusRequestSender(app);
   });
 
@@ -40,7 +46,7 @@ describe('jobStatusController', function () {
     describe('Sad Path', function () {
       it('should return 404 status code if job id not exists', async function () {
         const jobId = '1234';
-        mockAxios.post.mockResolvedValue(undefined);
+        jobManagerClientMock.getJob.mockResolvedValue(undefined);
 
         const response = await requestSender.checkStatus(jobId);
 
@@ -50,7 +56,7 @@ describe('jobStatusController', function () {
 
       it('should return 500 status code if job manager is unavailable', async function () {
         const jobId = '1234';
-        mockAxios.post.mockRejectedValueOnce(new Error('JobManager is not avaliable'));
+        jobManagerClientMock.getJob.mockRejectedValueOnce(new Error('JobManager is not available'));
 
         const response = await requestSender.checkStatus(jobId);
 
