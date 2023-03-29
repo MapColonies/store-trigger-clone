@@ -1,4 +1,5 @@
 import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
+import { JobManagerClient } from '@map-colonies/mc-priority-queue';
 import { logMethod, Metrics } from '@map-colonies/telemetry';
 import { trace } from '@opentelemetry/api';
 import config from 'config';
@@ -19,9 +20,9 @@ export interface RegisterOptions {
 
 export const registerExternalValues = (options?: RegisterOptions): DependencyContainer => {
   const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
-  // const fsConfig = config.get<INFSConfig>('NFS');
-  // const s3Config = config.get<IS3Config>('S3');
   const provider = config.get<string>('ingestion.provider');
+  const jobType = config.get<string>('worker.job.type');
+  const jobManagerBaseUrl = config.get<string>('jobManager.url');
   // @ts-expect-error the signature is wrong
   const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, hooks: { logMethod } });
 
@@ -36,6 +37,13 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
     { token: SERVICES.LOGGER, provider: { useValue: logger } },
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
     { token: SERVICES.METER, provider: { useValue: meter } },
+    {
+      token: SERVICES.JOB_MANAGER_CLIENT, provider: {
+        useFactory: (): JobManagerClient => {
+          return new JobManagerClient(logger, jobType, jobManagerBaseUrl);
+        }
+      }
+    },
     { token: INGESTION_ROUTER_SYMBOL, provider: { useFactory: ingestionRouterFactory } },
     { token: JOB_STATUS_ROUTER_SYMBOL, provider: { useFactory: jobStatusRouterFactory } },
     {

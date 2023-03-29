@@ -15,5 +15,6 @@ export const SERVICES: Record<string, symbol> = {
   PROVIDER: Symbol('Provider'),
   PROVIDER_CONFIG: Symbol('ProviderConfig'),
   QUEUE_FILE_HANDLER: Symbol('QueueFileHandler'),
+  JOB_MANAGER_CLIENT: Symbol('JobManagerClient'),
 };
 /* eslint-enable @typescript-eslint/naming-convention */

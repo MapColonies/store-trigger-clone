@@ -15,7 +15,7 @@ export class IngestionManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(SERVICES.CONFIG) private readonly config: IConfig,
-    @inject(JobManagerClient) private readonly jobManagerClient: JobManagerClient,
+    @inject(SERVICES.JOB_MANAGER_CLIENT) private readonly jobManagerClient: JobManagerClient,
     @inject(SERVICES.PROVIDER) private readonly provider: IProvider,
     @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler) {
     this.providerName = this.config.get<string>('ingestion.provider');
