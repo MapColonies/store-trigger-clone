@@ -1,10 +1,10 @@
-import jsLogger from '@map-colonies/js-logger';
-import { OperationStatus } from '@map-colonies/mc-priority-queue';
-import config from 'config';
+import { JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
 import httpStatus from 'http-status-codes';
-import { JobManagerWrapper } from '../../../../src/clients/jobManagerWrapper';
+import { container } from 'tsyringe';
+import { getApp } from '../../../../src/app';
 import { AppError } from '../../../../src/common/appError';
-import { IConfig, IIngestionResponse, IProvider, Payload } from '../../../../src/common/interfaces';
+import { SERVICES } from '../../../../src/common/constants';
+import { IIngestionResponse, Payload } from '../../../../src/common/interfaces';
 import { QueueFileHandler } from '../../../../src/handlers/queueFileHandler';
 import { IngestionManager } from '../../../../src/ingestion/models/ingestionManager';
 import { createPayload } from '../../../helpers/mockCreator';
@@ -13,8 +13,8 @@ let ingestionManager: IngestionManager;
 let payload: Payload;
 
 describe('ingestionManager', () => {
-  const jobsManagerMock = {
-    create: jest.fn(),
+  const jobManagerClientMock = {
+    createJob: jest.fn(),
   };
 
   const configProviderMock = {
@@ -27,11 +27,15 @@ describe('ingestionManager', () => {
 
   beforeAll(() => {
     payload = createPayload('model1');
-    ingestionManager = new IngestionManager(jsLogger({ enabled: false }),
-      config as IConfig,
-      jobsManagerMock as unknown as JobManagerWrapper,
-      configProviderMock as unknown as IProvider,
-      queueFileHandlerMock as unknown as QueueFileHandler);
+    getApp({
+      override: [
+        { token: JobManagerClient, provider: { useValue: jobManagerClientMock } },
+        { token: QueueFileHandler, provider: { useValue: queueFileHandlerMock } },
+        { token: SERVICES.PROVIDER, provider: { useValue: configProviderMock } },
+      ],
+    });
+
+    ingestionManager = container.resolve(IngestionManager);
   });
 
   afterEach(() => {
@@ -46,7 +50,7 @@ describe('ingestionManager', () => {
       };
 
       configProviderMock.streamModelPathsToQueueFile.mockResolvedValue(undefined);
-      jobsManagerMock.create.mockResolvedValue(response);
+      jobManagerClientMock.createJob.mockResolvedValue({id: '1234',status: OperationStatus.IN_PROGRESS,});
 
       const modelResponse = await ingestionManager.createModel(payload)
 
@@ -61,7 +65,7 @@ describe('ingestionManager', () => {
 
     it('rejects if jobManager fails', async () => {
       configProviderMock.streamModelPathsToQueueFile.mockResolvedValue(undefined);
-      jobsManagerMock.create.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
+      jobManagerClientMock.createJob.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
 
       await expect(ingestionManager.createModel(payload)).rejects.toThrow(AppError);
     });

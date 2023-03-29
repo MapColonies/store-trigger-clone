@@ -1,7 +1,7 @@
-import jsLogger from '@map-colonies/js-logger';
-import { OperationStatus } from '@map-colonies/mc-priority-queue';
+import { JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
 import httpStatus from 'http-status-codes';
-import { JobManagerWrapper } from '../../../../src/clients/jobManagerWrapper';
+import { container } from 'tsyringe';
+import { getApp } from '../../../../src/app';
 import { AppError } from '../../../../src/common/appError';
 import { IJobStatusResponse } from '../../../../src/common/interfaces';
 import { JobStatusManager } from '../../../../src/jobStatus/models/jobStatusManager';
@@ -9,14 +9,19 @@ import { JobStatusManager } from '../../../../src/jobStatus/models/jobStatusMana
 
 describe('jobStatusManager', () => {
   let jobStatusManager: JobStatusManager;
-  
-  const jobManagerWrapperMock = {
+
+  const jobManagerClientMock = {
     getJob: jest.fn(),
   }
 
   beforeAll(() => {
-    jobStatusManager = new JobStatusManager(jsLogger({ enabled: false }),
-      jobManagerWrapperMock as unknown as JobManagerWrapper);
+    getApp({
+      override: [
+        { token: JobManagerClient, provider: { useValue: jobManagerClientMock } },
+      ],
+    });
+
+    jobStatusManager = container.resolve(JobStatusManager);
   })
 
   afterEach(() => {
@@ -30,7 +35,7 @@ describe('jobStatusManager', () => {
         percentage: 100,
         status: OperationStatus.COMPLETED,
       };
-      jobManagerWrapperMock.getJob.mockResolvedValue(expectedResponse);
+      jobManagerClientMock.getJob.mockResolvedValue(expectedResponse);
 
       const response = await jobStatusManager.checkStatus(jobId);
 
@@ -39,16 +44,16 @@ describe('jobStatusManager', () => {
 
     it(`rejects if job id doesn't exists`, async function () {
       const jobId = '123';
-      jobManagerWrapperMock.getJob.mockResolvedValue(undefined);
+      jobManagerClientMock.getJob.mockResolvedValue(undefined);
 
       await expect(jobStatusManager.checkStatus(jobId)).rejects.toThrow(new AppError(httpStatus.NOT_FOUND, 'The Job ID is not exists!', true));
     });
 
     it('rejects if jobManager fails', async () => {
       const jobId = '123';
-      jobManagerWrapperMock.getJob.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
+      jobManagerClientMock.getJob.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
 
-       await expect(jobStatusManager.checkStatus(jobId)).rejects.toThrow(AppError);
+      await expect(jobStatusManager.checkStatus(jobId)).rejects.toThrow(AppError);
     });
   });
 });
