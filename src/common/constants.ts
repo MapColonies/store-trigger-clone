@@ -14,8 +14,6 @@ export const SERVICES: Record<string, symbol> = {
   METER: Symbol('Meter'),
   PROVIDER: Symbol('Provider'),
   PROVIDER_CONFIG: Symbol('ProviderConfig'),
-  // NFS: Symbol('NFS'),
-  // S3: Symbol('S3'),
   QUEUE_FILE_HANDLER: Symbol('QueueFileHandler'),
 };
 /* eslint-enable @typescript-eslint/naming-convention */
