@@ -1,5 +1,7 @@
 import config from 'config';
 import RandExp from 'randexp';
+import { mockClient } from 'aws-sdk-client-mock';
+import { ListObjectsCommandOutput, S3Client } from '@aws-sdk/client-s3';
 import { randBetweenDate, randNumber, randPastDate, randUuid, randWord } from '@ngneat/falso';
 import { Polygon } from 'geojson';
 import { Layer3DMetadata, ProductType, RecordStatus, RecordType } from '@map-colonies/mc-model-types';
@@ -137,3 +139,22 @@ export const createJobParameters = (): IJobParameters => {
     tilesetFilename: 'tileset.json'
   }
 }
+
+export const queueFileHandlerMock = {
+  emptyQueueFile: jest.fn(),
+}
+
+
+export const s3Mock = mockClient(S3Client);
+
+/* eslint-disable @typescript-eslint/naming-convention */
+export const s3Output: ListObjectsCommandOutput = {
+  Contents: [{ Key: 'model1/file1', }],
+  CommonPrefixes: [{ Prefix: 'model1/file2' }],
+  IsTruncated: false,
+  $metadata: {}
+};
+
+export const s3BadOutput: ListObjectsCommandOutput = {
+  $metadata: {}
+};
