@@ -21,7 +21,7 @@ describe('FSProvider', () => {
       const expected = 'a.txt\nb.txt';
       const queueFile = config.get<string>('ingestion.queueFile');
 
-      await provider.listFiles(model);
+      await provider.streamModelPathsToQueueFile(model);
       const result = fs.readFileSync(queueFile, 'utf-8');
 
       expect(result).toStrictEqual(expected);
@@ -30,7 +30,7 @@ describe('FSProvider', () => {
     it('returns error string when model is not in the agreed folder', async () => {
       const model = 'bla';
 
-      const result = await provider.listFiles(model);
+      const result = await provider.streamModelPathsToQueueFile(model);
 
       expect(result).toThrow(new AppError(httpStatus.BAD_REQUEST, `Model ${model} doesn't exists in the agreed folder`, true));
     });

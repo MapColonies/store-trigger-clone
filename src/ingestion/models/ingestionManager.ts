@@ -42,7 +42,7 @@ export class IngestionManager {
     };
     try {
       this.logger.info({ msg: 'Starts writing content to queue file' });
-      await this.provider.listFiles(modelName);
+      await this.provider.streamModelPathsToQueueFile(modelName);
       this.logger.info({ msg: 'Finished writing content to queue file. Creating Tasks' });
 
       const res: IIngestionResponse = await this.createJob(createJobRequest);

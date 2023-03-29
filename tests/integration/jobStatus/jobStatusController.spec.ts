@@ -1,8 +1,8 @@
-import { OperationStatus } from '@map-colonies/mc-priority-queue';
+import { JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
 import httpStatusCodes from 'http-status-codes';
 import mockAxios from 'jest-mock-axios';
+import { container } from 'tsyringe';
 import { getApp } from '../../../src/app';
-import { JobManagerWrapper } from '../../../src/clients/jobManagerWrapper';
 import { JobStatusRequestSender } from './helpers/requestSender';
 
 describe('jobStatusController', function () {
@@ -14,14 +14,15 @@ describe('jobStatusController', function () {
   beforeAll(() => {
     const app = getApp({
       override: [
-        { token: JobManagerWrapper, provider: { useValue: jobManagerClientMock } },
+        { token: JobManagerClient, provider: { useValue: jobManagerClientMock } },
       ],
     });
 
     requestSender = new JobStatusRequestSender(app);
   });
 
-  afterEach(function () {
+  afterAll(function () {
+    container.reset();
     mockAxios.reset();
   });
 

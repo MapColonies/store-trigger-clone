@@ -34,7 +34,7 @@ export interface Payload {
 }
 
 export interface IProvider {
-  listFiles: (model: string) => Promise<void>;
+  streamModelPathsToQueueFile: (model: string) => Promise<void>;
 }
 
 export interface IIngestionConfig {

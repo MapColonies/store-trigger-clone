@@ -21,7 +21,7 @@ describe('S3Provider', () => {
       const expected: string[] = ['a.txt', 'b.txt'];
       const queueFile = config.get<string>('ingestion.queueFile');
 
-      await provider.listFiles(model);
+      await provider.streamModelPathsToQueueFile(model);
       const result = fs.readFileSync(queueFile, 'utf-8');
 
       expect(result).toStrictEqual(expected);
@@ -30,7 +30,7 @@ describe('S3Provider', () => {
     it('returns error string when model is not in the agreed folder', async () => {
       const model = 'bla';
 
-      const result = await provider.listFiles(model);
+      const result = await provider.streamModelPathsToQueueFile(model);
 
       expect(result).toThrow(
         new AppError(httpStatus.BAD_REQUEST, `Model ${model} doesn't exists in bucket ${config.get<string>('S3.bucket')}!`, true)

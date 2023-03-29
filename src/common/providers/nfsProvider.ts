@@ -15,7 +15,7 @@ export class NFSProvider implements IProvider {
   @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler) {
   }
 
-  public async listFiles(model: string): Promise<void> {
+  public async streamModelPathsToQueueFile(model: string): Promise<void> {
     if (!fs.existsSync(`${this.config.pvPath}/${model}`)) {
       throw new AppError(httpStatus.BAD_REQUEST, `Model ${model} doesn't exists in the agreed folder`, true);
     }

@@ -18,7 +18,7 @@ describe('ingestionManager', () => {
   };
 
   const configProviderMock = {
-    listFiles: jest.fn(),
+    streamModelPathsToQueueFile: jest.fn(),
   };
 
   const queueFileHandlerMock = {
@@ -45,7 +45,7 @@ describe('ingestionManager', () => {
         status: OperationStatus.IN_PROGRESS,
       };
 
-      configProviderMock.listFiles.mockResolvedValue(undefined);
+      configProviderMock.streamModelPathsToQueueFile.mockResolvedValue(undefined);
       jobsManagerMock.create.mockResolvedValue(response);
 
       const modelResponse = await ingestionManager.createModel(payload)
@@ -53,14 +53,14 @@ describe('ingestionManager', () => {
       expect(modelResponse).toMatchObject(response);
     });
 
-    it('rejects if listFiles fails', async () => {
-      configProviderMock.listFiles.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
+    it('rejects if streamModelPathsToQueueFile fails', async () => {
+      configProviderMock.streamModelPathsToQueueFile.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
 
       await expect(ingestionManager.createModel(payload)).rejects.toThrow(AppError);
     });
 
     it('rejects if jobManager fails', async () => {
-      configProviderMock.listFiles.mockResolvedValue(undefined);
+      configProviderMock.streamModelPathsToQueueFile.mockResolvedValue(undefined);
       jobsManagerMock.create.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
 
       await expect(ingestionManager.createModel(payload)).rejects.toThrow(AppError);
