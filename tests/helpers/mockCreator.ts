@@ -155,6 +155,6 @@ export const s3Output: ListObjectsCommandOutput = {
   $metadata: {}
 };
 
-export const s3BadOutput: ListObjectsCommandOutput = {
+export const s3EmptyOutput: ListObjectsCommandOutput = {
   $metadata: {}
 };

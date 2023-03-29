@@ -47,7 +47,7 @@ export class QueueFileHandler {
 
   public emptyQueueFile(): void {
     try {
-      fs.truncateSync(this.queueFileName, 0,);
+      fs.truncateSync(this.queueFileName, 0);
     } catch (err) {
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, true);
     };

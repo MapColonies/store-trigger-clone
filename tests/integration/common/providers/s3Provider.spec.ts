@@ -1,12 +1,11 @@
 import fs from 'fs';
 import { ListObjectsCommand } from '@aws-sdk/client-s3';
 import config from 'config';
-import httpStatus from 'http-status-codes';
 import { container } from 'tsyringe';
 import { getApp } from '../../../../src/app';
 import { AppError } from '../../../../src/common/appError';
 import { S3Provider } from '../../../../src/common/providers/s3Provider';
-import { s3Mock, s3Output } from '../../../helpers/mockCreator';
+import { s3EmptyOutput, s3Mock, s3Output } from '../../../helpers/mockCreator';
 
 describe('S3Provider', () => {
   let provider: S3Provider;
@@ -22,25 +21,26 @@ describe('S3Provider', () => {
   });
 
   describe('#list files', () => {
-    it.only('returns all the files from S3', async () => {
+    beforeEach(() => {
+      fs.truncateSync(queueFile, 0);
+    });
+
+    it('returns all the files from S3', async () => {
       const model = 'model1';
-      const expected: string[] = ['a.txt', 'b.txt'];
+      const expected = `${model}/file1\n${model}/file2\n`;
       s3Mock.on(ListObjectsCommand).resolves(s3Output);
 
       await provider.streamModelPathsToQueueFile(model);
-      const result = fs.readFileSync(queueFile, 'utf-8');
+      const result = fs.readFileSync(queueFile, 'utf-8')
 
       expect(result).toStrictEqual(expected);
     });
 
     it('returns error string when model is not in the agreed folder', async () => {
       const model = 'bla';
+      s3Mock.on(ListObjectsCommand).resolves(s3EmptyOutput);
 
-      const result = await provider.streamModelPathsToQueueFile(model);
-
-      expect(result).toThrow(
-        new AppError(httpStatus.BAD_REQUEST, `Model ${model} doesn't exists in bucket ${config.get<string>('S3.bucket')}!`, true)
-      );
+      await expect(provider.streamModelPathsToQueueFile(model)).rejects.toThrow(AppError);
     });
   });
 });
