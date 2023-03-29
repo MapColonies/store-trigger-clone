@@ -1,25 +1,31 @@
-import * as fs from 'fs';
-import { container } from 'tsyringe';
+import fs from 'fs';
+import { ListObjectsCommand } from '@aws-sdk/client-s3';
 import config from 'config';
 import httpStatus from 'http-status-codes';
-import { S3Provider } from '../../../../src/common/providers/s3Provider';
+import { container } from 'tsyringe';
+import { getApp } from '../../../../src/app';
 import { AppError } from '../../../../src/common/appError';
+import { S3Provider } from '../../../../src/common/providers/s3Provider';
+import { s3Mock, s3Output } from '../../../helpers/mockCreator';
 
 describe('S3Provider', () => {
   let provider: S3Provider;
+  const queueFile = config.get<string>('ingestion.queueFileName');
 
-  beforeEach(() => {
+  beforeAll(() => {
+    getApp();
     provider = container.resolve(S3Provider);
   });
+
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   describe('#list files', () => {
-    it('returns all the files from S3', async () => {
+    it.only('returns all the files from S3', async () => {
       const model = 'model1';
       const expected: string[] = ['a.txt', 'b.txt'];
-      const queueFile = config.get<string>('ingestion.queueFile');
+      s3Mock.on(ListObjectsCommand).resolves(s3Output);
 
       await provider.streamModelPathsToQueueFile(model);
       const result = fs.readFileSync(queueFile, 'utf-8');

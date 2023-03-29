@@ -7,7 +7,7 @@ import { SERVICES } from '../../../../src/common/constants';
 import { IIngestionResponse, Payload } from '../../../../src/common/interfaces';
 import { QueueFileHandler } from '../../../../src/handlers/queueFileHandler';
 import { IngestionManager } from '../../../../src/ingestion/models/ingestionManager';
-import { createPayload } from '../../../helpers/mockCreator';
+import { createPayload, queueFileHandlerMock } from '../../../helpers/mockCreator';
 
 let ingestionManager: IngestionManager;
 let payload: Payload;
@@ -20,10 +20,6 @@ describe('ingestionManager', () => {
   const configProviderMock = {
     streamModelPathsToQueueFile: jest.fn(),
   };
-
-  const queueFileHandlerMock = {
-    emptyQueueFile: jest.fn(),
-  }
 
   beforeAll(() => {
     payload = createPayload('model1');

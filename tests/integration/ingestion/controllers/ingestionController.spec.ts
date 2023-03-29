@@ -1,13 +1,11 @@
 // import fs from 'fs';
-import { ListObjectsCommand, ListObjectsCommandOutput, S3Client, S3ServiceException } from '@aws-sdk/client-s3';
-import { AwsError, mockClient } from 'aws-sdk-client-mock';
+import { ListObjectsCommand } from '@aws-sdk/client-s3';
 import { JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
 import config from 'config';
 import httpStatusCodes from 'http-status-codes';
-import mockAxios from 'jest-mock-axios';
 import { container } from 'tsyringe';
 import { getApp } from '../../../../src/app';
-import { createPayload } from '../../../helpers/mockCreator';
+import { createPayload, s3BadOutput, s3Mock, s3Output } from '../../../helpers/mockCreator';
 import { IngestionRequestSender } from '../helpers/requestSender';
 
 describe('ModelsController', function () {
@@ -15,13 +13,7 @@ describe('ModelsController', function () {
   const jobManagerClientMock = {
     createJob: jest.fn(),
   };
-  const s3Mock = mockClient(S3Client);
   const bucket = config.get<string>('S3.bucket');
-  // const fsMock = {
-  //   existsSync
-  //   readdirSync
-  //   lstatSync6
-  // }
   
   beforeAll(function () {
     const app = getApp({
@@ -42,13 +34,6 @@ describe('ModelsController', function () {
     describe('Happy Path 🙂', function () {
       it('should return 201 status code and the added model', async function () {
         const payload = createPayload('model1');
-        /* eslint-disable @typescript-eslint/naming-convention */
-        const s3Output: ListObjectsCommandOutput = {
-          Contents: [{ Key: 'model1/file1', }],
-          CommonPrefixes: [{ Prefix: 'model1/file2' }],
-          IsTruncated: false,
-          $metadata: {}
-        };
         s3Mock.on(ListObjectsCommand).resolves(s3Output);
         jobManagerClientMock.createJob.mockResolvedValue({ id: '1', status: OperationStatus.IN_PROGRESS });
 
@@ -63,10 +48,7 @@ describe('ModelsController', function () {
     describe('Bad Path 😡', function () {
       it(`should return 400 status code and error message if model doesn't exists`, async function () {
         const invalidPayload = createPayload('bla');
-        const s3Output: ListObjectsCommandOutput = {
-          $metadata: {}
-        };
-        s3Mock.on(ListObjectsCommand).resolves(s3Output);
+        s3Mock.on(ListObjectsCommand).resolves(s3BadOutput);
 
         const response = await requestSender.createModel(invalidPayload);
 
@@ -78,13 +60,6 @@ describe('ModelsController', function () {
     describe('Sad Path 😥', function () {
       it('should return 500 status code if a network exception happens in job service', async function () {
         const payload = createPayload('bla');
-        /* eslint-disable @typescript-eslint/naming-convention */
-        const s3Output: ListObjectsCommandOutput = {
-          Contents: [{ Key: 'model1/file1', }],
-          CommonPrefixes: [{ Prefix: 'model1/file2' }],
-          IsTruncated: false,
-          $metadata: {}
-        };
         s3Mock.on(ListObjectsCommand).resolves(s3Output);
         jobManagerClientMock.createJob.mockRejectedValueOnce(new Error('JobManager is not available'));
 
@@ -107,14 +82,10 @@ describe('ModelsController', function () {
   });
 
   describe('POST /ingestion on NFS', function () {
+
     describe('Happy Path 🙂', function () {
       it('should return 201 status code and the added model', async function () {
         const payload = createPayload('model1');
-        // const s3Response: ListObjectsCommandOutput = {
-        //   $metadata: {},
-        //   Contents: [{ Key: 'a' }],
-        // };
-        // s3Mock.send.mockResolvedValueOnce(s3Response);
         jobManagerClientMock.createJob.mockResolvedValue({ id: '123', status: OperationStatus.IN_PROGRESS });
 
         const response = await requestSender.createModel(payload);
