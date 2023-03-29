@@ -1,8 +1,9 @@
-import { JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
+import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import httpStatus from 'http-status-codes';
 import { container } from 'tsyringe';
 import { getApp } from '../../../../src/app';
 import { AppError } from '../../../../src/common/appError';
+import { SERVICES } from '../../../../src/common/constants';
 import { IJobStatusResponse } from '../../../../src/common/interfaces';
 import { JobStatusManager } from '../../../../src/jobStatus/models/jobStatusManager';
 
@@ -17,7 +18,7 @@ describe('jobStatusManager', () => {
   beforeAll(() => {
     getApp({
       override: [
-        { token: JobManagerClient, provider: { useValue: jobManagerClientMock } },
+        { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
       ],
     });
 

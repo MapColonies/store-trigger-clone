@@ -25,8 +25,8 @@ describe('ingestionManager', () => {
     payload = createPayload('model1');
     getApp({
       override: [
-        { token: JobManagerClient, provider: { useValue: jobManagerClientMock } },
         { token: QueueFileHandler, provider: { useValue: queueFileHandlerMock } },
+        { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
         { token: SERVICES.PROVIDER, provider: { useValue: configProviderMock } },
       ],
     });

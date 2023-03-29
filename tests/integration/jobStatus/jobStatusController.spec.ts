@@ -3,6 +3,7 @@ import httpStatusCodes from 'http-status-codes';
 import mockAxios from 'jest-mock-axios';
 import { container } from 'tsyringe';
 import { getApp } from '../../../src/app';
+import { SERVICES } from '../../../src/common/constants';
 import { JobStatusRequestSender } from './helpers/requestSender';
 
 describe('jobStatusController', function () {
@@ -14,7 +15,7 @@ describe('jobStatusController', function () {
   beforeAll(() => {
     const app = getApp({
       override: [
-        { token: JobManagerClient, provider: { useValue: jobManagerClientMock } },
+        { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
       ],
     });
 

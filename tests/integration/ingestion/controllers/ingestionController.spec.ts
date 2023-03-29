@@ -1,15 +1,14 @@
-import fs from 'fs';
 import { ListObjectsCommand } from '@aws-sdk/client-s3';
-import { JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
+import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import config from 'config';
 import httpStatusCodes from 'http-status-codes';
 import { container } from 'tsyringe';
 import { getApp } from '../../../../src/app';
+import { SERVICES } from '../../../../src/common/constants';
+import { IProvider } from '../../../../src/common/interfaces';
+import { getProvider } from '../../../../src/common/providers/getProvider';
 import { createPayload, s3EmptyOutput, s3Mock, s3Output } from '../../../helpers/mockCreator';
 import { IngestionRequestSender } from '../helpers/requestSender';
-import { SERVICES } from '../../../../src/common/constants';
-import { getProvider } from '../../../../src/common/providers/getProvider';
-import { IProvider } from '../../../../src/common/interfaces';
 
 describe('ModelsController', function () {
   let requestSender: IngestionRequestSender;
