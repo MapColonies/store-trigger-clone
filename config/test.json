@@ -9,7 +9,7 @@
     "maxAttempts": 3
   },
   "NFS": {
-    "pvPath": "./tests/helpers/3Dmodels"
+    "pvPath": "./tests/helpers/3DModels"
   },
   "ingestion": {
     "provider": "S3",
