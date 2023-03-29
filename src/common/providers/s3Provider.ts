@@ -11,9 +11,11 @@ import { IProvider, IS3Config } from '../interfaces';
 export class S3Provider implements IProvider {
   private readonly s3: S3Client;
 
-  public constructor(@inject(SERVICES.PROVIDER_CONFIG) protected readonly s3Config: IS3Config,
+  public constructor(
+    @inject(SERVICES.PROVIDER_CONFIG) protected readonly s3Config: IS3Config,
     @inject(SERVICES.LOGGER) protected readonly logger: Logger,
-    @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler) {
+    @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler
+  ) {
     const s3ClientConfig: S3ClientConfig = {
       endpoint: this.s3Config.endpointUrl,
       forcePathStyle: this.s3Config.forcePathStyle,
@@ -65,7 +67,7 @@ export class S3Provider implements IProvider {
 
   private async listOneLevelS3(params: ListObjectsRequest, keysList: string[]): Promise<string[]> {
     try {
-      const listObject = new ListObjectsCommand(params)
+      const listObject = new ListObjectsCommand(params);
       const data = await this.s3.send(listObject);
 
       if (data.Contents) {
@@ -93,7 +95,7 @@ export class S3Provider implements IProvider {
 
     if (error instanceof S3ServiceException) {
       statusCode = error.$metadata.httpStatusCode ?? statusCode;
-      message = `${error.name}, message: ${error.message}, bucket: ${s3Bucket}`
+      message = `${error.name}, message: ${error.message}, bucket: ${s3Bucket}`;
     }
 
     throw new AppError(statusCode, message, true);

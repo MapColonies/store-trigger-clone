@@ -11,13 +11,14 @@ export class IngestionManager {
   private readonly jobType: string;
   private readonly taskType: string;
   private readonly batchSize: number;
-  
+
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(SERVICES.CONFIG) private readonly config: IConfig,
     @inject(SERVICES.JOB_MANAGER_CLIENT) private readonly jobManagerClient: JobManagerClient,
     @inject(SERVICES.PROVIDER) private readonly provider: IProvider,
-    @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler) {
+    @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler
+  ) {
     this.providerName = this.config.get<string>('ingestion.provider');
     this.jobType = this.config.get<string>('worker.job.type');
     this.batchSize = config.get<number>('worker.task.batches');

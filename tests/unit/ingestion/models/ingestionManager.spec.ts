@@ -1,4 +1,4 @@
-import { JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
+import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import httpStatus from 'http-status-codes';
 import { container } from 'tsyringe';
 import { getApp } from '../../../../src/app';
@@ -46,9 +46,9 @@ describe('ingestionManager', () => {
       };
 
       configProviderMock.streamModelPathsToQueueFile.mockResolvedValue(undefined);
-      jobManagerClientMock.createJob.mockResolvedValue({id: '1234',status: OperationStatus.IN_PROGRESS,});
+      jobManagerClientMock.createJob.mockResolvedValue({ id: '1234', status: OperationStatus.IN_PROGRESS });
 
-      const modelResponse = await ingestionManager.createModel(payload)
+      const modelResponse = await ingestionManager.createModel(payload);
 
       expect(modelResponse).toMatchObject(response);
     });

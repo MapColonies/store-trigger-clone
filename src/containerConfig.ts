@@ -38,11 +38,12 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
     { token: SERVICES.METER, provider: { useValue: meter } },
     {
-      token: SERVICES.JOB_MANAGER_CLIENT, provider: {
+      token: SERVICES.JOB_MANAGER_CLIENT,
+      provider: {
         useFactory: (): JobManagerClient => {
           return new JobManagerClient(logger, jobType, jobManagerBaseUrl);
-        }
-      }
+        },
+      },
     },
     { token: INGESTION_ROUTER_SYMBOL, provider: { useFactory: ingestionRouterFactory } },
     { token: JOB_STATUS_ROUTER_SYMBOL, provider: { useFactory: jobStatusRouterFactory } },

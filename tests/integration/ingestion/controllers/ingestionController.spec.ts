@@ -38,7 +38,7 @@ describe('ModelsController', function () {
               },
             },
           },
-        ]
+        ],
       });
 
       requestSender = new IngestionRequestSender(app);
@@ -110,7 +110,7 @@ describe('ModelsController', function () {
               },
             },
           },
-        ]
+        ],
       });
 
       requestSender = new IngestionRequestSender(app);

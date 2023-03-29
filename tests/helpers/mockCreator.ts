@@ -136,25 +136,24 @@ export const createJobParameters = (): IJobParameters => {
   return {
     metadata: createMetadata(),
     modelId: createUuid(),
-    tilesetFilename: 'tileset.json'
-  }
-}
+    tilesetFilename: 'tileset.json',
+  };
+};
 
 export const queueFileHandlerMock = {
   emptyQueueFile: jest.fn(),
-}
-
+};
 
 export const s3Mock = mockClient(S3Client);
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export const s3Output: ListObjectsCommandOutput = {
-  Contents: [{ Key: 'model1/file1', }],
+  Contents: [{ Key: 'model1/file1' }],
   CommonPrefixes: [{ Prefix: 'model1/file2' }],
   IsTruncated: false,
-  $metadata: {}
+  $metadata: {},
 };
 
 export const s3EmptyOutput: ListObjectsCommandOutput = {
-  $metadata: {}
+  $metadata: {},
 };

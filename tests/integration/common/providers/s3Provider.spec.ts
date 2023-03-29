@@ -31,7 +31,7 @@ describe('S3Provider', () => {
       s3Mock.on(ListObjectsCommand).resolves(s3Output);
 
       await provider.streamModelPathsToQueueFile(model);
-      const result = fs.readFileSync(queueFile, 'utf-8')
+      const result = fs.readFileSync(queueFile, 'utf-8');
 
       expect(result).toStrictEqual(expected);
     });

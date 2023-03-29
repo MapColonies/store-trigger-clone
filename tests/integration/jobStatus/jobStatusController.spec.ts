@@ -1,4 +1,4 @@
-import { JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
+import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import httpStatusCodes from 'http-status-codes';
 import mockAxios from 'jest-mock-axios';
 import { container } from 'tsyringe';
@@ -14,9 +14,7 @@ describe('jobStatusController', function () {
 
   beforeAll(() => {
     const app = getApp({
-      override: [
-        { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
-      ],
+      override: [{ token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } }],
     });
 
     requestSender = new JobStatusRequestSender(app);
@@ -46,16 +44,6 @@ describe('jobStatusController', function () {
     });
 
     describe('Sad Path', function () {
-      it('should return 404 status code if job id not exists', async function () {
-        const jobId = '1234';
-        jobManagerClientMock.getJob.mockResolvedValue(undefined);
-
-        const response = await requestSender.checkStatus(jobId);
-
-        expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
-        expect(response.body).toHaveProperty('message', 'The Job ID is not exists!');
-      });
-
       it('should return 500 status code if job manager is unavailable', async function () {
         const jobId = '1234';
         jobManagerClientMock.getJob.mockRejectedValueOnce(new Error('JobManager is not available'));

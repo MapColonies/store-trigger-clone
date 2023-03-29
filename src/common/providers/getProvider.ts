@@ -13,24 +13,16 @@ function getProvider(provider: string): IProvider {
     case 's3':
       return container.resolve(S3Provider);
     default:
-      throw new AppError(
-        httpStatus.INTERNAL_SERVER_ERROR,
-        `Invalid config provider received: ${provider} - available values:  "nfs" or "s3"`,
-        false
-      );
+      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Invalid config provider received: ${provider} - available values:  "nfs" or "s3"`, false);
   }
-};
+}
 
 function getProviderConfig(provider: string): INFSConfig | IS3Config {
   try {
     return config.get(provider);
   } catch (err) {
-    throw new AppError(
-      httpStatus.INTERNAL_SERVER_ERROR,
-      `Invalid config provider received: ${provider} - available values:  "nfs" or "s3"`,
-      false
-    );
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Invalid config provider received: ${provider} - available values:  "nfs" or "s3"`, false);
   }
-};
+}
 
 export { getProvider, getProviderConfig };

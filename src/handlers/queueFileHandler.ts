@@ -35,7 +35,7 @@ export class QueueFileHandler {
     } catch (err) {
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Didn't write the file: '${fileName}'`, true);
     }
-  };
+  }
 
   public checkIfTempFileEmpty(): boolean {
     try {
@@ -43,15 +43,15 @@ export class QueueFileHandler {
     } catch (err) {
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Problem with fs. Can't see if the file is empty or not`, true);
     }
-  };
+  }
 
   public emptyQueueFile(): void {
     try {
       fs.truncateSync(this.queueFileName, 0);
     } catch (err) {
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, true);
-    };
-  };
+    }
+  }
 
   private createQueueFile(): void {
     const filePath = path.join(process.cwd(), this.queueFileName);
@@ -61,6 +61,6 @@ export class QueueFileHandler {
       }
     } catch (err) {
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Cant create queue file`, true);
-    };
+    }
   }
 }

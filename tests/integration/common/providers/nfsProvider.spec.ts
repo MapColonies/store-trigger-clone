@@ -12,9 +12,7 @@ describe('FSProvider', () => {
 
   beforeEach(() => {
     getApp({
-      override: [
-        { token: SERVICES.PROVIDER_CONFIG, provider: { useValue: nfsConfig } },
-      ]
+      override: [{ token: SERVICES.PROVIDER_CONFIG, provider: { useValue: nfsConfig } }],
     });
     provider = container.resolve(NFSProvider);
   });
@@ -41,7 +39,7 @@ describe('FSProvider', () => {
       const model = 'bla';
 
       const result = async () => {
-        await provider.streamModelPathsToQueueFile(model)
+        await provider.streamModelPathsToQueueFile(model);
       };
 
       await expect(result).rejects.toThrow(`Model bla doesn't exists in the agreed folder`);
