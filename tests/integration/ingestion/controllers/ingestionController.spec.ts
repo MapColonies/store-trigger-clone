@@ -1,4 +1,4 @@
-// import fs from 'fs';
+import fs from 'fs';
 import { ListObjectsCommand } from '@aws-sdk/client-s3';
 import { JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
 import config from 'config';
@@ -7,6 +7,9 @@ import { container } from 'tsyringe';
 import { getApp } from '../../../../src/app';
 import { createPayload, s3EmptyOutput, s3Mock, s3Output } from '../../../helpers/mockCreator';
 import { IngestionRequestSender } from '../helpers/requestSender';
+import { SERVICES } from '../../../../src/common/constants';
+import { getProvider } from '../../../../src/common/providers/getProvider';
+import { IProvider } from '../../../../src/common/interfaces';
 
 describe('ModelsController', function () {
   let requestSender: IngestionRequestSender;
@@ -14,16 +17,6 @@ describe('ModelsController', function () {
     createJob: jest.fn(),
   };
   const bucket = config.get<string>('S3.bucket');
-  
-  beforeAll(function () {
-    const app = getApp({
-      override: [
-        { token: JobManagerClient, provider: { useValue: jobManagerClientMock } },
-      ]
-    });
-
-    requestSender = new IngestionRequestSender(app);
-  });
 
   afterAll(function () {
     container.reset();
@@ -31,7 +24,27 @@ describe('ModelsController', function () {
   });
 
   describe('POST /ingestion on S3', function () {
-    
+    const s3Config = config.get<string>('S3');
+
+    beforeAll(function () {
+      const app = getApp({
+        override: [
+          { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
+          { token: SERVICES.PROVIDER_CONFIG, provider: { useValue: s3Config } },
+          {
+            token: SERVICES.PROVIDER,
+            provider: {
+              useFactory: (): IProvider => {
+                return getProvider('s3');
+              },
+            },
+          },
+        ]
+      });
+
+      requestSender = new IngestionRequestSender(app);
+    });
+
     describe('Happy Path 🙂', function () {
       it('should return 201 status code and the added model', async function () {
         const payload = createPayload('model1');
@@ -83,6 +96,26 @@ describe('ModelsController', function () {
   });
 
   describe('POST /ingestion on NFS', function () {
+    const nfsConfig = config.get<string>('NFS');
+
+    beforeAll(function () {
+      const app = getApp({
+        override: [
+          { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
+          { token: SERVICES.PROVIDER_CONFIG, provider: { useValue: nfsConfig } },
+          {
+            token: SERVICES.PROVIDER,
+            provider: {
+              useFactory: (): IProvider => {
+                return getProvider('nfs');
+              },
+            },
+          },
+        ]
+      });
+
+      requestSender = new IngestionRequestSender(app);
+    });
 
     describe('Happy Path 🙂', function () {
       it('should return 201 status code and the added model', async function () {
@@ -92,7 +125,7 @@ describe('ModelsController', function () {
         const response = await requestSender.createModel(payload);
 
         expect(response.status).toBe(httpStatusCodes.CREATED);
-        expect(response.body).toHaveProperty('jobId', '123');
+        expect(response.body).toHaveProperty('jobID', '123');
         expect(response.body).toHaveProperty('status', OperationStatus.IN_PROGRESS);
       });
     });
