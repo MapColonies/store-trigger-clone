@@ -5,7 +5,7 @@ import config from 'config';
 import httpStatusCodes from 'http-status-codes';
 import { container } from 'tsyringe';
 import { getApp } from '../../../../src/app';
-import { createPayload, s3BadOutput, s3Mock, s3Output } from '../../../helpers/mockCreator';
+import { createPayload, s3EmptyOutput, s3Mock, s3Output } from '../../../helpers/mockCreator';
 import { IngestionRequestSender } from '../helpers/requestSender';
 
 describe('ModelsController', function () {
@@ -31,6 +31,7 @@ describe('ModelsController', function () {
   });
 
   describe('POST /ingestion on S3', function () {
+    
     describe('Happy Path 🙂', function () {
       it('should return 201 status code and the added model', async function () {
         const payload = createPayload('model1');
@@ -48,7 +49,7 @@ describe('ModelsController', function () {
     describe('Bad Path 😡', function () {
       it(`should return 400 status code and error message if model doesn't exists`, async function () {
         const invalidPayload = createPayload('bla');
-        s3Mock.on(ListObjectsCommand).resolves(s3BadOutput);
+        s3Mock.on(ListObjectsCommand).resolves(s3EmptyOutput);
 
         const response = await requestSender.createModel(invalidPayload);
 
