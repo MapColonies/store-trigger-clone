@@ -21,7 +21,7 @@ caPath: '/usr/local/share/ca-certificates'
 caKey: 'ca.crt'
 
 image:
-  repository: ts-server-boilerplate
+  repository: store-sync-3d
   tag: 'latest'
 
 env:
@@ -39,6 +39,49 @@ env:
     enabled: false
     url: http://localhost:55681/v1/metrics
 
+  common:
+    job:
+      type: job_type
+    task:
+      type: taskType
+      batches: 100
+      maxAttempts: 3000
+    jobManager:
+      url: job_manager_url
+    heartbeat:
+      url: heartbeat_url
+      waitTime: 3000
+    catalog:
+      url: catalog_url
+      nginxUrl: nginx_url
+    providers:
+      source: S3
+      destination: S3
+    worker:
+      waitTime: 3000
+    jobSyncer:
+      scheduleTime: "* * * * * *"
+    S3:
+      source:
+        access_key: access_key
+        secret_access_key: secret_access_key
+        host: host
+        bucket: bucket
+        ssl_enabled: false
+      destination:
+        access_key: access_key
+        secret_access_key: secret_access_key
+        host: host
+        bucket: bucket
+        ssl_enabled: false
+    NFS:
+      source:
+        pv_path: pv_path
+      destination: 
+        pv_path: pv_path
+
+
+
 resources:
   enabled: true
   value:
@@ -55,11 +98,3 @@ route:
   timeout:
     enabled: false # defaults to 30s by openshift
     duration: 60s # supported units (us, ms, s, m, h, d)
-
-ingress:
-  enabled: false
-  path: /
-  host: 'localhost'
-  cors:
-    enabled: true
-    origin: '*'

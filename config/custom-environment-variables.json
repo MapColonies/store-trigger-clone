@@ -38,5 +38,30 @@
         }
       }
     }
+  },
+  "S3": {
+    "accessKeyId": "S3_SOURCE_ACCESS_KEY_ID",
+    "secretAccessKey": "S3_SOURCE_SECRET_ACCESS_KEY",
+    "endpointUrl": "S3_SOURCE_HOST",
+    "bucket": "S3_SOURCE_BUCKET",
+    "sslEnabled": "S3_SOURCE_SSL_ENABLED"
+  },
+  "NFS": {
+    "pvPath": "PV_SOURCE_PATH"
+  },
+  "ingestion": {
+    "provider": "PROVIDER_FROM"
+  },
+  "jobManager": {
+    "url": "JOB_MANAGER_URL"
+  },
+  "worker": {
+    "job": {
+      "type": "JOB_TYPE"
+    },
+    "task": {
+      "batches": "TASK_BATCHES",
+      "type": "TASK_TYPE"
+    }
   }
 }

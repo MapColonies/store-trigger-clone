@@ -1,6 +1,6 @@
-{{- $chartName := include "ts-server-boilerplate.name" . -}}
-{{- $tracingUrl := include "ts-server-boilerplate.tracingUrl" . -}}
-{{- $metricsUrl := include "ts-server-boilerplate.metricsUrl" . -}}
+{{- $chartName := include "store-sync-3d.name" . -}}
+{{- $tracingUrl := include "store-sync-3d.tracingUrl" . -}}
+{{- $metricsUrl := include "store-sync-3d.metricsUrl" . -}}
 {{- if .Values.enabled -}}
 apiVersion: v1
 kind: ConfigMap
@@ -19,4 +19,41 @@ data:
   TELEMETRY_METRICS_ENABLED: 'true'
   TELEMETRY_METRICS_URL: {{ $metricsUrl }}
   {{ end }}
+
+  {{ if eq .Values.env.common.providers.source "S3" }}
+  S3_SOURCE_ACCESS_KEY_ID: {{ .Values.env.common.S3.source.access_key | quote }}
+  S3_SOURCE_SECRET_ACCESS_KEY: {{ .Values.env.common.S3.source.secret_access_key | quote }}
+  S3_SOURCE_HOST: {{ .Values.env.common.S3.source.host | quote }}
+  S3_SOURCE_BUCKET: {{ .Values.env.common.S3.source.bucket | quote }}
+  S3_SOURCE_SSL_ENABLED: {{ .Values.env.common.S3.source.ssl_enabled }}
+  {{ end }}
+
+  {{ if eq .Values.env.common.providers.source "NFS" }}
+  PV_SOURCE_PATH: {{ .Values.env.common.NFS.source.pv_path | quote }}
+  {{ end }}
+
+  {{ if eq .Values.env.common.providers.destination "S3" }}
+  S3_DEST_ACCESS_KEY_ID: {{ .Values.env.common.S3.destination.access_key | quote }}
+  S3_DEST_SECRET_ACCESS_KEY: {{ .Values.env.common.S3.destination.secret_access_key | quote }}
+  S3_DEST_HOST: {{ .Values.env.common.S3.destination.host | quote }}
+  S3_DEST_BUCKET: {{ .Values.env.common.S3.destination.bucket | quote }}
+  S3_DEST_SSL_ENABLED: {{ .Values.env.common.S3.destination.ssl_enabled }}
+  {{ end }}
+
+  {{ if eq .Values.env.common.providers.destination "NFS" }}
+  PV_DEST_PATH: {{ .Values.env.common.NFS.destination.pv_path | quote }}
+  {{ end }}
+
+  PROVIDER_FROM: {{ .Values.env.common.providers.source | quote }}
+  PROVIDER_TO: {{ .Values.env.common.providers.destination | quote }}
+  JOB_MANAGER_URL: {{ .Values.env.common.jobManager.url | quote }}
+  JOB_TYPE: {{ .Values.env.common.job.type | quote }}
+  TASK_BATCHES: {{ .Values.env.common.task.batches }}
+  TASK_TYPE: {{ .Values.env.common.task.type | quote }}
+  HEARTBEAT_URL: {{ .Values.env.common.heartbeat.url | quote }}
+  HEARTBEAT_WAIT_TIME: {{ .Values.env.common.heartbeat.waitTime }}
+  WORKER_WAIT_TIME: {{ .Values.env.common.worker.waitTime }}
+  SCHEDULE_TIME: {{ .Values.env.common.jobSyncer.scheduleTime | quote }}
+  CATALOG_URL: {{ .Values.env.common.catalog.url | quote }}
+  NGINX_URL: {{ .Values.env.common.catalog.nginxUrl | quote }}
 {{- end }}
