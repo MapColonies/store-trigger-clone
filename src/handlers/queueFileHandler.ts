@@ -11,10 +11,10 @@ import { SERVICES } from '../common/constants';
 @injectable()
 export class QueueFileHandler {
   private readonly queueFileName: string;
-  private readonly liner;
+  private liner;
 
   public constructor(@inject(SERVICES.LOGGER) private readonly logger: Logger) {
-    this.queueFileName = config.get<string>('ingestion.queueFileName');
+    this.queueFileName = `${process.cwd()}/${config.get<string>('ingestion.queueFileName')}`;
     this.createQueueFile();
     this.liner = new LineByLine(this.queueFileName);
   }
@@ -48,13 +48,14 @@ export class QueueFileHandler {
   public emptyQueueFile(): void {
     try {
       fs.truncateSync(this.queueFileName, 0);
+      this.liner = new LineByLine(this.queueFileName);
     } catch (err) {
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, true);
     }
   }
 
   private createQueueFile(): void {
-    const filePath = path.join(process.cwd(), this.queueFileName);
+    const filePath = path.join(this.queueFileName);
     try {
       if (!fs.existsSync(filePath)) {
         fs.writeFileSync(filePath, '', 'utf8');
