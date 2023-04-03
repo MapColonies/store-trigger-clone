@@ -23,6 +23,7 @@ export class S3Provider implements IProvider {
         accessKeyId: this.s3Config.accessKeyId,
         secretAccessKey: this.s3Config.secretAccessKey,
       },
+      region: this.s3Config.region,
     };
 
     this.s3 = new S3Client(s3ClientConfig);

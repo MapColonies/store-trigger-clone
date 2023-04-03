@@ -57,6 +57,7 @@ export interface IS3Config {
   secretAccessKey: string;
   endpointUrl: string;
   bucket: string;
+  region: string;
   sslEnabled: boolean;
   forcePathStyle: boolean;
 }

@@ -4,6 +4,7 @@
     "secretAccessKey": "minioadmin",
     "endpointUrl": "http://127.0.0.1:9000",
     "bucket": "test",
+    "region": "us-east-1",
     "forcePathStyle": true,
     "sslEnabled": false,
     "maxAttempts": 3
@@ -13,7 +14,7 @@
   },
   "ingestion": {
     "provider": "S3",
-    "queueFileName": "queueFile.txt"
+    "queueFilePath": "queueFile.txt"
   },
   "jobManager": {
     "url": "http://127.0.0.1:8080"

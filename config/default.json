@@ -26,10 +26,11 @@
     }
   },
   "S3": {
-    "accessKeyId": "minioadmin",
-    "secretAccessKey": "minioadmin",
-    "endpointUrl": "http://127.0.0.1:9000",
+    "accessKeyId": "vector",
+    "secretAccessKey": "vectorPassword",
+    "endpointUrl": "http://10.8.0.9:9000",
     "bucket": "3dtiles",
+    "region": "us-east-1",
     "forcePathStyle": true,
     "sslEnabled": false,
     "maxAttempts": 3
@@ -39,7 +40,7 @@
   },
   "ingestion": {
     "provider": "S3",
-    "queueFileName": "queueFile.txt"
+    "queueFilePath": "./handlers/queueFile.txt"
   },
   "jobManager": {
     "url": "http://127.0.0.1:8080"

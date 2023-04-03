@@ -44,6 +44,7 @@
     "secretAccessKey": "S3_SOURCE_SECRET_ACCESS_KEY",
     "endpointUrl": "S3_SOURCE_HOST",
     "bucket": "S3_SOURCE_BUCKET",
+    "region": "S3_REGION",
     "sslEnabled": "S3_SOURCE_SSL_ENABLED"
   },
   "NFS": {
