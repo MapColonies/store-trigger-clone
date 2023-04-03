@@ -3,18 +3,18 @@ import path from 'path';
 import config from 'config';
 import httpStatus from 'http-status-codes';
 import LineByLine from 'n-readlines';
-import { injectable } from 'tsyringe';
+import { singleton } from 'tsyringe';
 import { AppError } from '../common/appError';
 
-@injectable()
+@singleton()
 export class QueueFileHandler {
-  private readonly queueFileName: string;
+  private readonly queueFilePath: string;
   private liner;
 
   public constructor() {
-    this.queueFileName = `${process.cwd()}/${config.get<string>('ingestion.queueFileName')}`;
+    this.queueFilePath = `${process.cwd()}/${config.get<string>('ingestion.queueFilePath')}`;
     this.createQueueFile();
-    this.liner = new LineByLine(this.queueFileName);
+    this.liner = new LineByLine(this.queueFilePath);
   }
 
   public readline(): string | null {
@@ -29,7 +29,7 @@ export class QueueFileHandler {
 
   public writeFileNameToQueueFile(fileName: string): void {
     try {
-      fs.appendFileSync(this.queueFileName, fileName + '\n');
+      fs.appendFileSync(this.queueFilePath, fileName + '\n');
     } catch (err) {
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Didn't write the file: '${fileName}'`, true);
     }
@@ -37,7 +37,7 @@ export class QueueFileHandler {
 
   public checkIfTempFileEmpty(): boolean {
     try {
-      return fs.statSync(this.queueFileName).size === 0 ? true : false;
+      return fs.statSync(this.queueFilePath).size === 0 ? true : false;
     } catch (err) {
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Problem with fs. Can't see if the file is empty or not`, true);
     }
@@ -45,16 +45,15 @@ export class QueueFileHandler {
 
   public emptyQueueFile(): void {
     try {
-      fs.truncateSync(this.queueFileName, 0);
-      this.liner = new LineByLine(this.queueFileName);
+      fs.truncateSync(this.queueFilePath, 0);
+      this.liner = new LineByLine(this.queueFilePath);
     } catch (err) {
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, true);
     }
   }
 
   private createQueueFile(): void {
-    const filePath = path.join(this.queueFileName);
-    console.log("filePath: ", filePath);
+    const filePath = path.join(this.queueFilePath);
     try {
       if (!fs.existsSync(filePath)) {
         fs.writeFileSync(filePath, '', 'utf8');

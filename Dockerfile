@@ -24,7 +24,7 @@ RUN npm ci --only=production
 COPY --chown=node:node --from=build /tmp/buildApp/dist .
 COPY --chown=node:node ./config ./config
 
-RUN chown -R :root /usr/src/app && chmod -R g=u /usr/src/app
+RUN chown -R :root /usr/src/app/handlers && chmod -R g=u /usr/src/app/handlers
 
 EXPOSE 8080
 CMD ["dumb-init", "node", "--max_old_space_size=512", "./index.js"]
