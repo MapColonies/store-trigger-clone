@@ -9,7 +9,7 @@ import { s3EmptyOutput, s3Mock, s3Output } from '../../../helpers/mockCreator';
 
 describe('S3Provider', () => {
   let provider: S3Provider;
-  const queueFile = config.get<string>('ingestion.queueFileName');
+  const queueFile = config.get<string>('ingestion.queueFilePath');
 
   beforeAll(() => {
     getApp();

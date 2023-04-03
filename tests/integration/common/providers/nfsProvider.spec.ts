@@ -7,7 +7,7 @@ import { NFSProvider } from '../../../../src/common/providers/nfsProvider';
 
 describe('FSProvider', () => {
   let provider: NFSProvider;
-  const queueFile = config.get<string>('ingestion.queueFileName');
+  const queueFile = config.get<string>('ingestion.queueFilePath');
   const nfsConfig = config.get<string>('NFS');
 
   beforeEach(() => {
