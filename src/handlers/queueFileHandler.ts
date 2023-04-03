@@ -1,19 +1,17 @@
 import fs from 'fs';
 import path from 'path';
-import { Logger } from '@map-colonies/js-logger';
 import config from 'config';
 import httpStatus from 'http-status-codes';
 import LineByLine from 'n-readlines';
-import { inject, injectable } from 'tsyringe';
+import { injectable } from 'tsyringe';
 import { AppError } from '../common/appError';
-import { SERVICES } from '../common/constants';
 
 @injectable()
 export class QueueFileHandler {
   private readonly queueFileName: string;
   private liner;
 
-  public constructor(@inject(SERVICES.LOGGER) private readonly logger: Logger) {
+  public constructor() {
     this.queueFileName = `${process.cwd()}/${config.get<string>('ingestion.queueFileName')}`;
     this.createQueueFile();
     this.liner = new LineByLine(this.queueFileName);
@@ -56,6 +54,7 @@ export class QueueFileHandler {
 
   private createQueueFile(): void {
     const filePath = path.join(this.queueFileName);
+    console.log("filePath: ", filePath);
     try {
       if (!fs.existsSync(filePath)) {
         fs.writeFileSync(filePath, '', 'utf8');
