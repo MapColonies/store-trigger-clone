@@ -55,7 +55,7 @@ env:
       url: catalog_url
       nginxUrl: nginx_url
     providers:
-      source: S3
+      source: NFS
       destination: S3
     worker:
       waitTime: 3000
