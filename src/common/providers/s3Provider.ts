@@ -62,7 +62,7 @@ export class S3Provider implements IProvider {
     }
 
     if (this.queueFileHandler.checkIfTempFileEmpty()) {
-      throw new AppError(httpStatus.BAD_REQUEST, `Model ${model} doesn't exists in bucket ${this.s3Config.bucket}!`, true);
+      throw new AppError(httpStatus.NOT_FOUND, `Model ${model} doesn't exists in bucket ${this.s3Config.bucket}!`, true);
     }
   }
 
