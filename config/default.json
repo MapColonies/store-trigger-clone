@@ -26,9 +26,9 @@
     }
   },
   "S3": {
-    "accessKeyId": "vector",
-    "secretAccessKey": "vectorPassword",
-    "endpointUrl": "http://10.8.0.9:9000",
+    "accessKeyId": "minio",
+    "secretAccessKey": "minio",
+    "endpointUrl": "http://127.0.0.1:9000",
     "bucket": "3dtiles",
     "region": "us-east-1",
     "forcePathStyle": true,
@@ -39,7 +39,7 @@
     "pvPath": "/home/netanel/3DModels"
   },
   "ingestion": {
-    "provider": "S3",
+    "provider": "NFS",
     "queueFilePath": "./handlers/queueFile.txt"
   },
   "jobManager": {
