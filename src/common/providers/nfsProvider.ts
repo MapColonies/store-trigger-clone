@@ -28,9 +28,8 @@ export class NFSProvider implements IProvider {
 
     while (folders.length > 0) {
       const files = await fs.readdir(`${this.config.pvPath}/${folders[0]}`);
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      files.forEach(async (file) => {
-        const fileStats = await fs.lstat(`${this.config.pvPath}/${folders[0]}/${file}`);
+      for (const file of files) {
+        const fileStats = await fs.stat(`${this.config.pvPath}/${folders[0]}/${file}`);
         if (fileStats.isDirectory()) {
           folders.push(`${folders[0]}/${file}`);
         } else {
@@ -41,7 +40,8 @@ export class NFSProvider implements IProvider {
             throw err;
           }
         }
-      });
+
+      }
 
       folders.shift();
     }
