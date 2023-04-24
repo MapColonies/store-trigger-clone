@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'fs/promises';
 import { Logger } from '@map-colonies/js-logger';
 import httpStatus from 'http-status-codes';
 import { inject, injectable } from 'tsyringe';
@@ -17,27 +17,31 @@ export class NFSProvider implements IProvider {
   ) {}
 
   public async streamModelPathsToQueueFile(model: string): Promise<void> {
-    if (!fs.existsSync(`${this.config.pvPath}/${model}`)) {
+    try {
+      await fs.access(`${this.config.pvPath}/${model}`);
+    } catch (error) {
+      this.logger.error(error);
       throw new AppError(httpStatus.NOT_FOUND, `Model ${model} doesn't exists in the agreed folder`, true);
     }
 
     const folders: string[] = [model];
 
     while (folders.length > 0) {
-      await Promise.all(
-        fs.readdirSync(`${this.config.pvPath}/${folders[0]}`).map((file) => {
-          if (fs.lstatSync(`${this.config.pvPath}/${folders[0]}/${file}`).isDirectory()) {
-            folders.push(`${folders[0]}/${file}`);
-          } else {
-            try {
-              this.queueFileHandler.writeFileNameToQueueFile(`${folders[0]}/${file}`);
-            } catch (err) {
-              this.logger.error({ msg: `Didn't write the file: '${folders[0]}/${file}' in FS.` });
-              throw err;
-            }
+      const files = await fs.readdir(`${this.config.pvPath}/${folders[0]}`);
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      files.forEach(async (file) => {
+        const fileStats = await fs.lstat(`${this.config.pvPath}/${folders[0]}/${file}`);
+        if (fileStats.isDirectory()) {
+          folders.push(`${folders[0]}/${file}`);
+        } else {
+          try {
+            await this.queueFileHandler.writeFileNameToQueueFile(`${folders[0]}/${file}`);
+          } catch (err) {
+            this.logger.error({ msg: `Didn't write the file: '${folders[0]}/${file}' in FS.` });
+            throw err;
           }
-        })
-      );
+        }
+      });
 
       folders.shift();
     }

@@ -43,25 +43,22 @@ export class S3Provider implements IProvider {
 
     while (folders.length > 0) {
       params.Prefix = folders[0];
-      await Promise.all(
-        (
-          await this.listOneLevelS3(params, [])
-        ).map((item) => {
-          if (item.endsWith('/')) {
-            folders.push(item);
-          } else {
-            try {
-              this.queueFileHandler.writeFileNameToQueueFile(item);
-            } catch (err) {
-              this.logger.error({ msg: `Didn't write the file: '${item}' in S3.` });
-            }
+
+      (await this.listOneLevelS3(params, [])).map(async (item) => {
+        if (item.endsWith('/')) {
+          folders.push(item);
+        } else {
+          try {
+            await this.queueFileHandler.writeFileNameToQueueFile(item);
+          } catch (err) {
+            this.logger.error({ msg: `Didn't write the file: '${item}' in S3.` });
           }
-        })
-      );
+        }
+      });
       folders.shift();
     }
 
-    if (this.queueFileHandler.checkIfTempFileEmpty()) {
+    if (await this.queueFileHandler.checkIfTempFileEmpty()) {
       throw new AppError(httpStatus.NOT_FOUND, `Model ${model} doesn't exists in bucket ${this.s3Config.bucket}!`, true);
     }
   }

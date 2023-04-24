@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 import config from 'config';
 import httpStatus from 'http-status-codes';
@@ -9,11 +9,14 @@ import { AppError } from '../common/appError';
 @singleton()
 export class QueueFileHandler {
   private readonly queueFilePath: string;
-  private liner;
+  private liner!: LineByLine;
 
   public constructor() {
     this.queueFilePath = `${process.cwd()}/${config.get<string>('ingestion.queueFilePath')}`;
-    this.createQueueFile();
+  }
+
+  public async initialize(): Promise<void> {
+    await this.createQueueFile();
     this.liner = new LineByLine(this.queueFilePath);
   }
 
@@ -27,37 +30,36 @@ export class QueueFileHandler {
     return line.toString('ascii');
   }
 
-  public writeFileNameToQueueFile(fileName: string): void {
+  public async writeFileNameToQueueFile(fileName: string): Promise<void> {
     try {
-      fs.appendFileSync(this.queueFilePath, fileName + '\n');
+      await fs.appendFile(this.queueFilePath, fileName + '\n');
     } catch (err) {
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Didn't write the file: '${fileName}'`, true);
     }
   }
 
-  public checkIfTempFileEmpty(): boolean {
+  public async checkIfTempFileEmpty(): Promise<boolean> {
     try {
-      return fs.statSync(this.queueFilePath).size === 0 ? true : false;
+      const fileStat = await fs.stat(this.queueFilePath);
+      return fileStat.size === 0;
     } catch (err) {
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Problem with fs. Can't see if the file is empty or not`, true);
     }
   }
 
-  public emptyQueueFile(): void {
+  public async emptyQueueFile(): Promise<void> {
     try {
-      fs.truncateSync(this.queueFilePath, 0);
+      await fs.truncate(this.queueFilePath, 0);
       this.liner = new LineByLine(this.queueFilePath);
     } catch (err) {
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Didn't remove the content of the queue file`, true);
     }
   }
 
-  private createQueueFile(): void {
+  public async createQueueFile(): Promise<void> {
     const filePath = path.join(this.queueFilePath);
     try {
-      if (!fs.existsSync(filePath)) {
-        fs.writeFileSync(filePath, '', 'utf8');
-      }
+      await fs.writeFile(filePath, '', 'utf8');
     } catch (err) {
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Cant create queue file`, true);
     }

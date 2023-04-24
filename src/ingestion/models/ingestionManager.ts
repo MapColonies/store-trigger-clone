@@ -29,15 +29,16 @@ export class IngestionManager {
     const modelName: string = this.extractModelNameFromPath(payload.modelPath);
     try {
       this.logger.info({ msg: 'Starts writing content to queue file' });
+      await this.queueFileHandler.initialize();
       await this.provider.streamModelPathsToQueueFile(modelName);
       this.logger.info({ msg: 'Finished writing content to queue file. Creating Tasks' });
 
       this.createTasks(this.batchSize, payload.modelId);
       this.logger.info({ msg: 'Tasks created successfully' });
-      this.queueFileHandler.emptyQueueFile();
+      await this.queueFileHandler.emptyQueueFile();
     } catch (error) {
       this.logger.error({ msg: 'Failed in creating tasks' });
-      this.queueFileHandler.emptyQueueFile();
+      await this.queueFileHandler.emptyQueueFile();
       throw error;
     }
   }
