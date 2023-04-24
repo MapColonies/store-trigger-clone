@@ -4,13 +4,15 @@ import { container } from 'tsyringe';
 import { getApp } from '../../../../src/app';
 import { AppError } from '../../../../src/common/appError';
 import { SERVICES } from '../../../../src/common/constants';
-import { IIngestionResponse, Payload } from '../../../../src/common/interfaces';
+import { CreateJobBody, IIngestionResponse, Payload } from '../../../../src/common/interfaces';
 import { QueueFileHandler } from '../../../../src/handlers/queueFileHandler';
 import { IngestionManager } from '../../../../src/ingestion/models/ingestionManager';
-import { createPayload, queueFileHandlerMock } from '../../../helpers/mockCreator';
+import { createJobPayload, createPayload, queueFileHandlerMock } from '../../../helpers/mockCreator';
 
 let ingestionManager: IngestionManager;
 let payload: Payload;
+let jobPayload: CreateJobBody;
+
 
 describe('ingestionManager', () => {
   const jobManagerClientMock = {
@@ -22,7 +24,9 @@ describe('ingestionManager', () => {
   };
 
   beforeAll(() => {
-    payload = createPayload('model1');
+    payload = createPayload('model');
+    jobPayload = createJobPayload(payload);
+
     getApp({
       override: [
         { token: QueueFileHandler, provider: { useValue: queueFileHandlerMock } },
@@ -38,8 +42,8 @@ describe('ingestionManager', () => {
     jest.clearAllMocks();
   });
 
-  describe('#createModel', () => {
-    it('returns create model response', async () => {
+  describe('#createJob', () => {
+    it('returns create job response', async () => {
       const response: IIngestionResponse = {
         jobID: '1234',
         status: OperationStatus.IN_PROGRESS,
@@ -48,22 +52,24 @@ describe('ingestionManager', () => {
       configProviderMock.streamModelPathsToQueueFile.mockResolvedValue(undefined);
       jobManagerClientMock.createJob.mockResolvedValue({ id: '1234', status: OperationStatus.IN_PROGRESS });
 
-      const modelResponse = await ingestionManager.createModel(payload);
+      const modelResponse = await ingestionManager.createJob(jobPayload);
 
       expect(modelResponse).toMatchObject(response);
-    });
-
-    it('rejects if streamModelPathsToQueueFile fails', async () => {
-      configProviderMock.streamModelPathsToQueueFile.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
-
-      await expect(ingestionManager.createModel(payload)).rejects.toThrow(AppError);
     });
 
     it('rejects if jobManager fails', async () => {
       configProviderMock.streamModelPathsToQueueFile.mockResolvedValue(undefined);
       jobManagerClientMock.createJob.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
 
-      await expect(ingestionManager.createModel(payload)).rejects.toThrow(AppError);
+      await expect(ingestionManager.createJob(jobPayload)).rejects.toThrow(AppError);
     });
   });
+
+  describe('#createModel', () => {
+    it('rejects if streamModelPathsToQueueFile fails', async () => {
+      configProviderMock.streamModelPathsToQueueFile.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
+
+      await expect(ingestionManager.createModel(payload)).rejects.toThrow(AppError);
+    });
+  })
 });

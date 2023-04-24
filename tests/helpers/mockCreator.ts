@@ -106,7 +106,7 @@ export const createJobPayload = (payload: Payload): CreateJobBody => {
   return {
     resourceId: payload.modelId,
     version: '1',
-    type: config.get<string>('worker.jobType'),
+    type: config.get<string>('worker.job.type'),
     parameters: createJobParameters(),
     productType: payload.metadata.productType,
     productName: payload.metadata.productName,
@@ -121,7 +121,7 @@ export const createTaskPayload = (payload: Payload): CreateJobBody => {
   return {
     resourceId: payload.modelId,
     version: '1',
-    type: config.get<string>('worker.jobType'),
+    type: config.get<string>('worker.job.type'),
     parameters: createJobParameters(),
     productType: payload.metadata.productType,
     productName: payload.metadata.productName,
