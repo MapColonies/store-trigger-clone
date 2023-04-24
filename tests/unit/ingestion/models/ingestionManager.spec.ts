@@ -13,7 +13,6 @@ let ingestionManager: IngestionManager;
 let payload: Payload;
 let jobPayload: CreateJobBody;
 
-
 describe('ingestionManager', () => {
   const jobManagerClientMock = {
     createJob: jest.fn(),
@@ -71,5 +70,5 @@ describe('ingestionManager', () => {
 
       await expect(ingestionManager.createModel(payload)).rejects.toThrow(AppError);
     });
-  })
+  });
 });

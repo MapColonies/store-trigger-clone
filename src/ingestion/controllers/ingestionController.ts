@@ -26,10 +26,16 @@ export class IngestionController {
     const payload: Payload = req.body;
 
     const createJobRequest: CreateJobBody = {
-      resourceId: payload.modelId, version: '1', type: this.jobType,
+      resourceId: payload.modelId,
+      version: '1',
+      type: this.jobType,
       parameters: { metadata: payload.metadata, modelId: payload.modelId, tilesetFilename: payload.tilesetFilename },
-      productType: payload.metadata.productType, productName: payload.metadata.productName, percentage: 0,
-      producerName: payload.metadata.producerName, status: OperationStatus.IN_PROGRESS, domain: '3D',
+      productType: payload.metadata.productType,
+      productName: payload.metadata.productName,
+      percentage: 0,
+      producerName: payload.metadata.producerName,
+      status: OperationStatus.IN_PROGRESS,
+      domain: '3D',
     };
 
     try {
