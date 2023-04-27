@@ -1,4 +1,5 @@
 import fs from 'fs/promises';
+import os from 'os';
 import path from 'path';
 import config from 'config';
 import httpStatus from 'http-status-codes';
@@ -12,7 +13,8 @@ export class QueueFileHandler {
   private liner!: LineByLine;
 
   public constructor() {
-    this.queueFilePath = `${process.cwd()}/${config.get<string>('ingestion.queueFilePath')}`;
+    const tempDir = os.tmpdir();
+    this.queueFilePath = `${tempDir}/${config.get<string>('ingestion.queueFilePath')}`;
   }
 
   public async initialize(): Promise<void> {

@@ -9,7 +9,6 @@ import { IProvider, INFSConfig } from '../interfaces';
 
 @injectable()
 export class NFSProvider implements IProvider {
-  // public constructor(@inject(SERVICES.S3) protected readonly config: INFSConfig,
   public constructor(
     @inject(SERVICES.PROVIDER_CONFIG) protected readonly config: INFSConfig,
     @inject(SERVICES.LOGGER) protected readonly logger: Logger,
@@ -17,10 +16,11 @@ export class NFSProvider implements IProvider {
   ) {}
 
   public async streamModelPathsToQueueFile(model: string): Promise<void> {
+    const modelPath = `${this.config.pvPath}/${model}`;
     try {
-      await fs.access(`${this.config.pvPath}/${model}`);
+      await fs.access(modelPath);
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error(error, modelPath);
       throw new AppError(httpStatus.NOT_FOUND, `Model ${model} doesn't exists in the agreed folder`, true);
     }
 
