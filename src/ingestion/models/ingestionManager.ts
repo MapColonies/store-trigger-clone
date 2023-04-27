@@ -24,13 +24,12 @@ export class IngestionManager {
   }
 
   public async createModel(payload: Payload): Promise<void> {
-    this.logger.info({ msg: 'Creating job for model', path: payload.modelPath, provider: this.providerName });
+    this.logger.info({ msg: 'Creating job for model', name: payload.modelName, provider: this.providerName });
 
-    const modelName: string = this.extractModelNameFromPath(payload.modelPath);
     try {
       this.logger.info({ msg: 'Starts writing content to queue file' });
       await this.queueFileHandler.initialize();
-      await this.provider.streamModelPathsToQueueFile(modelName);
+      await this.provider.streamModelPathsToQueueFile(payload.modelName);
       this.logger.info({ msg: 'Finished writing content to queue file. Creating Tasks' });
 
       this.createTasks(this.batchSize, payload.modelId);
@@ -83,10 +82,5 @@ export class IngestionManager {
   private buildTaskFromChunk(chunk: string[], modelId: string): ICreateTaskBody<ITaskParameters> {
     const parameters: ITaskParameters = { paths: chunk, modelId };
     return { type: this.taskType, parameters };
-  }
-
-  private extractModelNameFromPath(modelPath: string): string {
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    return modelPath.split('/').slice(-1)[0];
   }
 }

@@ -20,9 +20,9 @@ export interface Payload {
    */
   modelId: string;
   /**
-   * Model files location path
+   * Model name
    */
-  modelPath: string;
+  modelName: string;
   /**
    * Model tileset filename
    */
