@@ -56,7 +56,7 @@
   "jobManager": {
     "url": "JOB_MANAGER_URL"
   },
-  "worker": {
+  "fileSyncer": {
     "job": {
       "type": "JOB_TYPE"
     },
