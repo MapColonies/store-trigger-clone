@@ -1,5 +1,5 @@
 import { Logger } from '@map-colonies/js-logger';
-import { ICreateTaskBody, IUpdateJobBody, JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
+import { ICreateTaskBody, JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
 import { inject, injectable } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
 import { CreateJobBody, IConfig, IIngestionResponse, IJobParameters, IProvider, ITaskParameters, Payload } from '../../common/interfaces';
