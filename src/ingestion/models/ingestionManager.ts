@@ -1,5 +1,5 @@
 import { Logger } from '@map-colonies/js-logger';
-import { ICreateTaskBody, JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
+import { ICreateTaskBody, IUpdateJobBody, JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
 import { inject, injectable } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
 import { CreateJobBody, IConfig, IIngestionResponse, IJobParameters, IProvider, ITaskParameters, Payload } from '../../common/interfaces';
@@ -23,7 +23,7 @@ export class IngestionManager {
     this.taskType = config.get<string>('worker.task.type');
   }
 
-  public async createModel(payload: Payload): Promise<void> {
+  public async createModel(payload: Payload, jobId: string): Promise<void> {
     this.logger.info({ msg: 'Creating job for model', name: payload.modelName, provider: this.providerName });
 
     try {
@@ -32,14 +32,22 @@ export class IngestionManager {
       await this.provider.streamModelPathsToQueueFile(payload.modelName);
       this.logger.info({ msg: 'Finished writing content to queue file. Creating Tasks' });
 
-      this.createTasks(this.batchSize, payload.modelId);
+      const tasks = this.createTasks(this.batchSize, payload.modelId);
       this.logger.info({ msg: 'Tasks created successfully' });
+
+      await this.createTasksForJob(jobId, tasks);
+
       await this.queueFileHandler.emptyQueueFile();
     } catch (error) {
       this.logger.error({ msg: 'Failed in creating tasks' });
       await this.queueFileHandler.emptyQueueFile();
       throw error;
     }
+  }
+
+  public async createTasksForJob(jobId: string, tasks: ICreateTaskBody<ITaskParameters>[]): Promise<void> {
+    const createTaskPromises = tasks.map(async task => this.jobManagerClient.createTaskForJob(jobId, task));
+    await Promise.all(createTaskPromises);
   }
 
   public async createJob(job: CreateJobBody): Promise<IIngestionResponse> {
