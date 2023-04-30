@@ -247,12 +247,7 @@ components:
         propertyName: type
       type: object
       anyOf:
-        - $ref: '#/components/schemas/Point'
-        - $ref: '#/components/schemas/LineString'
         - $ref: '#/components/schemas/Polygon'
-        - $ref: '#/components/schemas/MultiPoint'
-        - $ref: '#/components/schemas/MultiLineString'
-        - $ref: '#/components/schemas/MultiPolygon'
     schemas-payload:
       type: object
       description: 3d tiles metadata payload

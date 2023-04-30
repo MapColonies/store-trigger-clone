@@ -19,7 +19,7 @@ export class IngestionController {
     @inject(SERVICES.CONFIG) private readonly config: IConfig,
     @inject(IngestionManager) private readonly manager: IngestionManager
   ) {
-    this.jobType = this.config.get<string>('worker.job.type');
+    this.jobType = this.config.get<string>('fileSyncer.job.type');
   }
 
   public create: CreateResourceHandler = async (req, res, next) => {
