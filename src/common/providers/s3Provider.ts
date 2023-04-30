@@ -44,7 +44,7 @@ export class S3Provider implements IProvider {
 
     while (folders.length > 0) {
       params.Prefix = folders[0];
-      this.logger.info("Listing folder", { folder: folders[0], filesCount });
+      this.logger.info({ msg: "Listing folder", folder: folders[0], filesCount });
       (await this.listOneLevelS3(params, [])).map(async (item) => {
         if (item.endsWith('/')) {
           folders.push(item);

@@ -13,7 +13,7 @@ export class NFSProvider implements IProvider {
     @inject(SERVICES.PROVIDER_CONFIG) protected readonly config: INFSConfig,
     @inject(SERVICES.LOGGER) protected readonly logger: Logger,
     @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler
-  ) {}
+  ) { }
 
   public async streamModelPathsToQueueFile(model: string): Promise<void> {
     let filesCount = 0;
@@ -29,7 +29,7 @@ export class NFSProvider implements IProvider {
 
     while (folders.length > 0) {
       const files = await fs.readdir(`${this.config.pvPath}/${folders[0]}`);
-      this.logger.info("Listing folder", { folder: folders[0], filesCount });
+      this.logger.info({ msg: "Listing folder", folder: folders[0], filesCount });
       for (const file of files) {
         const fileStats = await fs.stat(`${this.config.pvPath}/${folders[0]}/${file}`);
         if (fileStats.isDirectory()) {
