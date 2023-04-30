@@ -16,6 +16,7 @@ export class NFSProvider implements IProvider {
   ) {}
 
   public async streamModelPathsToQueueFile(model: string): Promise<void> {
+    let filesCount = 0;
     const modelPath = `${this.config.pvPath}/${model}`;
     try {
       await fs.access(modelPath);
@@ -28,6 +29,7 @@ export class NFSProvider implements IProvider {
 
     while (folders.length > 0) {
       const files = await fs.readdir(`${this.config.pvPath}/${folders[0]}`);
+      this.logger.info("Listing folder", { folder: folders[0], filesCount });
       for (const file of files) {
         const fileStats = await fs.stat(`${this.config.pvPath}/${folders[0]}/${file}`);
         if (fileStats.isDirectory()) {
@@ -35,6 +37,7 @@ export class NFSProvider implements IProvider {
         } else {
           try {
             await this.queueFileHandler.writeFileNameToQueueFile(`${folders[0]}/${file}`);
+            filesCount++;
           } catch (err) {
             this.logger.error({ msg: `Didn't write the file: '${folders[0]}/${file}' in FS.` });
             throw err;

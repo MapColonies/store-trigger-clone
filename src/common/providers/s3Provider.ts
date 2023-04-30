@@ -31,6 +31,7 @@ export class S3Provider implements IProvider {
 
   public async streamModelPathsToQueueFile(model: string): Promise<void> {
     const modelName = model + '/';
+    let filesCount = 0;
 
     /* eslint-disable @typescript-eslint/naming-convention */
     const params: ListObjectsRequest = {
@@ -43,13 +44,14 @@ export class S3Provider implements IProvider {
 
     while (folders.length > 0) {
       params.Prefix = folders[0];
-
+      this.logger.info("Listing folder", { folder: folders[0], filesCount });
       (await this.listOneLevelS3(params, [])).map(async (item) => {
         if (item.endsWith('/')) {
           folders.push(item);
         } else {
           try {
             await this.queueFileHandler.writeFileNameToQueueFile(item);
+            filesCount++;
           } catch (err) {
             this.logger.error({ msg: `Didn't write the file: '${item}' in S3.` });
           }
