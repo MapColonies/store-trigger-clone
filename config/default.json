@@ -40,7 +40,7 @@
   },
   "ingestion": {
     "provider": "NFS",
-    "queueFilePath": "./handlers/queueFile.txt"
+    "queueFilePath": "queueFile.txt"
   },
   "jobManager": {
     "url": "http://127.0.0.1:8080"
