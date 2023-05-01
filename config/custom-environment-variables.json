@@ -51,7 +51,8 @@
     "pvPath": "PV_SOURCE_PATH"
   },
   "ingestion": {
-    "provider": "PROVIDER_FROM"
+    "provider": "PROVIDER_FROM",
+    "queueFilePath": "QUEUE_FILE_PATH"
   },
   "jobManager": {
     "url": "JOB_MANAGER_URL"
