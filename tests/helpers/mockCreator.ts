@@ -96,7 +96,7 @@ export const createMetadata = (): Layer3DMetadata => {
 export const createPayload = (modelName: string): Payload => {
   return {
     modelId: createUuid(),
-    model: `${config.get<string>('NFS.pvPath')}/${modelName}`,
+    modelName,
     tilesetFilename: 'tileset.json',
     metadata: createMetadata(),
   };

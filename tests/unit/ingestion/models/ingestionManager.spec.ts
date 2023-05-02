@@ -7,7 +7,7 @@ import { SERVICES } from '../../../../src/common/constants';
 import { CreateJobBody, IIngestionResponse, Payload } from '../../../../src/common/interfaces';
 import { QueueFileHandler } from '../../../../src/handlers/queueFileHandler';
 import { IngestionManager } from '../../../../src/ingestion/models/ingestionManager';
-import { createJobPayload, createPayload, queueFileHandlerMock } from '../../../helpers/mockCreator';
+import { createJobPayload, createPayload, createUuid, queueFileHandlerMock } from '../../../helpers/mockCreator';
 
 let ingestionManager: IngestionManager;
 let payload: Payload;
@@ -66,9 +66,10 @@ describe('ingestionManager', () => {
 
   describe('#createModel', () => {
     it('rejects if streamModelPathsToQueueFile fails', async () => {
+      const jobId = createUuid();
       configProviderMock.streamModelPathsToQueueFile.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
 
-      await expect(ingestionManager.createModel(payload)).rejects.toThrow(AppError);
+      await expect(ingestionManager.createModel(payload, jobId)).rejects.toThrow(AppError);
     });
   });
 });
