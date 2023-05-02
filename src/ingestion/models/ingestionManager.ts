@@ -19,7 +19,7 @@ export class IngestionManager {
     @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler
   ) {
     this.providerName = this.config.get<string>('ingestion.provider');
-    this.batchSize = Number(config.get<number>('fileSyncer.task.batches'));
+    this.batchSize = config.get<number>('fileSyncer.task.batches');
     this.taskType = config.get<string>('fileSyncer.task.type');
   }
 
