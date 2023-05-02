@@ -46,7 +46,7 @@ export class IngestionManager {
   }
 
   public async createTasksForJob(jobId: string, tasks: ICreateTaskBody<ITaskParameters>[]): Promise<void> {
-    const createTaskPromises = tasks.map(async task => this.jobManagerClient.createTaskForJob(jobId, task));
+    const createTaskPromises = tasks.map(async (task) => this.jobManagerClient.createTaskForJob(jobId, task));
     await Promise.all(createTaskPromises);
   }
 
