@@ -157,3 +157,13 @@ export const s3Output: ListObjectsCommandOutput = {
 export const s3EmptyOutput: ListObjectsCommandOutput = {
   $metadata: {},
 };
+
+export const managerMock = {
+  createJob: jest.fn(),
+  createModel: jest.fn()
+};
+
+export const ingestionResponseMock = {
+  jobID: "my-job-id",
+  status: OperationStatus.IN_PROGRESS
+}
