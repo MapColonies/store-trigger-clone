@@ -72,4 +72,22 @@ describe('ingestionManager', () => {
       await expect(ingestionManager.createModel(payload, jobId)).rejects.toThrow(AppError);
     });
   });
+
+  describe('isFileInBlackList tests', () =>{
+    it('returns true if the file is in the black list', () => {
+      const file = 'word.zip';
+
+      const response = ingestionManager['isFileInBlackList'](file);
+
+      expect(response).toBe(true);
+    });
+
+    it('returns false if the file is not in the black list', () => {
+      const file = 'word.txt';
+
+      const response = ingestionManager['isFileInBlackList'](file);
+
+      expect(response).toBe(false);
+    });
+  });
 });

@@ -10,7 +10,7 @@ import { SERVICES } from '../../../../src/common/constants';
 import { IProvider } from '../../../../src/common/interfaces';
 import { getProvider } from '../../../../src/common/providers/getProvider';
 import { IngestionManager } from '../../../../src/ingestion/models/ingestionManager';
-import { createPayload, ingestionResponseMock, managerMock, s3EmptyOutput, s3Mock, s3Output } from '../../../helpers/mockCreator';
+import { createPayload, ingestionResponseMock, managerMock, s3Mock, s3Output } from '../../../helpers/mockCreator';
 import { IngestionRequestSender } from '../helpers/requestSender';
 
 describe('IngestionController', function () {
