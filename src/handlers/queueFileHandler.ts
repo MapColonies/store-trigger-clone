@@ -58,12 +58,12 @@ export class QueueFileHandler {
     }
   }
 
-  public async createQueueFile(): Promise<void> {
+  private async createQueueFile(): Promise<void> {
     const filePath = path.join(this.queueFilePath);
     try {
       await fs.writeFile(filePath, '', 'utf8');
     } catch (err) {
-      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Cant create queue file`, true);
+      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Can't create queue file`, true);
     }
   }
 }

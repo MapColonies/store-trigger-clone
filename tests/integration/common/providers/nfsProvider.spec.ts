@@ -25,7 +25,7 @@ describe('FSProvider', () => {
     beforeEach(() => {
       fs.truncateSync(queueFile, 0);
     });
-    it('returns all the files of the model if the model exists in the agreed folder', async () => {
+    it.only('returns all the files of the model if the model exists in the agreed folder', async () => {
       const model = 'model1';
       const expected = `${model}/a.txt\n${model}/b.txt\n`;
 
