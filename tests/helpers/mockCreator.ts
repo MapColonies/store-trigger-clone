@@ -60,6 +60,10 @@ export const createFile = (): string => {
   return `${randWord()}.txt`;
 };
 
+export const createBlackListFile = (): string => {
+  return `${randWord()}.zip`;
+};
+
 export const getTaskType = (): string => {
   return config.get<string>('fileSyncer.task.type');
 };

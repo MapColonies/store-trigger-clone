@@ -19,6 +19,7 @@ import {
   queueFileHandlerMock,
   createFile,
   getTaskType,
+  createBlackListFile,
 } from '../../../helpers/mockCreator';
 
 let ingestionManager: IngestionManager;
@@ -74,8 +75,8 @@ describe('ingestionManager', () => {
       const tasks = createFakeTasks();
       queueFileHandlerMock.initialize.mockResolvedValue('');
       configProviderMock.streamModelPathsToQueueFile.mockResolvedValue('');
-      jest.spyOn(ingestionManager as any, 'createTasks').mockResolvedValue(tasks);
-      jest.spyOn(ingestionManager as any, 'createTasksForJob').mockResolvedValue('');
+      ingestionManager['createTasks'] = jest.fn().mockResolvedValue(tasks);
+      ingestionManager['createTasksForJob'] = jest.fn().mockResolvedValue('');
       queueFileHandlerMock.emptyQueueFile.mockResolvedValue('');
 
       // Act
@@ -142,20 +143,39 @@ describe('ingestionManager', () => {
   describe('createTasks Function', () => {
     it('creates tasks with paths in length of batch size', () => {
       // Arrange
-      const batchSize = createBatch({ min: 1, max: 5 });
+      const batchSize = createBatch({ min: 1, max: 5,  });
       const modelId = createUuid();
       const filesAmount = randNumber({ min: 1, max: 8 });
       for (let i = 0; i < filesAmount; i++) {
         queueFileHandlerMock.readline.mockReturnValueOnce(createFile());
       }
       queueFileHandlerMock.readline.mockReturnValueOnce(null);
-      jest.spyOn(ingestionManager as any, 'buildTaskFromChunk').mockReturnValue(createFakeTask());
+      ingestionManager['buildTaskFromChunk'] = jest.fn().mockReturnValue(createFakeTask());
 
       // Act
       const response = ingestionManager['createTasks'](batchSize, modelId);
 
       //Assert
       expect(response).toEqual(expect.objectContaining<ICreateTaskBody<ITaskParameters>[]>([]));
+      expect(response).toHaveLength(Math.ceil(filesAmount / batchSize));
+    });
+
+    it('when read file paths with black list extensions, it should ignore these file paths', () => {
+      // Arrange
+      const batchSize = createBatch({ min: 1, max: 5 });
+      const modelId = createUuid();
+      const filesAmount = randNumber({ min: 1, max: 8 });
+      for (let i = 0; i < filesAmount - 1; i++) {
+        queueFileHandlerMock.readline.mockReturnValueOnce(createFile());
+      }
+      queueFileHandlerMock.readline.mockReturnValueOnce(createBlackListFile());
+      queueFileHandlerMock.readline.mockReturnValueOnce(null);
+      ingestionManager['buildTaskFromChunk'] = jest.fn().mockReturnValue(createFakeTask());
+
+      // Act
+      const response = ingestionManager['createTasks'](batchSize, modelId);
+
+      //Assert
       expect(response).toHaveLength(Math.ceil(filesAmount / batchSize));
     });
   });
