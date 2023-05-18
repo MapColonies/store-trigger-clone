@@ -1,3 +1,4 @@
+/* eslint-disable jest/no-commented-out-tests */
 import { ListObjectsCommand } from '@aws-sdk/client-s3';
 import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import config from 'config';
@@ -15,7 +16,7 @@ import { IngestionRequestSender } from '../helpers/requestSender';
 
 describe('IngestionController', function () {
   let requestSender: IngestionRequestSender;
-  let ingestionManager: IngestionManager;
+  // let ingestionManager: IngestionManager;
   const s3Config = config.get<string>('S3');
 
   const jobManagerClientMock = {
@@ -37,7 +38,7 @@ describe('IngestionController', function () {
       ],
     });
 
-    ingestionManager = container.resolve(IngestionManager);
+    // ingestionManager = container.resolve(IngestionManager);
     requestSender = new IngestionRequestSender(app);
   });
 

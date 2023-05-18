@@ -63,7 +63,8 @@
   },
   "ingestion": {
     "provider": "PROVIDER_FROM",
-    "queueFilePath": "QUEUE_FILE_PATH"
+    "queueFilePath": "QUEUE_FILE_PATH",
+    "blackList": "BLACK_LIST"
   },
   "jobManager": {
     "url": "JOB_MANAGER_URL"

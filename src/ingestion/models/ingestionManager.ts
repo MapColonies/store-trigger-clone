@@ -67,12 +67,16 @@ export class IngestionManager {
     let data: string | null = this.queueFileHandler.readline();
 
     while (data !== null) {
-      chunk.push(data);
+      if (this.isFileInBlackList(data)) {
+        this.logger.warn({ msg: 'The file is is the black list! Ignored...', file: data });
+      } else {
+        chunk.push(data);
 
-      if (chunk.length === batchSize) {
-        const task = this.buildTaskFromChunk(chunk, modelId);
-        tasks.push(task);
-        chunk = [];
+        if (chunk.length === batchSize) {
+          const task = this.buildTaskFromChunk(chunk, modelId);
+          tasks.push(task);
+          chunk = [];
+        }
       }
 
       data = this.queueFileHandler.readline();
@@ -90,5 +94,12 @@ export class IngestionManager {
   private buildTaskFromChunk(chunk: string[], modelId: string): ICreateTaskBody<ITaskParameters> {
     const parameters: ITaskParameters = { paths: chunk, modelId };
     return { type: this.taskType, parameters };
+  }
+
+  private isFileInBlackList(data: string): boolean {
+    const blackList = this.config.get<string[]>('ingestion.blackList');
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    const fileExtension = data.split('.').slice(-1)[0];
+    return blackList.includes(fileExtension);
   }
 }
