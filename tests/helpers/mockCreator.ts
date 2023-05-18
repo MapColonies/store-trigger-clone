@@ -6,8 +6,9 @@ import { randBetweenDate, randNumber, randPastDate, randUuid, randWord } from '@
 import { Polygon } from 'geojson';
 import { Layer3DMetadata, ProductType, RecordStatus, RecordType } from '@map-colonies/mc-model-types';
 import jsLogger from '@map-colonies/js-logger';
-import { OperationStatus } from '@map-colonies/mc-priority-queue';
-import { CreateJobBody, IJobParameters, Payload } from '../../src/common/interfaces';
+import { ICreateTaskBody, OperationStatus } from '@map-colonies/mc-priority-queue';
+import { RandomNumberOptions } from '@ngneat/falso/lib/number';
+import { CreateJobBody, IJobParameters, ITaskParameters, Payload } from '../../src/common/interfaces';
 import { RegisterOptions } from '../../src/containerConfig';
 import { SERVICES } from '../../src/common/constants';
 
@@ -49,6 +50,18 @@ export const createFootprint = (): Polygon => {
       ],
     ],
   };
+};
+
+export const createBatch = (options?: RandomNumberOptions | undefined): number => {
+  return randNumber(options);
+};
+
+export const createFile = (): string => {
+  return `${randWord()}.txt`;
+};
+
+export const getTaskType = (): string => {
+  return config.get<string>('fileSyncer.task.type');
 };
 
 export const createMetadata = (): Layer3DMetadata => {
@@ -117,19 +130,23 @@ export const createJobPayload = (payload: Payload): CreateJobBody => {
   };
 };
 
-export const createTaskPayload = (payload: Payload): CreateJobBody => {
+export const createFakeTask = (): ICreateTaskBody<ITaskParameters> => {
+  const modelId = createUuid();
   return {
-    resourceId: payload.modelId,
-    version: '1',
-    type: config.get<string>('fileSyncer.job.type'),
-    parameters: createJobParameters(),
-    productType: payload.metadata.productType,
-    productName: payload.metadata.productName,
-    percentage: 0,
-    producerName: payload.metadata.producerName,
-    status: OperationStatus.IN_PROGRESS,
-    domain: '3D',
+    parameters: {
+      paths: [createFile(), createFile()],
+      modelId,
+    },
   };
+};
+
+export const createFakeTasks = (): ICreateTaskBody<ITaskParameters>[] => {
+  const taskSize = randNumber({ min: 1, max: 5 });
+  const tasks: ICreateTaskBody<ITaskParameters>[] = [];
+  for (let i = 0; i < taskSize; i++) {
+    tasks.push(createFakeTask());
+  }
+  return tasks;
 };
 
 export const createJobParameters = (): IJobParameters => {
@@ -142,6 +159,15 @@ export const createJobParameters = (): IJobParameters => {
 
 export const queueFileHandlerMock = {
   emptyQueueFile: jest.fn(),
+  readline: jest.fn(),
+  initialize: jest.fn(),
+};
+
+export const fsMock = {
+  writeFile: jest.fn(),
+  stat: jest.fn(),
+  truncate: jest.fn(),
+  appendFile: jest.fn(),
 };
 
 export const s3Mock = mockClient(S3Client);
@@ -158,9 +184,13 @@ export const s3EmptyOutput: ListObjectsCommandOutput = {
   $metadata: {},
 };
 
-export const managerMock = {
+export const jobManagerClientMock = {
   createJob: jest.fn(),
-  createModel: jest.fn(),
+  createTaskForJob: jest.fn(),
+};
+
+export const configProviderMock = {
+  streamModelPathsToQueueFile: jest.fn(),
 };
 
 export const ingestionResponseMock = {

@@ -23,6 +23,17 @@ export class IngestionManager {
     this.taskType = config.get<string>('fileSyncer.task.type');
   }
 
+  public async createJob(job: CreateJobBody): Promise<IIngestionResponse> {
+    const jobResponse = await this.jobManagerClient.createJob<IJobParameters, ITaskParameters>(job);
+
+    const res: IIngestionResponse = {
+      jobID: jobResponse.id,
+      status: OperationStatus.IN_PROGRESS,
+    };
+
+    return res;
+  }
+
   public async createModel(payload: Payload, jobId: string): Promise<void> {
     this.logger.info({ msg: 'Creating job for model', name: payload.modelName, provider: this.providerName });
 
@@ -45,20 +56,9 @@ export class IngestionManager {
     }
   }
 
-  public async createTasksForJob(jobId: string, tasks: ICreateTaskBody<ITaskParameters>[]): Promise<void> {
+  private async createTasksForJob(jobId: string, tasks: ICreateTaskBody<ITaskParameters>[]): Promise<void> {
     const createTaskPromises = tasks.map(async (task) => this.jobManagerClient.createTaskForJob(jobId, task));
     await Promise.all(createTaskPromises);
-  }
-
-  public async createJob(job: CreateJobBody): Promise<IIngestionResponse> {
-    const jobResponse = await this.jobManagerClient.createJob<IJobParameters, ITaskParameters>(job);
-
-    const res: IIngestionResponse = {
-      jobID: jobResponse.id,
-      status: OperationStatus.IN_PROGRESS,
-    };
-
-    return res;
   }
 
   private createTasks(batchSize: number, modelId: string): ICreateTaskBody<ITaskParameters>[] {

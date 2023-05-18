@@ -1,18 +1,22 @@
 import fs from 'fs';
+import os from 'os';
 import config from 'config';
 import { container } from 'tsyringe';
 import { getApp } from '../../../../src/app';
 import { SERVICES } from '../../../../src/common/constants';
 import { NFSProvider } from '../../../../src/common/providers/nfsProvider';
 
-describe('FSProvider', () => {
+describe('NFSProvider tests', () => {
   let provider: NFSProvider;
-  const queueFile = config.get<string>('ingestion.queueFilePath');
+  const queueFilePath = `${os.tmpdir()}/${config.get<string>('ingestion.queueFilePath')}`;
   const nfsConfig = config.get<string>('NFS');
 
   beforeEach(() => {
     getApp({
-      override: [{ token: SERVICES.PROVIDER_CONFIG, provider: { useValue: nfsConfig } }],
+      override: [
+        { token: SERVICES.PROVIDER_CONFIG, provider: { useValue: nfsConfig } },
+        // { token: SERVICES.QUEUE_FILE_HANDLER, provider: { useValue: queueFileHandlerMock } },
+      ],
     });
     provider = container.resolve(NFSProvider);
   });
@@ -21,16 +25,16 @@ describe('FSProvider', () => {
     jest.clearAllMocks();
   });
 
-  describe('#list files', () => {
+  describe('streamModelPathsToQueueFile Function', () => {
     beforeEach(() => {
-      fs.truncateSync(queueFile, 0);
+      fs.truncateSync(queueFilePath, 0);
     });
     it('returns all the files of the model if the model exists in the agreed folder', async () => {
       const model = 'model1';
       const expected = `${model}/a.txt\n${model}/b.txt\n`;
 
       await provider.streamModelPathsToQueueFile(model);
-      const result = fs.readFileSync(queueFile, 'utf-8');
+      const result = fs.readFileSync(queueFilePath, 'utf-8');
 
       expect(result).toStrictEqual(expected);
     });
