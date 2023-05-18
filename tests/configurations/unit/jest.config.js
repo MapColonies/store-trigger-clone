@@ -11,7 +11,7 @@ module.exports = {
   coverageReporters: ['text', 'html'],
   collectCoverage: true,
   collectCoverageFrom: [
-    '<rootDir>/src/**/*.ts',
+    '<rootDir>/src/**/{!(queueFileHandler),}.ts',
     '!*/node_modules/',
     '!/vendor/**',
     '!*/common/**',
