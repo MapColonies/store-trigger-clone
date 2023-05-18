@@ -160,10 +160,10 @@ export const s3EmptyOutput: ListObjectsCommandOutput = {
 
 export const managerMock = {
   createJob: jest.fn(),
-  createModel: jest.fn()
+  createModel: jest.fn(),
 };
 
 export const ingestionResponseMock = {
-  jobID: "my-job-id",
-  status: OperationStatus.IN_PROGRESS
-}
+  jobID: 'my-job-id',
+  status: OperationStatus.IN_PROGRESS,
+};

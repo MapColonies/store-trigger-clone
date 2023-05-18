@@ -73,7 +73,7 @@ describe('ingestionManager', () => {
     });
   });
 
-  describe('isFileInBlackList tests', () =>{
+  describe('isFileInBlackList tests', () => {
     it('returns true if the file is in the black list', () => {
       const file = 'word.zip';
 

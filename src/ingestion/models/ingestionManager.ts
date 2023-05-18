@@ -68,14 +68,14 @@ export class IngestionManager {
 
     while (data !== null) {
       if (this.isFileInBlackList(data)) {
-        this.logger.warn({ msg: "The file is is the black list! Ignored...", file: data });
+        this.logger.warn({ msg: 'The file is is the black list! Ignored...', file: data });
       } else {
         chunk.push(data);
-        
+
         if (chunk.length === batchSize) {
-        const task = this.buildTaskFromChunk(chunk, modelId);
-        tasks.push(task);
-        chunk = [];
+          const task = this.buildTaskFromChunk(chunk, modelId);
+          tasks.push(task);
+          chunk = [];
         }
       }
 
@@ -97,10 +97,9 @@ export class IngestionManager {
   }
 
   private isFileInBlackList(data: string): boolean {
-    const blackList = this.config.get<string[]>("ingestion.blackList");
+    const blackList = this.config.get<string[]>('ingestion.blackList');
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     const fileExtension = data.split('.').slice(-1)[0];
     return blackList.includes(fileExtension);
   }
 }
-
