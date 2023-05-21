@@ -165,6 +165,7 @@ export const queueFileHandlerMock = {
   emptyQueueFile: jest.fn(),
   readline: jest.fn(),
   initialize: jest.fn(),
+  writeFileNameToQueueFile: jest.fn(),
 };
 
 export const fsMock = {
