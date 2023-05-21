@@ -1,3 +1,4 @@
+import jsLogger from '@map-colonies/js-logger';
 import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import httpStatus from 'http-status-codes';
 import { container } from 'tsyringe';
@@ -16,7 +17,9 @@ describe('jobStatusManager', () => {
 
   beforeAll(() => {
     getApp({
-      override: [{ token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } }],
+      override: [
+        { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
+        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },],
     });
 
     jobStatusManager = container.resolve(JobStatusManager);

@@ -1,17 +1,14 @@
 /* eslint-disable jest/no-commented-out-tests */
-import { ListObjectsCommand } from '@aws-sdk/client-s3';
+import jsLogger from '@map-colonies/js-logger';
 import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import config from 'config';
-import httpStatus from 'http-status-codes';
 import httpStatusCodes from 'http-status-codes';
 import { container } from 'tsyringe';
 import { getApp } from '../../../../src/app';
-import { AppError } from '../../../../src/common/appError';
 import { SERVICES } from '../../../../src/common/constants';
-import { IIngestionResponse, IProvider } from '../../../../src/common/interfaces';
-import { getProvider } from '../../../../src/common/providers/getProvider';
-import { IngestionManager } from '../../../../src/ingestion/models/ingestionManager';
-import { createPayload, ingestionResponseMock, s3Mock, s3Output } from '../../../helpers/mockCreator';
+import { IProvider } from '../../../../src/common/interfaces';
+import { getProvider } from '../../../../src/providers/getProvider';
+import { createPayload } from '../../../helpers/mockCreator';
 import { IngestionRequestSender } from '../helpers/requestSender';
 
 describe('IngestionController', function () {
@@ -27,6 +24,7 @@ describe('IngestionController', function () {
     const app = getApp({
       override: [
         { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
+        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         {
           token: SERVICES.PROVIDER,
           provider: {

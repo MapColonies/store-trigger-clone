@@ -1,3 +1,4 @@
+import jsLogger from '@map-colonies/js-logger';
 import { ICreateTaskBody, OperationStatus } from '@map-colonies/mc-priority-queue';
 import { randNumber } from '@ngneat/falso';
 import httpStatus from 'http-status-codes';
@@ -36,6 +37,7 @@ describe('ingestionManager', () => {
         { token: SERVICES.QUEUE_FILE_HANDLER, provider: { useValue: queueFileHandlerMock } },
         { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
         { token: SERVICES.PROVIDER, provider: { useValue: configProviderMock } },
+        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
       ],
     });
 
