@@ -1,8 +1,8 @@
 import config from 'config';
 import httpStatus from 'http-status-codes';
 import { container } from 'tsyringe';
-import { AppError } from '../appError';
-import { IProvider, INFSConfig, IS3Config } from '../interfaces';
+import { AppError } from '../common/appError';
+import { INFSConfig, IProvider, IS3Config } from '../common/interfaces';
 import { NFSProvider } from './nfsProvider';
 import { S3Provider } from './s3Provider';
 

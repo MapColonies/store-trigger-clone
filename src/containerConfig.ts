@@ -7,7 +7,7 @@ import { DependencyContainer } from 'tsyringe/dist/typings/types';
 import { SERVICES, SERVICE_NAME } from './common/constants';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 import { INFSConfig, IProvider, IS3Config } from './common/interfaces';
-import { getProvider, getProviderConfig } from './common/providers/getProvider';
+import { getProvider, getProviderConfig } from './providers/getProvider';
 import { tracing } from './common/tracing';
 import { QueueFileHandler } from './handlers/queueFileHandler';
 import { ingestionRouterFactory, INGESTION_ROUTER_SYMBOL } from './ingestion/routes/ingestionRouter';

@@ -2,10 +2,10 @@ import fs from 'fs/promises';
 import { Logger } from '@map-colonies/js-logger';
 import httpStatus from 'http-status-codes';
 import { inject, injectable } from 'tsyringe';
-import { QueueFileHandler } from '../../handlers/queueFileHandler';
-import { AppError } from '../appError';
-import { SERVICES } from '../constants';
-import { IProvider, INFSConfig } from '../interfaces';
+import { QueueFileHandler } from '../handlers/queueFileHandler';
+import { AppError } from '../common/appError';
+import { SERVICES } from '../common/constants';
+import { IProvider, INFSConfig } from '../common/interfaces';
 
 @injectable()
 export class NFSProvider implements IProvider {
@@ -13,7 +13,7 @@ export class NFSProvider implements IProvider {
     @inject(SERVICES.PROVIDER_CONFIG) protected readonly config: INFSConfig,
     @inject(SERVICES.LOGGER) protected readonly logger: Logger,
     @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler
-  ) {}
+  ) { }
 
   public async streamModelPathsToQueueFile(model: string): Promise<void> {
     let filesCount = 0;
@@ -38,9 +38,9 @@ export class NFSProvider implements IProvider {
           try {
             await this.queueFileHandler.writeFileNameToQueueFile(`${folders[0]}/${file}`);
             filesCount++;
-          } catch (err) {
-            this.logger.error({ msg: `Didn't write the file: '${folders[0]}/${file}' in FS.` });
-            throw err;
+          } catch (error) {
+            this.logger.error({ msg: `Didn't write the file: '${folders[0]}/${file}' in FS.`, err: error });
+            throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, 'problem with queueFileHandler', false);
           }
         }
       }

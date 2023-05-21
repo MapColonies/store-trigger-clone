@@ -2,10 +2,10 @@ import { ListObjectsCommand, ListObjectsRequest, S3Client, S3ClientConfig, S3Ser
 import { Logger } from '@map-colonies/js-logger';
 import httpStatus from 'http-status-codes';
 import { inject, injectable } from 'tsyringe';
-import { QueueFileHandler } from '../../handlers/queueFileHandler';
-import { AppError } from '../appError';
-import { SERVICES } from '../constants';
-import { IProvider, IS3Config } from '../interfaces';
+import { QueueFileHandler } from '../handlers/queueFileHandler';
+import { AppError } from '../common/appError';
+import { SERVICES } from '../common/constants';
+import { IProvider, IS3Config } from '../common/interfaces';
 
 @injectable()
 export class S3Provider implements IProvider {
@@ -45,18 +45,21 @@ export class S3Provider implements IProvider {
     while (folders.length > 0) {
       params.Prefix = folders[0];
       this.logger.info({ msg: 'Listing folder', folder: folders[0], filesCount });
-      (await this.listOneLevelS3(params, [])).map(async (item) => {
-        if (item.endsWith('/')) {
-          folders.push(item);
+      const fileList = await this.listOneLevelS3(params, []);
+
+      for (const file of fileList) {
+        if (file.endsWith('/')) {
+          folders.push(file);
         } else {
           try {
-            await this.queueFileHandler.writeFileNameToQueueFile(item);
+            await this.queueFileHandler.writeFileNameToQueueFile(file);
             filesCount++;
           } catch (err) {
-            this.logger.error({ msg: `Didn't write the file: '${item}' in S3.` });
+            this.logger.error({ msg: `Didn't write the file: '${file}' in S3.` });
           }
         }
-      });
+      }
+
       folders.shift();
     }
 
