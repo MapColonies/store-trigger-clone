@@ -37,7 +37,7 @@ describe('QueueFileHandler', () => {
   it('should be able to create a queue file', async () => {
     const filePath = queueFileHandler['queueFilePath'];
     await queueFileHandler.emptyQueueFile();
-    await queueFileHandler.createQueueFile();
+    await queueFileHandler['createQueueFile']();
 
     const fileExists = await fs.promises
       .access(filePath, fs.constants.F_OK)
