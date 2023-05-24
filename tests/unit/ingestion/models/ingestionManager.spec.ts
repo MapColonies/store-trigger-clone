@@ -189,7 +189,7 @@ describe('ingestionManager', () => {
       const modelId = createUuid();
       const tasks: ICreateTaskBody<ITaskParameters> = {
         type: getTaskType(),
-        parameters: { paths, modelId },
+        parameters: { paths, modelId, offset: 0 },
       };
 
       // Act
