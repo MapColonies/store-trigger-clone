@@ -21,7 +21,6 @@ export interface RegisterOptions {
 export const registerExternalValues = (options?: RegisterOptions): DependencyContainer => {
   const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
   const provider = config.get<string>('ingestion.provider');
-  const jobType = config.get<string>('fileSyncer.job.type');
   const jobManagerBaseUrl = config.get<string>('jobManager.url');
   const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, hooks: { logMethod } });
 
@@ -40,7 +39,7 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
       token: SERVICES.JOB_MANAGER_CLIENT,
       provider: {
         useFactory: (): JobManagerClient => {
-          return new JobManagerClient(logger, jobType, jobManagerBaseUrl);
+          return new JobManagerClient(logger, jobManagerBaseUrl);
         },
       },
     },

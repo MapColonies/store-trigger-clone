@@ -4,22 +4,19 @@ import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { inject, injectable } from 'tsyringe';
 import { AppError } from '../../common/appError';
-import { SERVICES } from '../../common/constants';
-import { CreateJobBody, IConfig, IIngestionResponse, Payload } from '../../common/interfaces';
+import { JOB_TYPE, SERVICES } from '../../common/constants';
+import { CreateJobBody, IIngestionResponse, Payload } from '../../common/interfaces';
 import { IngestionManager } from '../models/ingestionManager';
 
 type CreateResourceHandler = RequestHandler<undefined, IIngestionResponse, Payload>;
 
 @injectable()
 export class IngestionController {
-  private readonly jobType: string;
 
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(SERVICES.CONFIG) private readonly config: IConfig,
     @inject(IngestionManager) private readonly manager: IngestionManager
   ) {
-    this.jobType = this.config.get<string>('fileSyncer.job.type');
   }
 
   public create: CreateResourceHandler = async (req, res, next) => {
@@ -28,7 +25,7 @@ export class IngestionController {
     const createJobRequest: CreateJobBody = {
       resourceId: payload.modelId,
       version: '1',
-      type: this.jobType,
+      type: JOB_TYPE,
       parameters: { metadata: payload.metadata, modelId: payload.modelId, tilesetFilename: payload.tilesetFilename },
       productType: payload.metadata.productType,
       productName: payload.metadata.productName,
