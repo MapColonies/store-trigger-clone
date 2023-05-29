@@ -14,12 +14,13 @@
   },
   "ingestion": {
     "provider": "S3",
-    "queueFilePath": "queueFile.txt"
+    "queueFilePath": "queueFile.txt",
+    "blackList": ["tar", "zip", "rar", "7z"]
   },
   "jobManager": {
     "url": "http://127.0.0.1:8080"
   },
-  "worker": {
+  "fileSyncer": {
     "job": {
       "type": "Ingestion_New_3D"
     },

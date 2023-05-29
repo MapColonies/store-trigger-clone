@@ -20,9 +20,9 @@ export interface Payload {
    */
   modelId: string;
   /**
-   * Model files location path
+   * Model name
    */
-  modelPath: string;
+  modelName: string;
   /**
    * Model tileset filename
    */
@@ -50,6 +50,7 @@ export interface IJobParameters {
 export interface ITaskParameters {
   paths: string[];
   modelId: string;
+  offset: number;
 }
 
 export interface IS3Config {

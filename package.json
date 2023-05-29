@@ -1,11 +1,11 @@
 {
   "name": "service-name",
-  "version": "1.0.0",
-  "description": "This is template for map colonies typescript service",
+  "version": "1.0.1",
+  "description": "This service responsible for creating job and their tasks.",
   "main": "./src/index.ts",
   "scripts": {
     "test:unit": "jest --config=./tests/configurations/unit/jest.config.js",
-    "test:integration": "jest --config=./tests/configurations/integration/jest.config.js",
+    "test:integration": "jest --config=./tests/configurations/integration/jest.config.js --runInBand",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "prelint:fix": "npm run format:fix",
@@ -29,6 +29,9 @@
   "directories": {
     "test": "tests"
   },
+  "jest": {
+    "collectCoverage": true
+  },
   "author": "MapColonies",
   "license": "ISC",
   "husky": {
@@ -47,9 +50,9 @@
     "@godaddy/terminus": "^4.11.1",
     "@map-colonies/error-express-handler": "^2.1.0",
     "@map-colonies/express-access-log-middleware": "^1.0.0",
-    "@map-colonies/js-logger": "^0.0.5",
+    "@map-colonies/js-logger": "^1.0.1",
     "@map-colonies/mc-model-types": "^14.0.1",
-    "@map-colonies/mc-priority-queue": "^5.0.1",
+    "@map-colonies/mc-priority-queue": "^6.1.1",
     "@map-colonies/openapi-express-viewer": "^2.0.1",
     "@map-colonies/read-pkg": "0.0.1",
     "@map-colonies/telemetry": "3.1.0",

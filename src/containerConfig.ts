@@ -7,7 +7,7 @@ import { DependencyContainer } from 'tsyringe/dist/typings/types';
 import { SERVICES, SERVICE_NAME } from './common/constants';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 import { INFSConfig, IProvider, IS3Config } from './common/interfaces';
-import { getProvider, getProviderConfig } from './common/providers/getProvider';
+import { getProvider, getProviderConfig } from './providers/getProvider';
 import { tracing } from './common/tracing';
 import { QueueFileHandler } from './handlers/queueFileHandler';
 import { ingestionRouterFactory, INGESTION_ROUTER_SYMBOL } from './ingestion/routes/ingestionRouter';
@@ -21,9 +21,7 @@ export interface RegisterOptions {
 export const registerExternalValues = (options?: RegisterOptions): DependencyContainer => {
   const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
   const provider = config.get<string>('ingestion.provider');
-  const jobType = config.get<string>('worker.job.type');
   const jobManagerBaseUrl = config.get<string>('jobManager.url');
-  // @ts-expect-error the signature is wrong
   const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, hooks: { logMethod } });
 
   const metrics = new Metrics(SERVICE_NAME);
@@ -41,7 +39,7 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
       token: SERVICES.JOB_MANAGER_CLIENT,
       provider: {
         useFactory: (): JobManagerClient => {
-          return new JobManagerClient(logger, jobType, jobManagerBaseUrl);
+          return new JobManagerClient(logger, jobManagerBaseUrl);
         },
       },
     },

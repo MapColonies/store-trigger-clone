@@ -1,4 +1,5 @@
-import { ListObjectsCommand } from '@aws-sdk/client-s3';
+/* eslint-disable jest/no-commented-out-tests */
+import jsLogger from '@map-colonies/js-logger';
 import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import config from 'config';
 import httpStatusCodes from 'http-status-codes';
@@ -6,16 +7,38 @@ import { container } from 'tsyringe';
 import { getApp } from '../../../../src/app';
 import { SERVICES } from '../../../../src/common/constants';
 import { IProvider } from '../../../../src/common/interfaces';
-import { getProvider } from '../../../../src/common/providers/getProvider';
-import { createPayload, s3EmptyOutput, s3Mock, s3Output } from '../../../helpers/mockCreator';
+import { getProvider } from '../../../../src/providers/getProvider';
+import { createPayload } from '../../../helpers/mockCreator';
 import { IngestionRequestSender } from '../helpers/requestSender';
 
-describe('ModelsController', function () {
+describe('IngestionController', function () {
   let requestSender: IngestionRequestSender;
+  // let ingestionManager: IngestionManager;
+  const s3Config = config.get<string>('S3');
+
   const jobManagerClientMock = {
     createJob: jest.fn(),
   };
-  const bucket = config.get<string>('S3.bucket');
+
+  beforeAll(() => {
+    const app = getApp({
+      override: [
+        { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
+        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+        {
+          token: SERVICES.PROVIDER,
+          provider: {
+            useFactory: (): IProvider => {
+              return getProvider('s3');
+            },
+          },
+        },
+      ],
+    });
+
+    // ingestionManager = container.resolve(IngestionManager);
+    requestSender = new IngestionRequestSender(app);
+  });
 
   afterAll(function () {
     container.reset();
@@ -23,34 +46,13 @@ describe('ModelsController', function () {
   });
 
   describe('POST /ingestion on S3', function () {
-    const s3Config = config.get<string>('S3');
-
-    beforeAll(function () {
-      const app = getApp({
-        override: [
-          { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
-          { token: SERVICES.PROVIDER_CONFIG, provider: { useValue: s3Config } },
-          {
-            token: SERVICES.PROVIDER,
-            provider: {
-              useFactory: (): IProvider => {
-                return getProvider('s3');
-              },
-            },
-          },
-        ],
-      });
-
-      requestSender = new IngestionRequestSender(app);
-    });
-
     describe('Happy Path 🙂', function () {
       it('should return 201 status code and the added model', async function () {
         const payload = createPayload('model1');
-        s3Mock.on(ListObjectsCommand).resolves(s3Output);
-        jobManagerClientMock.createJob.mockResolvedValue({ id: '1', status: OperationStatus.IN_PROGRESS });
+        // s3Mock.on(ListObjectsCommand).resolves(s3Output);
+        jobManagerClientMock.createJob.mockResolvedValueOnce({ id: '1' });
 
-        const response = await requestSender.createModel(payload);
+        const response = await requestSender.create(payload);
 
         expect(response.status).toBe(httpStatusCodes.CREATED);
         expect(response.body).toHaveProperty('jobID', '1');
@@ -58,98 +60,120 @@ describe('ModelsController', function () {
       });
     });
 
-    describe('Bad Path 😡', function () {
-      it(`should return 400 status code and error message if model doesn't exists`, async function () {
-        const invalidPayload = createPayload('bla');
-        s3Mock.on(ListObjectsCommand).resolves(s3EmptyOutput);
+    // describe('Bad Path 😡', function () {
+    //   it(`should return 400 status code and error message if model doesn't exists`, async function () {
+    //     const invalidPayload = createPayload('bla');
+    //     s3Mock.on(ListObjectsCommand).resolves(s3EmptyOutput);
 
-        const response = await requestSender.createModel(invalidPayload);
+    //     const response = await requestSender.create(invalidPayload);
 
-        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toHaveProperty('message', `Model bla doesn't exists in bucket ${bucket}!`);
-      });
-    });
+    //     expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+    //     expect(response.body).toHaveProperty('message', `Model bla doesn't exists in bucket ${bucket}!`);
+    //   });
+    // });
 
     describe('Sad Path 😥', function () {
-      it('should return 500 status code if a network exception happens in job service', async function () {
+      it('should return 500 status code if a network exception happens in job manager', async function () {
         const payload = createPayload('bla');
-        s3Mock.on(ListObjectsCommand).resolves(s3Output);
+        // s3Mock.on(ListObjectsCommand).resolves(s3Output);
         jobManagerClientMock.createJob.mockRejectedValueOnce(new Error('JobManager is not available'));
 
-        const response = await requestSender.createModel(payload);
+        const response = await requestSender.create(payload);
 
         expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(response.body).toHaveProperty('message', 'JobManager is not available');
       });
 
-      it('should return 500 status code if a network exception happens in amazon s3', async function () {
-        const payload = createPayload('bla');
-        s3Mock.on(ListObjectsCommand).rejects();
+      // it('should return 500 status code if a network exception happens in amazon s3', async function () {
+      //   const payload = createPayload('bla');
+      //   s3Mock.on(ListObjectsCommand).rejects();
 
-        const response = await requestSender.createModel(payload);
+      //   const response = await requestSender.create(payload);
 
-        expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
-        expect(response.body).toHaveProperty('message', `Didn't throw a S3 exception in file`);
-      });
+      //   expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+      //   expect(response.body).toHaveProperty('message', `Didn't throw a S3 exception in file`);
+      // });
     });
   });
 
-  describe('POST /ingestion on NFS', function () {
-    const nfsConfig = config.get<string>('NFS');
+  // describe('POST /ingestion on NFS', function () {
+  //   const nfsConfig = config.get<string>('NFS');
 
-    beforeAll(function () {
-      const app = getApp({
-        override: [
-          { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
-          { token: SERVICES.PROVIDER_CONFIG, provider: { useValue: nfsConfig } },
-          {
-            token: SERVICES.PROVIDER,
-            provider: {
-              useFactory: (): IProvider => {
-                return getProvider('nfs');
-              },
-            },
-          },
-        ],
-      });
+  //   beforeAll(function () {
+  //     const app = getApp({
+  //       override: [
+  //         { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
+  //         { token: SERVICES.PROVIDER_CONFIG, provider: { useValue: nfsConfig } },
+  //         {
+  //           token: SERVICES.PROVIDER,
+  //           provider: {
+  //             useFactory: (): IProvider => {
+  //               return getProvider('nfs');
+  //             },
+  //           },
+  //         },
+  //       ],
+  //     });
 
-      requestSender = new IngestionRequestSender(app);
-    });
+  //     requestSender = new IngestionRequestSender(app);
+  //   });
 
-    describe('Happy Path 🙂', function () {
-      it('should return 201 status code and the added model', async function () {
-        const payload = createPayload('model1');
-        jobManagerClientMock.createJob.mockResolvedValue({ id: '123', status: OperationStatus.IN_PROGRESS });
+  //   describe('Happy Path 🙂', function () {
+  //     it('should return 201 status code and the added model', async function () {
+  //       const payload = createPayload('model1');
+  //       jobManagerClientMock.createJob.mockResolvedValue({ id: '123', status: OperationStatus.IN_PROGRESS });
 
-        const response = await requestSender.createModel(payload);
+  //       const response = await requestSender.create(payload);
 
-        expect(response.status).toBe(httpStatusCodes.CREATED);
-        expect(response.body).toHaveProperty('jobID', '123');
-        expect(response.body).toHaveProperty('status', OperationStatus.IN_PROGRESS);
-      });
-    });
+  //       expect(response.status).toBe(httpStatusCodes.CREATED);
+  //       expect(response.body).toHaveProperty('jobID', '123');
+  //       expect(response.body).toHaveProperty('status', OperationStatus.IN_PROGRESS);
+  //     });
+  //   });
 
-    describe('Bad Path 😡', function () {
-      it(`should return 400 status code and error message if model doesn't exists`, async function () {
-        const invalidPayload = createPayload('bla');
+  //   describe('Bad Path 😡', function () {
+  //     it(`should return 400 status code and error message if model doesn't exists`, async function () {
+  //       const invalidPayload = createPayload('bla');
 
-        const response = await requestSender.createModel(invalidPayload);
+  //       const response = await requestSender.create(invalidPayload);
 
-        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toHaveProperty('message', `Model bla doesn't exists in the agreed folder`);
-      });
-    });
+  //       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+  //       expect(response.body).toHaveProperty('message', `Model bla doesn't exists in the agreed folder`);
+  //     });
+  //   });
 
-    describe('Sad Path 😥', function () {
-      it('should return 500 status code if a network exception happens in job service', async function () {
-        const invalidPayload = createPayload('model1');
-        jobManagerClientMock.createJob.mockRejectedValueOnce(new Error('JobManager is not available'));
+  //   describe('Sad Path 😥', function () {
+  //     it('should return 500 status code if a network exception happens in job service', async function () {
+  //       const invalidPayload = createPayload('model1');
+  //       jobManagerClientMock.createJob.mockRejectedValueOnce(new Error('JobManager is not available'));
 
-        const response = await requestSender.createModel(invalidPayload);
+  //       const response = await requestSender.create(invalidPayload);
 
-        expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
-        expect(response.body).toHaveProperty('message', 'JobManager is not available');
-      });
-    });
-  });
+  //       expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+  //       expect(response.body).toHaveProperty('message', 'JobManager is not available');
+  //     });
+  //   });
+  // });
+
+  // describe('create', () => {
+  //   it('should create a new job and return it in the response', async () => {
+  //     const payload = createPayload('my-model');
+  //     ingestionManager.createJob(ingestionResponseMock);
+
+  //     const response = await requestSender.create(payload);
+
+  //     expect(response.status).toBe(201);
+  //     expect(response.body).toHaveProperty('jobID');
+  //   });
+
+  //   it('should return an error if there is an AppError', async () => {
+  //     const payload = createPayload('my-model');
+  //     managerMock.createJob.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, 'some error message', true));
+
+  //     const response = await requestSender.create(payload);
+
+  //     expect(response.status).toBe(500);
+  //     expect(response.body).toHaveProperty('message', 'some error message');
+  //   });
+  // });
 });

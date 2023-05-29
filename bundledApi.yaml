@@ -80,7 +80,7 @@ components:
       description: 3d model payload
       required:
         - modelId
-        - modelPath
+        - modelName
         - tilesetFilename
         - metadata
       properties:
@@ -88,10 +88,10 @@ components:
           type: string
           description: Model identifier
           example: a2234fdf
-        modelPath:
+        modelName:
           type: string
-          description: Model files location path
-          example: //domtest/mimi/archi/maz/silver/libot/NewYork
+          description: Model name
+          example: NewYork
         tilesetFilename:
           type: string
           description: Model tileset filename
@@ -247,12 +247,7 @@ components:
         propertyName: type
       type: object
       anyOf:
-        - $ref: '#/components/schemas/Point'
-        - $ref: '#/components/schemas/LineString'
         - $ref: '#/components/schemas/Polygon'
-        - $ref: '#/components/schemas/MultiPoint'
-        - $ref: '#/components/schemas/MultiLineString'
-        - $ref: '#/components/schemas/MultiPolygon'
     schemas-payload:
       type: object
       description: 3d tiles metadata payload

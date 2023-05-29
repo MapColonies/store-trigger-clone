@@ -1,27 +1,45 @@
 import { Logger } from '@map-colonies/js-logger';
+import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
-import { injectable, inject } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import { AppError } from '../../common/appError';
-import { SERVICES } from '../../common/constants';
-import { IIngestionResponse, Payload } from '../../common/interfaces';
+import { JOB_TYPE, SERVICES } from '../../common/constants';
+import { CreateJobBody, IIngestionResponse, Payload } from '../../common/interfaces';
 import { IngestionManager } from '../models/ingestionManager';
 
 type CreateResourceHandler = RequestHandler<undefined, IIngestionResponse, Payload>;
 
 @injectable()
 export class IngestionController {
+
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(IngestionManager) private readonly manager: IngestionManager
-  ) {}
+  ) {
+  }
 
   public create: CreateResourceHandler = async (req, res, next) => {
-    const userInput: Payload = req.body;
+    const payload: Payload = req.body;
+
+    const createJobRequest: CreateJobBody = {
+      resourceId: payload.modelId,
+      version: '1',
+      type: JOB_TYPE,
+      parameters: { metadata: payload.metadata, modelId: payload.modelId, tilesetFilename: payload.tilesetFilename },
+      productType: payload.metadata.productType,
+      productName: payload.metadata.productName,
+      percentage: 0,
+      producerName: payload.metadata.producerName,
+      status: OperationStatus.IN_PROGRESS,
+      domain: '3D',
+    };
+
     try {
-      const jobCreated = this.manager.createModel(userInput);
-      this.logger.debug(`User input: ${JSON.stringify(userInput)}`);
-      return res.status(httpStatus.CREATED).json(await jobCreated);
+      const jobCreated = await this.manager.createJob(createJobRequest);
+      this.logger.debug(`Job created payload`, payload);
+      res.status(httpStatus.CREATED).json(jobCreated);
+      await this.manager.createModel(payload, jobCreated.jobID);
     } catch (error) {
       if (error instanceof AppError) {
         this.logger.error({ msg: `Failed in ingesting a new model! Reason: ${error.message}` });

@@ -1,3 +1,4 @@
+import jsLogger from '@map-colonies/js-logger';
 import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import httpStatusCodes from 'http-status-codes';
 import mockAxios from 'jest-mock-axios';
@@ -14,7 +15,10 @@ describe('jobStatusController', function () {
 
   beforeAll(() => {
     const app = getApp({
-      override: [{ token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } }],
+      override: [
+        { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
+        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+      ],
     });
 
     requestSender = new JobStatusRequestSender(app);
