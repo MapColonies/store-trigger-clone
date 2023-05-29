@@ -50,6 +50,7 @@ export interface IJobParameters {
 export interface ITaskParameters {
   paths: string[];
   modelId: string;
+  offset: number;
 }
 
 export interface IS3Config {
