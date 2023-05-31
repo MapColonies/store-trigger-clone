@@ -92,7 +92,7 @@ export class IngestionManager {
   }
 
   private buildTaskFromChunk(chunk: string[], modelId: string): ICreateTaskBody<ITaskParameters> {
-    const parameters: ITaskParameters = { paths: chunk, modelId, lastIndexError: 0 };
+    const parameters: ITaskParameters = { paths: chunk, modelId, lastIndexError: -1 };
     return { type: this.taskType, parameters };
   }
 
