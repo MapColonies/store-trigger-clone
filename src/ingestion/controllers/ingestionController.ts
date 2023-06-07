@@ -3,7 +3,7 @@ import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { inject, injectable } from 'tsyringe';
-import { AppError } from '../../common/appError';
+import { AppError, AfterResponseError } from '../../common/appError';
 import { JOB_TYPE, SERVICES } from '../../common/constants';
 import { CreateJobBody, IIngestionResponse, Payload } from '../../common/interfaces';
 import { IngestionManager } from '../models/ingestionManager';
@@ -34,17 +34,23 @@ export class IngestionController {
       status: OperationStatus.IN_PROGRESS,
       domain: '3D',
     };
-
+    let canReturnResponse = true;
     try {
       const jobCreated = await this.manager.createJob(createJobRequest);
       this.logger.debug(`Job created payload`, payload);
       res.status(httpStatus.CREATED).json(jobCreated);
+      canReturnResponse = false;
       await this.manager.createModel(payload, jobCreated.jobID);
     } catch (error) {
       if (error instanceof AppError) {
         this.logger.error({ msg: `Failed in ingesting a new model! Reason: ${error.message}` });
       }
-      return next(error);
+      if (canReturnResponse) {
+        return next(error);
+      } else {
+        const newError = new AfterResponseError('should not return response');
+        return next(newError);
+      }
     }
   };
 }
