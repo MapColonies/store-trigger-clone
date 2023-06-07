@@ -1,4 +1,4 @@
-import { ListObjectsCommand, ListObjectsRequest, S3Client, S3ClientConfig, S3ServiceException } from '@aws-sdk/client-s3';
+import { CommonPrefix, ListObjectsCommand, ListObjectsRequest, S3Client, S3ClientConfig, S3ServiceException, _Object } from '@aws-sdk/client-s3';
 import { Logger } from '@map-colonies/js-logger';
 import httpStatus from 'http-status-codes';
 import { inject, injectable } from 'tsyringe';
@@ -10,6 +10,7 @@ import { IProvider, IS3Config } from '../common/interfaces';
 @injectable()
 export class S3Provider implements IProvider {
   private readonly s3: S3Client;
+  private filesCount: number;
 
   public constructor(
     @inject(SERVICES.PROVIDER_CONFIG) protected readonly s3Config: IS3Config,
@@ -27,11 +28,11 @@ export class S3Provider implements IProvider {
     };
 
     this.s3 = new S3Client(s3ClientConfig);
+    this.filesCount = 0;
   }
 
   public async streamModelPathsToQueueFile(model: string): Promise<void> {
     const modelName = model + '/';
-    let filesCount = 0;
 
     /* eslint-disable @typescript-eslint/naming-convention */
     const params: ListObjectsRequest = {
@@ -40,55 +41,64 @@ export class S3Provider implements IProvider {
       Prefix: modelName,
     };
 
-    const folders: string[] = [modelName];
-
-    while (folders.length > 0) {
-      params.Prefix = folders[0];
-      this.logger.info({ msg: 'Listing folder', folder: folders[0], filesCount });
-      const fileList = await this.listOneLevelS3(params, []);
-
-      for (const file of fileList) {
-        if (file.endsWith('/')) {
-          folders.push(file);
-        } else {
-          try {
-            await this.queueFileHandler.writeFileNameToQueueFile(file);
-            filesCount++;
-          } catch (err) {
-            this.logger.error({ msg: `Didn't write the file: '${file}' in S3.` });
-          }
-        }
-      }
-
-      folders.shift();
-    }
+    await this.listS3Recursively(params);
 
     if (await this.queueFileHandler.checkIfTempFileEmpty()) {
       throw new AppError(httpStatus.NOT_FOUND, `Model ${model} doesn't exists in bucket ${this.s3Config.bucket}!`, true);
     }
+
+    this.logger.info({ msg: `There are ${this.filesCount} files in model ${model}` });
+    this.filesCount = 0;
   }
 
-  private async listOneLevelS3(params: ListObjectsRequest, keysList: string[]): Promise<string[]> {
+  private async listS3Recursively(params: ListObjectsRequest): Promise<void> {
     try {
       const listObject = new ListObjectsCommand(params);
       const data = await this.s3.send(listObject);
 
       if (data.Contents) {
-        keysList = keysList.concat(data.Contents.map((item) => (item.Key != undefined ? item.Key : '')));
+        await this.writeFileContent(data.Contents);
       }
 
       if (data.CommonPrefixes) {
-        keysList = keysList.concat(data.CommonPrefixes.map((item) => (item.Prefix != undefined ? item.Prefix : '')));
+        await this.writeFolderContent(data.CommonPrefixes);
       }
 
       if (data.IsTruncated === true) {
-        params.Marker = data.NextMarker;
-        await this.listOneLevelS3(params, keysList);
+        const nextParams: ListObjectsRequest = {
+          Bucket: this.s3Config.bucket, Delimiter: '/',
+          Prefix: data.Prefix, Marker: data.NextMarker
+        }
+        await this.listS3Recursively(nextParams);
       }
-      return keysList;
+
+      this.logger.debug({ msg: `Listed ${this.filesCount} files` });
     } catch (e) {
       this.logger.error({ msg: e });
       this.handleS3Error(this.s3Config.bucket, e);
+    }
+  }
+
+  private async writeFileContent(contents: _Object[]): Promise<void> {
+    for (const content of contents) {
+      if (content.Key == undefined) {
+        throw new AppError(httpStatus.NO_CONTENT, 'found content without file name', true);
+      }
+      await this.queueFileHandler.writeFileNameToQueueFile(content.Key);
+      this.filesCount++;
+    }
+  }
+
+  private async writeFolderContent(CommonPrefixes: CommonPrefix[]): Promise<void> {
+    for (const commonPrefix of CommonPrefixes) {
+      if (commonPrefix.Prefix != undefined) {
+        const nextParams: ListObjectsRequest = {
+          Bucket: this.s3Config.bucket,
+          Delimiter: '/',
+          Prefix: commonPrefix.Prefix,
+        }
+        await this.listS3Recursively(nextParams);
+      }
     }
   }
 
