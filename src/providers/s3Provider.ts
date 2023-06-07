@@ -47,7 +47,7 @@ export class S3Provider implements IProvider {
       throw new AppError(httpStatus.NOT_FOUND, `Model ${model} doesn't exists in bucket ${this.s3Config.bucket}!`, true);
     }
 
-    this.logger.info({ msg: `There are ${this.filesCount} files in model ${model}` });
+    this.logger.info({ msg: 'Finished listing the files', filesCount: this.filesCount, model });
     this.filesCount = 0;
   }
 
