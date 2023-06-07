@@ -1,4 +1,4 @@
-import { ListObjectsCommand, ListObjectsRequest, S3Client, S3ClientConfig, S3ServiceException } from '@aws-sdk/client-s3';
+import { CommonPrefix, ListObjectsCommand, ListObjectsRequest, S3Client, S3ClientConfig, S3ServiceException, _Object } from '@aws-sdk/client-s3';
 import { Logger } from '@map-colonies/js-logger';
 import httpStatus from 'http-status-codes';
 import { inject, injectable } from 'tsyringe';
@@ -47,7 +47,8 @@ export class S3Provider implements IProvider {
       throw new AppError(httpStatus.NOT_FOUND, `Model ${model} doesn't exists in bucket ${this.s3Config.bucket}!`, true);
     }
 
-    this.logger.debug({ msg: `There are ${this.filesCount} files in model ${model}` });
+    this.logger.info({ msg: `There are ${this.filesCount} files in model ${model}` });
+    this.filesCount = 0;
   }
 
   private async listS3Recursively(params: ListObjectsRequest): Promise<void> {
@@ -56,37 +57,17 @@ export class S3Provider implements IProvider {
       const data = await this.s3.send(listObject);
 
       if (data.Contents) {
-        for (let index = 0; index < data.Contents.length; index++) {
-          if(data.Contents[index].Key == undefined) {
-            throw new AppError(httpStatus.NO_CONTENT, 'found content without file name', true);
-          }
-          await this.queueFileHandler.writeFileNameToQueueFile(data.Contents[index].Key as string);
-          this.filesCount++;
-        }
+        await this.writeFileContent(data.Contents);
       }
 
       if (data.CommonPrefixes) {
-        for (let index = 0; index < data.CommonPrefixes.length; index++) {
-          if(data.CommonPrefixes[index].Prefix != undefined) {
-            const nextParams: ListObjectsRequest = {
-              Bucket: this.s3Config.bucket,
-              Delimiter: '/',
-              Prefix: data.CommonPrefixes[index].Prefix,
-            }
-            await this.listS3Recursively(nextParams);
-          }
-        }
+        await this.writeFolderContent(data.CommonPrefixes);
       }
 
       if (data.IsTruncated === true) {
-        if (data.Contents == undefined) {
-          throw new AppError(httpStatus.CONFLICT, 'IsTruncated is true but has contents is empty', true);
-        }
         const nextParams: ListObjectsRequest = {
-          Bucket: this.s3Config.bucket,
-          Delimiter: '/',
-          Prefix: data.Prefix,
-          Marker: data.Contents[data.Contents.length - 1].Key
+          Bucket: this.s3Config.bucket, Delimiter: '/',
+          Prefix: data.Prefix, Marker: data.NextMarker
         }
         await this.listS3Recursively(nextParams);
       }
@@ -95,6 +76,29 @@ export class S3Provider implements IProvider {
     } catch (e) {
       this.logger.error({ msg: e });
       this.handleS3Error(this.s3Config.bucket, e);
+    }
+  }
+
+  private async writeFileContent(contents: _Object[]): Promise<void> {
+    for (const content of contents) {
+      if (content.Key == undefined) {
+        throw new AppError(httpStatus.NO_CONTENT, 'found content without file name', true);
+      }
+      await this.queueFileHandler.writeFileNameToQueueFile(content.Key);
+      this.filesCount++;
+    }
+  }
+
+  private async writeFolderContent(CommonPrefixes: CommonPrefix[]): Promise<void> {
+    for (const commonPrefix of CommonPrefixes) {
+      if (commonPrefix.Prefix != undefined) {
+        const nextParams: ListObjectsRequest = {
+          Bucket: this.s3Config.bucket,
+          Delimiter: '/',
+          Prefix: commonPrefix.Prefix,
+        }
+        await this.listS3Recursively(nextParams);
+      }
     }
   }
 
