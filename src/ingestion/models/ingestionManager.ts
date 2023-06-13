@@ -40,13 +40,14 @@ export class IngestionManager {
     try {
       this.logger.info({ msg: 'Starts writing content to queue file' });
       await this.queueFileHandler.initialize();
-      await this.provider.streamModelPathsToQueueFile(payload.modelName);
+      const fileCount: number = await this.provider.streamModelPathsToQueueFile(payload.modelName);
       this.logger.info({ msg: 'Finished writing content to queue file. Creating Tasks' });
 
       const tasks = this.createTasks(this.batchSize, payload.modelId);
       this.logger.info({ msg: 'Tasks created successfully' });
 
       await this.createTasksForJob(jobId, tasks);
+      await this.updateFileCountInJobParams(jobId, fileCount);
 
       await this.queueFileHandler.emptyQueueFile();
     } catch (error) {
@@ -101,5 +102,9 @@ export class IngestionManager {
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     const fileExtension = data.split('.').slice(-1)[0];
     return blackList.includes(fileExtension);
+  }
+
+  private async updateFileCountInJobParams(jobId: string, fileCount: number): Promise<void> {
+    await this.jobManagerClient.updateJob(jobId, { parameters: fileCount});
   }
 }

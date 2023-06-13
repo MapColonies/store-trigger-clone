@@ -31,7 +31,7 @@ export class S3Provider implements IProvider {
     this.filesCount = 0;
   }
 
-  public async streamModelPathsToQueueFile(model: string): Promise<void> {
+  public async streamModelPathsToQueueFile(model: string): Promise<number> {
     const modelName = model + '/';
 
     /* eslint-disable @typescript-eslint/naming-convention */
@@ -48,7 +48,10 @@ export class S3Provider implements IProvider {
     }
 
     this.logger.info({ msg: 'Finished listing the files', filesCount: this.filesCount, model });
+    const lastFileCount = this.filesCount;
     this.filesCount = 0;
+
+    return lastFileCount;
   }
 
   private async listS3Recursively(params: ListObjectsRequest): Promise<void> {

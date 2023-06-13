@@ -34,7 +34,7 @@ export interface Payload {
 }
 
 export interface IProvider {
-  streamModelPathsToQueueFile: (model: string) => Promise<void>;
+  streamModelPathsToQueueFile: (model: string) => Promise<number>;
 }
 
 export interface IIngestionConfig {
@@ -83,3 +83,4 @@ export interface JobStatusParams {
 
 export type JobResponse = IJobResponse<IJobParameters, ITaskParameters>;
 export type CreateJobBody = ICreateJobBody<IJobParameters, ITaskParameters>;
+
