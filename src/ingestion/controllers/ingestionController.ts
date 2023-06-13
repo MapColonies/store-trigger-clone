@@ -34,23 +34,16 @@ export class IngestionController {
       status: OperationStatus.IN_PROGRESS,
       domain: '3D',
     };
-    let canReturnResponse = true;
     try {
       const jobCreated = await this.manager.createJob(createJobRequest);
       this.logger.debug(`Job created payload`, payload);
       res.status(httpStatus.CREATED).json(jobCreated);
-      canReturnResponse = false;
       await this.manager.createModel(payload, jobCreated.jobID);
     } catch (error) {
       if (error instanceof AppError) {
         this.logger.error({ msg: `Failed in ingesting a new model! Reason: ${error.message}` });
       }
-      if (canReturnResponse) {
-        return next(error);
-      } else {
-        const newError = new AfterResponseError('should not return response');
-        return next(newError);
-      }
+      return next(error);
     }
   };
 }
