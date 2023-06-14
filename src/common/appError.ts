@@ -15,9 +15,3 @@ export class AppError extends Error {
     Error.captureStackTrace(this);
   }
 }
-
-export class AfterResponseError extends AppError {
-  public constructor(message: string) {
-    super(StatusCodes.INTERNAL_SERVER_ERROR, message, true);
-  }
-}
