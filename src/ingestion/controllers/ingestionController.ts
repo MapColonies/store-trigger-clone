@@ -3,7 +3,7 @@ import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { inject, injectable } from 'tsyringe';
-import { AppError, AfterResponseError } from '../../common/appError';
+import { AppError } from '../../common/appError';
 import { JOB_TYPE, SERVICES } from '../../common/constants';
 import { CreateJobBody, IIngestionResponse, Payload } from '../../common/interfaces';
 import { IngestionManager } from '../models/ingestionManager';
@@ -26,7 +26,10 @@ export class IngestionController {
       resourceId: payload.modelId,
       version: '1',
       type: JOB_TYPE,
-      parameters: { metadata: payload.metadata, modelId: payload.modelId, tilesetFilename: payload.tilesetFilename },
+      parameters: {
+        metadata: payload.metadata, modelId: payload.modelId,
+        tilesetFilename: payload.tilesetFilename, filesCount: 0
+      },
       productType: payload.metadata.productType,
       productName: payload.metadata.productName,
       percentage: 0,
@@ -34,23 +37,16 @@ export class IngestionController {
       status: OperationStatus.IN_PROGRESS,
       domain: '3D',
     };
-    let canReturnResponse = true;
     try {
       const jobCreated = await this.manager.createJob(createJobRequest);
       this.logger.debug(`Job created payload`, payload);
       res.status(httpStatus.CREATED).json(jobCreated);
-      canReturnResponse = false;
       await this.manager.createModel(payload, jobCreated.jobID);
     } catch (error) {
       if (error instanceof AppError) {
         this.logger.error({ msg: `Failed in ingesting a new model! Reason: ${error.message}` });
       }
-      if (canReturnResponse) {
-        return next(error);
-      } else {
-        const newError = new AfterResponseError('should not return response');
-        return next(newError);
-      }
+      return next(error);
     }
   };
 }

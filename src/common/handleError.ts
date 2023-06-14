@@ -1,8 +1,8 @@
-import { Response, Request, NextFunction } from 'express';
-import { AppError, AfterResponseError } from './appError';
+import { NextFunction, Request, Response } from 'express';
+import { AppError } from './appError';
 
 export function handleError(error: AppError, request: Request, response: Response, next: NextFunction): void {
-  if (error instanceof AfterResponseError) {
+  if (!response.headersSent) {
     response.status(error.status);
   }
 
