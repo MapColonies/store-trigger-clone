@@ -167,10 +167,13 @@ describe('ingestionManager', () => {
       const batchSize = createBatch({ min: 1, max: 5 });
       const modelId = createUuid();
       const filesAmount = randNumber({ min: 1, max: 8 });
-      for (let i = 0; i < filesAmount - 1; i++) {
+      const blackFilesAmount = randNumber({ min: 1, max: 8 });
+      for (let i = 0; i < filesAmount; i++) {
         queueFileHandlerMock.readline.mockReturnValueOnce(createFile());
       }
-      queueFileHandlerMock.readline.mockReturnValueOnce(createBlackListFile());
+      for (let i = 0; i < blackFilesAmount; i++) {
+        queueFileHandlerMock.readline.mockReturnValueOnce(createBlackListFile());
+      }
       queueFileHandlerMock.readline.mockReturnValueOnce(null);
       ingestionManager['buildTaskFromChunk'] = jest.fn().mockReturnValue(createFakeTask());
 
@@ -189,7 +192,7 @@ describe('ingestionManager', () => {
       const modelId = createUuid();
       const tasks: ICreateTaskBody<ITaskParameters> = {
         type: getTaskType(),
-        parameters: { paths, modelId, offset: 0 },
+        parameters: { paths, modelId, lastIndexError: -1 },
       };
 
       // Act

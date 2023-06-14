@@ -140,7 +140,7 @@ export const createFakeTask = (): ICreateTaskBody<ITaskParameters> => {
     parameters: {
       paths: [createFile(), createFile()],
       modelId,
-      offset: 0
+      lastIndexError: 0
     },
   };
 };
