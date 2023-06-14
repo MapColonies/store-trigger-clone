@@ -15,7 +15,7 @@ export class NFSProvider implements IProvider {
     @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler
   ) { }
 
-  public async streamModelPathsToQueueFile(model: string): Promise<void> {
+  public async streamModelPathsToQueueFile(model: string): Promise<number> {
     let filesCount = 0;
     const modelPath = `${this.config.pvPath}/${model}`;
     try {
@@ -49,5 +49,6 @@ export class NFSProvider implements IProvider {
     }
 
     this.logger.info({ msg: 'Finished listing the files', filesCount: filesCount, model });
+    return filesCount;
   }
 }

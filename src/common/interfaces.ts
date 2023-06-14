@@ -34,7 +34,7 @@ export interface Payload {
 }
 
 export interface IProvider {
-  streamModelPathsToQueueFile: (model: string) => Promise<void>;
+  streamModelPathsToQueueFile: (model: string) => Promise<number>;
 }
 
 export interface IIngestionConfig {
@@ -45,6 +45,7 @@ export interface IJobParameters {
   tilesetFilename: string;
   modelId: string;
   metadata: Layer3DMetadata;
+  filesCount: number;
 }
 
 export interface ITaskParameters {
@@ -83,3 +84,4 @@ export interface JobStatusParams {
 
 export type JobResponse = IJobResponse<IJobParameters, ITaskParameters>;
 export type CreateJobBody = ICreateJobBody<IJobParameters, ITaskParameters>;
+
