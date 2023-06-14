@@ -159,6 +159,7 @@ export const createJobParameters = (): IJobParameters => {
     metadata: createMetadata(),
     modelId: createUuid(),
     tilesetFilename: 'tileset.json',
+    filesCount: 0
   };
 };
 
