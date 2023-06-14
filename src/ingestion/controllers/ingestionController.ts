@@ -3,7 +3,7 @@ import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { inject, injectable } from 'tsyringe';
-import { AppError, AfterResponseError } from '../../common/appError';
+import { AppError } from '../../common/appError';
 import { JOB_TYPE, SERVICES } from '../../common/constants';
 import { CreateJobBody, IIngestionResponse, Payload } from '../../common/interfaces';
 import { IngestionManager } from '../models/ingestionManager';
@@ -26,7 +26,10 @@ export class IngestionController {
       resourceId: payload.modelId,
       version: '1',
       type: JOB_TYPE,
-      parameters: { metadata: payload.metadata, modelId: payload.modelId, tilesetFilename: payload.tilesetFilename },
+      parameters: {
+        metadata: payload.metadata, modelId: payload.modelId,
+        tilesetFilename: payload.tilesetFilename, filesCount: 0
+      },
       productType: payload.metadata.productType,
       productName: payload.metadata.productName,
       percentage: 0,

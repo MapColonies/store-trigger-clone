@@ -105,6 +105,8 @@ export class IngestionManager {
   }
 
   private async updateFileCountInJobParams(jobId: string, fileCount: number): Promise<void> {
-    await this.jobManagerClient.updateJob(jobId, { parameters: fileCount});
+    const job = await this.jobManagerClient.getJob<IJobParameters, ITaskParameters>(jobId, false);
+    const parameters: IJobParameters = { ...job.parameters, filesCount: fileCount };
+    await this.jobManagerClient.updateJob(jobId, { parameters });
   }
 }
