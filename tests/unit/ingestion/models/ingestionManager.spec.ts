@@ -79,6 +79,7 @@ describe('ingestionManager', () => {
       configProviderMock.streamModelPathsToQueueFile.mockResolvedValue('');
       ingestionManager['createTasks'] = jest.fn().mockResolvedValue(tasks);
       ingestionManager['createTasksForJob'] = jest.fn().mockResolvedValue('');
+      ingestionManager['updateFileCountInJobParams'] = jest.fn().mockResolvedValue('');
       queueFileHandlerMock.emptyQueueFile.mockResolvedValue('');
 
       // Act
