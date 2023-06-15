@@ -4,12 +4,12 @@ import config from 'config';
 import { ListObjectsCommand } from '@aws-sdk/client-s3';
 import jsLogger from '@map-colonies/js-logger';
 import { container } from 'tsyringe';
-import { AppError } from '../../../../src/common/appError';
-import { S3Provider } from '../../../../src/providers/s3Provider';
-import { getApp } from '../../../../src/app';
-import { s3EmptyOutput, s3Mock, s3Output } from '../../../helpers/mockCreator';
-import { SERVICES } from '../../../../src/common/constants';
-import { IS3Config } from '../../../../src/common/interfaces';
+import { AppError } from '../../../src/common/appError';
+import { S3Provider } from '../../../src/providers/s3Provider';
+import { getApp } from '../../../src/app';
+import { s3EmptyOutput, s3Mock, s3Output } from '../../helpers/mockCreator';
+import { SERVICES } from '../../../src/common/constants';
+import { IS3Config } from '../../../src/common/interfaces';
 
 describe('S3Provider tests', () => {
   let provider: S3Provider;

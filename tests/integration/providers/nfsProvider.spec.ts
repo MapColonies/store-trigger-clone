@@ -4,12 +4,12 @@ import config from 'config';
 import { container } from 'tsyringe';
 import httpStatus from 'http-status-codes';
 import jsLogger from '@map-colonies/js-logger';
-import { getApp } from '../../../../src/app';
-import { NFSProvider } from '../../../../src/providers/nfsProvider';
-import { SERVICES } from '../../../../src/common/constants';
-import { INFSConfig } from '../../../../src/common/interfaces';
-import { AppError } from '../../../../src/common/appError';
-import { queueFileHandlerMock } from '../../../helpers/mockCreator';
+import { getApp } from '../../../src/app';
+import { NFSProvider } from '../../../src/providers/nfsProvider';
+import { SERVICES } from '../../../src/common/constants';
+import { INFSConfig } from '../../../src/common/interfaces';
+import { AppError } from '../../../src/common/appError';
+import { queueFileHandlerMock } from '../../helpers/mockCreator';
 
 describe('NFSProvider tests', () => {
   let provider: NFSProvider;
