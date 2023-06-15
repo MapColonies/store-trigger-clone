@@ -1,3 +1,4 @@
+import pLimit, { LimitFunction } from 'p-limit';
 import { Logger } from '@map-colonies/js-logger';
 import { ICreateTaskBody, JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
 import { inject, injectable } from 'tsyringe';
@@ -10,6 +11,7 @@ export class IngestionManager {
   private readonly providerName: string;
   private readonly taskType: string;
   private readonly batchSize: number;
+  private readonly limit: LimitFunction;
 
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
@@ -21,6 +23,7 @@ export class IngestionManager {
     this.providerName = this.config.get<string>('ingestion.provider');
     this.batchSize = config.get<number>('fileSyncer.task.batches');
     this.taskType = config.get<string>('fileSyncer.task.type');
+    this.limit = pLimit(config.get<number>('fileSyncer.maxRequests'));
   }
 
   public async createJob(job: CreateJobBody): Promise<IIngestionResponse> {
@@ -58,7 +61,8 @@ export class IngestionManager {
   }
 
   private async createTasksForJob(jobId: string, tasks: ICreateTaskBody<ITaskParameters>[]): Promise<void> {
-    const createTaskPromises = tasks.map(async (task) => this.jobManagerClient.createTaskForJob(jobId, task));
+    const createTaskPromises = tasks.map(async (task) =>
+      this.limit(async () => this.jobManagerClient.createTaskForJob(jobId, task)));
     await Promise.all(createTaskPromises);
   }
 
