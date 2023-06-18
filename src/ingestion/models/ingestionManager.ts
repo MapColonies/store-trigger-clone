@@ -11,7 +11,7 @@ export class IngestionManager {
   private readonly providerName: string;
   private readonly taskType: string;
   private readonly batchSize: number;
-  private readonly limit: LimitFunction;
+  private limit!: LimitFunction;
 
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
@@ -23,8 +23,6 @@ export class IngestionManager {
     this.providerName = this.config.get<string>('ingestion.provider');
     this.batchSize = config.get<number>('fileSyncer.task.batches');
     this.taskType = config.get<string>('fileSyncer.task.type');
-    const maxRequests: number = this.config.get<number>('fileSyncer.maxRequests');
-    this.limit = pLimit(maxRequests);
   }
 
   public async createJob(job: CreateJobBody): Promise<IIngestionResponse> {
@@ -38,12 +36,20 @@ export class IngestionManager {
     return res;
   }
 
+  public async loadPLimit(): Promise<LimitFunction> {
+    const maxRequests: number = this.config.get<number>('fileSyncer.maxRequests');
+    const pLimit = await import('p-limit');
+    return pLimit.default(maxRequests);
+  }
+
   public async createModel(payload: Payload, jobId: string): Promise<void> {
     this.logger.info({ msg: 'Creating job for model', name: payload.modelName, provider: this.providerName });
 
     try {
       this.logger.info({ msg: 'Starts writing content to queue file' });
       await this.queueFileHandler.initialize();
+      this.limit = await this.loadPLimit();
+
       const fileCount: number = await this.provider.streamModelPathsToQueueFile(payload.modelName);
       this.logger.info({ msg: 'Finished writing content to queue file. Creating Tasks' });
 
