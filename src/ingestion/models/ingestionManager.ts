@@ -23,7 +23,8 @@ export class IngestionManager {
     this.providerName = this.config.get<string>('ingestion.provider');
     this.batchSize = config.get<number>('fileSyncer.task.batches');
     this.taskType = config.get<string>('fileSyncer.task.type');
-    this.limit = pLimit(config.get<number>('fileSyncer.maxRequests'));
+    const maxRequests: number = this.config.get<number>('fileSyncer.maxRequests');
+    this.limit = pLimit(maxRequests);
   }
 
   public async createJob(job: CreateJobBody): Promise<IIngestionResponse> {
