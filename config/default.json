@@ -47,7 +47,7 @@
     "url": "http://127.0.0.1:8080"
   },
   "fileSyncer": {
-    "maxRequests": 5,
+    "maxConcurrency": 5,
     "job": {
       "type": "Ingestion_New_3D"
     },

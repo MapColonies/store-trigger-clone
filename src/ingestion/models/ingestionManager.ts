@@ -1,4 +1,3 @@
-import pLimit, { LimitFunction } from 'p-limit';
 import { Logger } from '@map-colonies/js-logger';
 import { ICreateTaskBody, JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
 import { inject, injectable } from 'tsyringe';
@@ -11,7 +10,7 @@ export class IngestionManager {
   private readonly providerName: string;
   private readonly taskType: string;
   private readonly batchSize: number;
-  private limit!: LimitFunction;
+  private readonly maxConcurrency!: number;
 
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
@@ -23,6 +22,7 @@ export class IngestionManager {
     this.providerName = this.config.get<string>('ingestion.provider');
     this.batchSize = config.get<number>('fileSyncer.task.batches');
     this.taskType = config.get<string>('fileSyncer.task.type');
+    this.maxConcurrency = this.config.get<number>('fileSyncer.maxConcurrency');
   }
 
   public async createJob(job: CreateJobBody): Promise<IIngestionResponse> {
@@ -36,19 +36,12 @@ export class IngestionManager {
     return res;
   }
 
-  public async loadPLimit(): Promise<LimitFunction> {
-    const maxRequests: number = this.config.get<number>('fileSyncer.maxRequests');
-    const pLimit = await import('p-limit');
-    return pLimit.default(maxRequests);
-  }
-
   public async createModel(payload: Payload, jobId: string): Promise<void> {
     this.logger.info({ msg: 'Creating job for model', name: payload.modelName, provider: this.providerName });
 
     try {
       this.logger.info({ msg: 'Starts writing content to queue file' });
       await this.queueFileHandler.initialize();
-      this.limit = await this.loadPLimit();
 
       const fileCount: number = await this.provider.streamModelPathsToQueueFile(payload.modelName);
       this.logger.info({ msg: 'Finished writing content to queue file. Creating Tasks' });
@@ -56,21 +49,25 @@ export class IngestionManager {
       const tasks = this.createTasks(this.batchSize, payload.modelId);
       this.logger.info({ msg: 'Tasks created successfully' });
 
-      await this.createTasksForJob(jobId, tasks);
+      await this.createTasksForJob(jobId, tasks, this.maxConcurrency);
       await this.updateFileCountInJobParams(jobId, fileCount);
 
       await this.queueFileHandler.emptyQueueFile();
     } catch (error) {
-      this.logger.error({ msg: 'Failed in creating tasks' });
+      this.logger.error({ msg: 'Failed in creating tasks', error });
       await this.queueFileHandler.emptyQueueFile();
       throw error;
     }
   }
 
-  private async createTasksForJob(jobId: string, tasks: ICreateTaskBody<ITaskParameters>[]): Promise<void> {
-    const createTaskPromises = tasks.map(async (task) =>
-      this.limit(async () => this.jobManagerClient.createTaskForJob(jobId, task)));
-    await Promise.all(createTaskPromises);
+  private async createTasksForJob(jobId: string, tasks: ICreateTaskBody<ITaskParameters>[], maxRequests: number): Promise<void> {
+    const tempTasks = [...tasks];
+
+    while (tempTasks.length) {
+      const createTasksBatch = tempTasks.splice(0, maxRequests).map(async task =>
+        this.jobManagerClient.createTaskForJob(jobId, task));
+      await Promise.all(createTasksBatch);
+    }
   }
 
   private createTasks(batchSize: number, modelId: string): ICreateTaskBody<ITaskParameters>[] {
