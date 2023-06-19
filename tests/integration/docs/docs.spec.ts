@@ -8,9 +8,7 @@ describe('docs', function () {
   let requestSender: DocsRequestSender;
   beforeEach(function () {
     const app = getApp({
-      override: [
-        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
-      ]
+      override: [{ token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } }],
     });
     requestSender = new DocsRequestSender(app);
   });

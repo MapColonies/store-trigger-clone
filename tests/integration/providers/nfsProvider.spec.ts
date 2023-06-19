@@ -24,7 +24,7 @@ describe('NFSProvider tests', () => {
       ],
     });
     provider = container.resolve(NFSProvider);
-  })
+  });
 
   beforeEach(() => {
     fs.truncateSync(queueFilePath, 0);

@@ -19,7 +19,8 @@ describe('jobStatusManager', () => {
     getApp({
       override: [
         { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
-        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },],
+        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+      ],
     });
 
     jobStatusManager = container.resolve(JobStatusManager);

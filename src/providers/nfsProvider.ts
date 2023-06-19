@@ -13,7 +13,7 @@ export class NFSProvider implements IProvider {
     @inject(SERVICES.PROVIDER_CONFIG) protected readonly config: INFSConfig,
     @inject(SERVICES.LOGGER) protected readonly logger: Logger,
     @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler
-  ) { }
+  ) {}
 
   public async streamModelPathsToQueueFile(model: string): Promise<number> {
     let filesCount = 0;
