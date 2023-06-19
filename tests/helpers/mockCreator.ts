@@ -140,7 +140,7 @@ export const createFakeTask = (): ICreateTaskBody<ITaskParameters> => {
     parameters: {
       paths: [createFile(), createFile()],
       modelId,
-      lastIndexError: 0
+      lastIndexError: 0,
     },
   };
 };
@@ -159,7 +159,7 @@ export const createJobParameters = (): IJobParameters => {
     metadata: createMetadata(),
     modelId: createUuid(),
     tilesetFilename: 'tileset.json',
-    filesCount: 0
+    filesCount: 0,
   };
 };
 

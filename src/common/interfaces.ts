@@ -84,4 +84,3 @@ export interface JobStatusParams {
 
 export type JobResponse = IJobResponse<IJobParameters, ITaskParameters>;
 export type CreateJobBody = ICreateJobBody<IJobParameters, ITaskParameters>;
-

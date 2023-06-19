@@ -12,12 +12,10 @@ type CreateResourceHandler = RequestHandler<undefined, IIngestionResponse, Paylo
 
 @injectable()
 export class IngestionController {
-
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(IngestionManager) private readonly manager: IngestionManager
-  ) {
-  }
+  ) {}
 
   public create: CreateResourceHandler = async (req, res, next) => {
     const payload: Payload = req.body;
@@ -27,8 +25,10 @@ export class IngestionController {
       version: '1',
       type: JOB_TYPE,
       parameters: {
-        metadata: payload.metadata, modelId: payload.modelId,
-        tilesetFilename: payload.tilesetFilename, filesCount: 0
+        metadata: payload.metadata,
+        modelId: payload.modelId,
+        tilesetFilename: payload.tilesetFilename,
+        filesCount: 0,
       },
       productType: payload.metadata.productType,
       productName: payload.metadata.productName,

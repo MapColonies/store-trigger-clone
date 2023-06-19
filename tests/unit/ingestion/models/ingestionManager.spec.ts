@@ -146,7 +146,7 @@ describe('ingestionManager', () => {
   describe('createTasks Function', () => {
     it('creates tasks with paths in length of batch size', () => {
       // Arrange
-      const batchSize = createBatch({ min: 1, max: 5,  });
+      const batchSize = createBatch({ min: 1, max: 5 });
       const modelId = createUuid();
       const filesAmount = randNumber({ min: 1, max: 8 });
       for (let i = 0; i < filesAmount; i++) {

@@ -24,11 +24,11 @@ describe('S3Provider tests', () => {
       ],
     });
     provider = container.resolve(S3Provider);
-  })
+  });
 
   beforeEach(() => {
     fs.truncateSync(queueFilePath, 0);
-  })
+  });
 
   afterEach(() => {
     jest.clearAllMocks();

@@ -69,9 +69,11 @@ export class S3Provider implements IProvider {
 
       if (data.IsTruncated === true) {
         const nextParams: ListObjectsRequest = {
-          Bucket: this.s3Config.bucket, Delimiter: '/',
-          Prefix: data.Prefix, Marker: data.NextMarker
-        }
+          Bucket: this.s3Config.bucket,
+          Delimiter: '/',
+          Prefix: data.Prefix,
+          Marker: data.NextMarker,
+        };
         await this.listS3Recursively(nextParams);
       }
 
@@ -99,7 +101,7 @@ export class S3Provider implements IProvider {
           Bucket: this.s3Config.bucket,
           Delimiter: '/',
           Prefix: commonPrefix.Prefix,
-        }
+        };
         await this.listS3Recursively(nextParams);
       }
     }
