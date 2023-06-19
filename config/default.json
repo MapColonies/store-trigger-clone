@@ -7,7 +7,7 @@
   },
   "telemetry": {
     "logger": {
-      "level": "debug",
+      "level": "info",
       "prettyPrint": false
     }
   },
@@ -26,17 +26,17 @@
     }
   },
   "S3": {
-    "accessKeyId": "vector",
-    "secretAccessKey": "vectorPassword",
+    "accessKeyId": "minio",
+    "secretAccessKey": "minio",
     "endpointUrl": "http://10.8.0.9:9000",
-    "bucket": "3dtilesint",
+    "bucket": "3dtiles-dest",
     "region": "us-east-1",
     "forcePathStyle": true,
     "sslEnabled": false,
     "maxAttempts": 3
   },
   "NFS": {
-    "pvPath": "~/Downloads"
+    "pvPath": "/home/netanel/3DModels"
   },
   "ingestion": {
     "provider": "NFS",
@@ -47,7 +47,6 @@
     "url": "http://127.0.0.1:8080"
   },
   "fileSyncer": {
-    "maxConcurrency": 5,
     "job": {
       "type": "Ingestion_New_3D"
     },
