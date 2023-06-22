@@ -64,8 +64,7 @@ export class IngestionManager {
     const tempTasks = [...tasks];
 
     while (tempTasks.length) {
-      const createTasksBatch = tempTasks.splice(0, maxRequests).map(async task =>
-        this.jobManagerClient.createTaskForJob(jobId, task));
+      const createTasksBatch = tempTasks.splice(0, maxRequests).map(async (task) => this.jobManagerClient.createTaskForJob(jobId, task));
       await Promise.all(createTasksBatch);
     }
   }
