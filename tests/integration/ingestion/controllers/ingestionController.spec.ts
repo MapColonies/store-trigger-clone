@@ -1,7 +1,6 @@
 /* eslint-disable jest/no-commented-out-tests */
 import jsLogger from '@map-colonies/js-logger';
 import { OperationStatus } from '@map-colonies/mc-priority-queue';
-import config from 'config';
 import httpStatusCodes from 'http-status-codes';
 import { container } from 'tsyringe';
 import { getApp } from '../../../../src/app';
