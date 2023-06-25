@@ -10,6 +10,7 @@ import { getApp } from '../../../src/app';
 import { s3EmptyOutput, s3Mock, s3Output } from '../../helpers/mockCreator';
 import { SERVICES } from '../../../src/common/constants';
 import { IS3Config } from '../../../src/common/interfaces';
+import { FakeMinio } from '../ingestion/helpers/createS3';
 
 describe('S3Provider tests', () => {
   let provider: S3Provider;
@@ -24,6 +25,7 @@ describe('S3Provider tests', () => {
       ],
     });
     provider = container.resolve(S3Provider);
+    const s3 = new FakeMinio();
   });
 
   beforeEach(() => {

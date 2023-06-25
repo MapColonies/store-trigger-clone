@@ -32,4 +32,6 @@ module.exports = {
       lines: 80,
     },
   },
+  globalSetup: '<rootDir>/tests/configurations/runContainers/global-setup.js',
+  globalTeardown: '<rootDir>/tests/configurations/runContainers/global-teardown.js',
 };

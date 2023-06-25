@@ -56,12 +56,8 @@ export const createBatch = (options?: RandomNumberOptions | undefined): number =
   return randNumber(options);
 };
 
-export const createFile = (): string => {
-  return `${randWord()}.txt`;
-};
-
-export const createBlackListFile = (): string => {
-  return `${randWord()}.zip`;
+export const createFile = (isBlackFile = false): string => {
+  return isBlackFile ? `${randWord()}.zip` : `${randWord()}.txt`;
 };
 
 export const getTaskType = (): string => {
@@ -194,6 +190,8 @@ export const s3EmptyOutput: ListObjectsCommandOutput = {
 export const jobManagerClientMock = {
   createJob: jest.fn(),
   createTaskForJob: jest.fn(),
+  getJob: jest.fn(),
+  updateJob: jest.fn(),
 };
 
 export const configProviderMock = {

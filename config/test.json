@@ -25,7 +25,7 @@
       "type": "Ingestion_New_3D"
     },
     "task": {
-      "batches": 100,
+      "batches": 5,
       "type": "Ingestion"
     }
   }
