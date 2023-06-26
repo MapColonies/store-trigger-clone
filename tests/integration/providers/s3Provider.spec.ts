@@ -7,7 +7,7 @@ import { container } from 'tsyringe';
 import { AppError } from '../../../src/common/appError';
 import { S3Provider } from '../../../src/providers/s3Provider';
 import { getApp } from '../../../src/app';
-import { s3EmptyOutput, s3Mock, s3Output } from '../../helpers/mockCreator';
+import { queueFileHandlerMock, s3EmptyOutput, s3Mock, s3Output } from '../../helpers/mockCreator';
 import { SERVICES } from '../../../src/common/constants';
 import { IS3Config } from '../../../src/common/interfaces';
 import { S3Helper } from '../ingestion/helpers/s3Helper';
@@ -24,6 +24,7 @@ describe('S3Provider tests', () => {
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.PROVIDER_CONFIG, provider: { useValue: s3Config } },
+        { token: SERVICES.QUEUE_FILE_HANDLER, provider: { useValue: queueFileHandlerMock } },
       ],
     });
     provider = container.resolve(S3Provider);
