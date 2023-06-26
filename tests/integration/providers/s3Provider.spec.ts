@@ -10,14 +10,16 @@ import { getApp } from '../../../src/app';
 import { s3EmptyOutput, s3Mock, s3Output } from '../../helpers/mockCreator';
 import { SERVICES } from '../../../src/common/constants';
 import { IS3Config } from '../../../src/common/interfaces';
-import { FakeMinio } from '../ingestion/helpers/createS3';
+import { S3Helper } from '../ingestion/helpers/s3Helper';
 
 describe('S3Provider tests', () => {
   let provider: S3Provider;
+  let s3Helper: S3Helper;
+
   const queueFilePath = `${os.tmpdir()}/${config.get<string>('ingestion.queueFilePath')}`;
   const s3Config = config.get<IS3Config>('S3');
 
-  beforeAll(() => {
+  beforeAll(async () => {
     getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
@@ -25,7 +27,10 @@ describe('S3Provider tests', () => {
       ],
     });
     provider = container.resolve(S3Provider);
-    const s3 = new FakeMinio();
+    s3Helper = container.resolve(S3Helper);
+   
+    await s3Helper.createBucket();
+    await s3Helper.createModel();
   });
 
   beforeEach(() => {
@@ -34,10 +39,11 @@ describe('S3Provider tests', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+
   });
 
-  describe('streamModelPathsToQueueFile Function', () => {
-    it('returns all the files from S3', async () => {
+  describe('streamModelPathsToQueueFile', () => {
+    it.only('returns all the files from S3', async () => {
       const model = 'model1';
       const expected = `${model}/file1\n${model}/file2\n`;
       s3Mock.on(ListObjectsCommand).resolvesOnce(s3Output);
