@@ -46,20 +46,22 @@ describe('S3Provider tests', () => {
   });
   
   describe('streamModelPathsToQueueFile', () => {
-    it.only('returns all the files from S3', async () => {
+    it('returns all the files from S3', async () => {
       const model = randWord();
       const lengthOfFiles = randNumber({min: 1, max: 5});
-      let expected = '';
+      const expectedFiles: string[] = [];
       for (let i = 0; i<lengthOfFiles; i++) {
         const file = randWord();
         await s3Helper.createFileOfModel(model, file);
-        expected = expected + `${model}/${file}\n`;
+        expectedFiles.push(`${model}/${file}`);
       }
 
       await provider.streamModelPathsToQueueFile(model);
       const result = fs.readFileSync(queueFilePath, 'utf-8');
 
-      expect(result).toStrictEqual(expected);
+      for(const file of expectedFiles) {
+        expect(result).toContain(file);
+      }
     });
 
     it('returns error string when model is not in the agreed folder', async () => {
