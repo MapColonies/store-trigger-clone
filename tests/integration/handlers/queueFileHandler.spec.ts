@@ -22,6 +22,12 @@ describe('QueueFileHandler', () => {
     expect(line).toBe(fileName);
   });
 
+  it('should be able to return null when there is no data', () => {
+    const line = queueFileHandler.readline();
+
+    expect(line).toBeNull();
+  });
+
   it('should be able to empty the queue file', async () => {
     const fileName = 'test-file.txt';
     await queueFileHandler.writeFileNameToQueueFile(fileName);

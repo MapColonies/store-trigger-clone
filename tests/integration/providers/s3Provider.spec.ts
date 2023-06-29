@@ -28,38 +28,41 @@ describe('S3Provider tests', () => {
     });
     provider = container.resolve(S3Provider);
     s3Helper = container.resolve(S3Helper);
-   
+
     await s3Helper.createBucket();
   });
-  
+
   beforeEach(() => {
     fs.truncateSync(queueFilePath, 0);
   });
-  
+
   afterEach(() => {
     jest.clearAllMocks();
   });
-  
+
   afterAll(async () => {
     await s3Helper.clearBucket();
     await s3Helper.deleteBucket();
+    s3Helper.killS3();
   });
-  
+
   describe('streamModelPathsToQueueFile', () => {
     it('returns all the files from S3', async () => {
       const model = randWord();
-      const lengthOfFiles = randNumber({min: 1, max: 5});
+      const lengthOfFiles = randNumber({ min: 1, max: 5 });
       const expectedFiles: string[] = [];
-      for (let i = 0; i<lengthOfFiles; i++) {
+      for (let i = 0; i < lengthOfFiles; i++) {
         const file = randWord();
         await s3Helper.createFileOfModel(model, file);
         expectedFiles.push(`${model}/${file}`);
       }
+      await s3Helper.createFileOfModel(model, 'subDir/file');
+      expectedFiles.push(`${model}/subDir/file`);
 
       await provider.streamModelPathsToQueueFile(model);
       const result = fs.readFileSync(queueFilePath, 'utf-8');
 
-      for(const file of expectedFiles) {
+      for (const file of expectedFiles) {
         expect(result).toContain(file);
       }
     });

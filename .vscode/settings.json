@@ -1,4 +1,5 @@
 {
   "typescript.tsdk": "node_modules/typescript/lib",
-  "js/ts.implicitProjectConfig.experimentalDecorators":true
+  "js/ts.implicitProjectConfig.experimentalDecorators": true,
+  "cSpell.ignorePaths": ["package-lock.json", "node_modules", "vscode-extension", ".git/objects", ".vscode", ".vscode-insiders", "package.json"]
 }
