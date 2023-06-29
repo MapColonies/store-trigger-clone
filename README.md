@@ -1,6 +1,8 @@
 # Store Trigger Service
 The Store Trigger service is responsible for receiving requests and creating jobs in the Job Manager database. It supports both NFS (Network File System) and S3 (Simple Storage Service) models. Each job consists of a list of file paths that need to be synchronized.
 
+The Store Trigger service plays a crucial role in managing the synchronization of file paths within jobs. It efficiently processes large volumes of file paths by grouping them into batches and controlling the concurrency of task creation requests. By utilizing this service, users can seamlessly trigger the synchronization process and ensure efficient utilization of system resources.
+
 ### Functionality
 The Store Trigger service performs the following steps:
 
@@ -16,8 +18,17 @@ Batch Requests: To control the concurrency and optimize performance, the service
 
 Task Configuration: Each task created by the service contains a batch of file paths. The file paths are divided into batches based on the batch number specified in the configuration.
 
-## API
-Checkout the OpenAPI spec [here](/openapi3.yaml)
+## Configuration
+The Store Trigger service can be configured using parameters, including:
+
+maxConcurrency: Specifies the maximum number of concurrent requests sent to the Job Manager service for creating tasks.
+batchNumber: Determines the number of file paths grouped into a single task batch.
+These parameters can be adjusted to optimize the performance and resource utilization of the Store Trigger service.
+
+## Usage
+To use the Store Trigger service, you need to make a request to the appropriate endpoint with the necessary information, such as the model type (NFS or S3) and the file paths to be synchronized.
+
+Upon successful request, the service will create a job in the Job Manager database and generate tasks based on the provided file paths. The tasks will be processed in batches, and the concurrency of task creation requests can be controlled using the configuration parameters.
 
 ## Installation
 
