@@ -2,6 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import config from 'config';
 import jsLogger from '@map-colonies/js-logger';
+import { randNumber, randWord } from '@ngneat/falso';
 import { container } from 'tsyringe';
 import { AppError } from '../../../src/common/appError';
 import { S3Provider } from '../../../src/providers/s3Provider';
@@ -13,7 +14,6 @@ import { S3Helper } from '../../helpers/s3Helper';
 describe('S3Provider tests', () => {
   let provider: S3Provider;
   let s3Helper: S3Helper;
-  let model: string;
 
   const queueFilePath = `${os.tmpdir()}/${config.get<string>('ingestion.queueFilePath')}`;
   const s3Config = config.get<IS3Config>('S3');
@@ -32,23 +32,29 @@ describe('S3Provider tests', () => {
     await s3Helper.createBucket();
   });
   
-  beforeEach(async () => {
+  beforeEach(() => {
     fs.truncateSync(queueFilePath, 0);
-    model = await s3Helper.createModel();
   });
   
-  afterEach(async () => {
+  afterEach(() => {
     jest.clearAllMocks();
-    await s3Helper.deleteModel(model);
   });
-
+  
   afterAll(async () => {
+    await s3Helper.clearBucket();
     await s3Helper.deleteBucket();
-  })
+  });
   
   describe('streamModelPathsToQueueFile', () => {
     it.only('returns all the files from S3', async () => {
-      const expected = `${model}/file1\n${model}/file2\n`;
+      const model = randWord();
+      const lengthOfFiles = randNumber({min: 1, max: 5});
+      let expected = '';
+      for (let i = 0; i<lengthOfFiles; i++) {
+        const file = randWord();
+        await s3Helper.createFileOfModel(model, file);
+        expected = expected + `${model}/${file}\n`;
+      }
 
       await provider.streamModelPathsToQueueFile(model);
       const result = fs.readFileSync(queueFilePath, 'utf-8');
@@ -57,9 +63,7 @@ describe('S3Provider tests', () => {
     });
 
     it('returns error string when model is not in the agreed folder', async () => {
-      const model = 'bla';
-
-      await expect(provider.streamModelPathsToQueueFile(model)).rejects.toThrow(AppError);
+      await expect(provider.streamModelPathsToQueueFile('bla')).rejects.toThrow(AppError);
     });
   });
 });

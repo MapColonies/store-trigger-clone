@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { CreateBucketCommandInput, CreateBucketCommand, S3Client, S3ClientConfig, PutObjectCommand, PutObjectCommandInput, DeleteBucketCommandInput, DeleteBucketCommand, DeleteObjectCommandInput, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { randSentence, randWord } from '@ngneat/falso';
+import { CreateBucketCommandInput, CreateBucketCommand, S3Client, S3ClientConfig, PutObjectCommand, PutObjectCommandInput, DeleteBucketCommandInput, DeleteBucketCommand, DeleteObjectCommandInput, DeleteObjectCommand, ListObjectsRequest, ListObjectsCommand } from '@aws-sdk/client-s3';
+import { randSentence } from '@ngneat/falso';
 import config from 'config';
 import { inject, injectable } from 'tsyringe';
 import { SERVICES } from '../../src/common/constants';
@@ -39,25 +39,51 @@ export class S3Helper {
     await this.s3.send(command);
   }
 
-  public async createModel(): Promise<string> {
-    const model = randWord();
+  public async createFileOfModel(model: string, file: string): Promise<void> {
     const input: PutObjectCommandInput = {
       Bucket: config.get<string>('S3.bucket'),
-      Key: model,
+      Key: `${model}/${file}`,
       Body: Buffer.from(randSentence())
     };
     const command = new PutObjectCommand(input);
-    const response = await this.s3.send(command);
-    return model;
+    await this.s3.send(command);
   }
 
-  public async deleteModel(model: string): Promise<string> {
-    const input: DeleteObjectCommandInput = {
-      Bucket: config.get<string>('S3.bucket'),
-      Key: model,
+  public async deleteModel(model: string): Promise<void> {
+    const params: ListObjectsRequest = {
+      Bucket: this.s3Config.bucket,
+      Delimiter: '/',
+      Prefix: model,
     };
-    const command = new DeleteObjectCommand(input);
-    await this.s3.send(command);
-    return model;
+    const listObject = new ListObjectsCommand(params);
+    const data = await this.s3.send(listObject);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    for (let i=0; i<data.Contents!.length; i++) {
+      const input: DeleteObjectCommandInput = {
+        Bucket: config.get<string>('S3.bucket'),
+        Key: model,
+      };
+      const command = new DeleteObjectCommand(input);
+      await this.s3.send(command);
+    }
+  }
+
+  public async clearBucket(): Promise<void> {
+    const params: ListObjectsRequest = {
+      Bucket: this.s3Config.bucket,
+      Prefix: '/',
+    };
+    const listObject = new ListObjectsCommand(params);
+    const data = await this.s3.send(listObject);
+    if (data.CommonPrefixes) {
+      for (let i=0; i<data.CommonPrefixes.length; i++) {
+        const input: DeleteObjectCommandInput = {
+          Bucket: config.get<string>('S3.bucket'),
+          Key: data.CommonPrefixes[i].Prefix,
+        };
+        const command = new DeleteObjectCommand(input);
+        await this.s3.send(command);
+      }
+    }
   }
 }
