@@ -3,7 +3,7 @@ The Store Trigger service is responsible for receiving requests and creating job
 
 The Store Trigger service plays a crucial role in managing the synchronization of file paths within jobs. It efficiently processes large volumes of file paths by grouping them into batches and controlling the concurrency of task creation requests. By utilizing this service, users can seamlessly trigger the synchronization process and ensure efficient utilization of system resources.
 
-### Functionality
+## Functionality
 The Store Trigger service performs the following steps:
 
 Job Creation: Upon receiving a request, the service creates a new job in the Job Manager database. If the job creation is successful, it returns a 200 status code to the user.
