@@ -1,60 +1,20 @@
-# Map Colonies typescript service template
+# Store Trigger Service
+The Store Trigger service is responsible for receiving requests and creating jobs in the Job Manager database. It supports both NFS (Network File System) and S3 (Simple Storage Service) models. Each job consists of a list of file paths that need to be synchronized.
 
-----------------------------------
+### Functionality
+The Store Trigger service performs the following steps:
 
-![badge-alerts-lgtm](https://img.shields.io/lgtm/alerts/github/MapColonies/ts-server-boilerplate?style=for-the-badge)
+Job Creation: Upon receiving a request, the service creates a new job in the Job Manager database. If the job creation is successful, it returns a 200 status code to the user.
 
-![grade-badge-lgtm](https://img.shields.io/lgtm/grade/javascript/github/MapColonies/ts-server-boilerplate?style=for-the-badge)
+File Path Extraction: The service reads all the file paths from the specified model. The model can be either NFS or S3. The number of file paths can be substantial, approximately 100,000.
 
-![snyk](https://img.shields.io/snyk/vulnerabilities/github/MapColonies/ts-server-boilerplate?style=for-the-badge)
+Local File Write: The service writes the file paths extracted from the model to a local file. This step is performed to efficiently process the file paths and avoid overwhelming the system with individual requests.
 
-----------------------------------
+Task Creation: The service reads the file paths from the local file and creates tasks based on them. Instead of sending thousands of requests to the Job Manager service for creating tasks, the service groups the file paths into batches.
 
-This is a basic repo template for building new MapColonies web services in Typescript.
+Batch Requests: To control the concurrency and optimize performance, the service sends batch requests to the Job Manager service for creating tasks. The maximum concurrency request number can be adjusted using the 'maxConcurrency' parameter in the configuration.
 
-### Template Features:
-
-- eslint configuration by [@map-colonies/eslint-config](https://github.com/MapColonies/eslint-config)
-
-- prettier configuration by [@map-colonies/prettier-config](https://github.com/MapColonies/prettier-config)
-
-- jest
-
-- .nvmrc
-
-- Multi stage producton-ready Dockerfile
-
-- commitlint
-
-- git hooks
-
-- logging by [@map-colonies/js-logger](https://github.com/MapColonies/js-logger)
-
-- OpenAPI request validation
-
-- config load with [node-config](https://www.npmjs.com/package/node-config)
-
-- Tracing and metrics by [@map-colonies/telemetry](https://github.com/MapColonies/telemetry)
-
-- github templates
-
-- bug report
-
-- feature request
-
-- pull request
-
-- github actions
-
-- on pull_request
-
-- LGTM
-
-- test
-
-- lint
-
-- snyk
+Task Configuration: Each task created by the service contains a batch of file paths. The file paths are divided into batches based on the batch number specified in the configuration.
 
 ## API
 Checkout the OpenAPI spec [here](/openapi3.yaml)
