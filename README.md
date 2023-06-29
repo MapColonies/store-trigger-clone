@@ -18,6 +18,12 @@ Batch Requests: To control the concurrency and optimize performance, the service
 
 Task Configuration: Each task created by the service contains a batch of file paths. The file paths are divided into batches based on the batch number specified in the configuration.
 
+## Dependencies
+The Store trigger service relies on the following components:
+
+Job Manager: The service assumes the existence of a job manager service that tracks job states and task progress.
+File Provider(S3/NFS): The file provider is required for reading model file path and creating tasks.
+
 ## Configuration
 The Store Trigger service can be configured using parameters, including:
 
