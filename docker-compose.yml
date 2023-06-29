@@ -9,6 +9,4 @@ services:
     environment:
       - MINIO_ROOT_USER=minioadmin
       - MINIO_ROOT_PASSWORD=minioadmin
-    volumes:
-      - /mnt/minio-test/data:/data
     command: server /data --console-address ":9001"

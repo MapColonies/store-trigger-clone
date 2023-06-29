@@ -1,7 +1,6 @@
 import config from 'config';
 import RandExp from 'randexp';
-import { mockClient } from 'aws-sdk-client-mock';
-import { ListObjectsCommandOutput, S3Client } from '@aws-sdk/client-s3';
+import { ListObjectsCommandOutput } from '@aws-sdk/client-s3';
 import { randBetweenDate, randNumber, randPastDate, randUuid, randWord } from '@ngneat/falso';
 import { Polygon } from 'geojson';
 import { Layer3DMetadata, ProductType, RecordStatus, RecordType } from '@map-colonies/mc-model-types';
@@ -172,8 +171,6 @@ export const fsMock = {
   truncate: jest.fn(),
   appendFile: jest.fn(),
 };
-
-export const s3Mock = mockClient(S3Client);
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export const s3Output: ListObjectsCommandOutput = {
