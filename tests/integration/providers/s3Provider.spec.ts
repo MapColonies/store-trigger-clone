@@ -23,7 +23,6 @@ describe('S3Provider tests', () => {
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.PROVIDER_CONFIG, provider: { useValue: s3Config } },
-        // { token: SERVICES.QUEUE_FILE_HANDLER, provider: { useValue: queueFileHandlerMock } },
       ],
     });
     provider = container.resolve(S3Provider);
