@@ -49,9 +49,9 @@ describe('S3Provider tests', () => {
   describe('streamModelPathsToQueueFile', () => {
     it('returns all the files from S3', async () => {
       const model = randWord();
-      const lengthOfFiles = randNumber({ min: 1, max: 5 });
+      const fileLength = randNumber({ min: 1, max: 5 });
       const expectedFiles: string[] = [];
-      for (let i = 0; i < lengthOfFiles; i++) {
+      for (let i = 0; i < fileLength; i++) {
         const file = randWord();
         await s3Helper.createFileOfModel(model, file);
         expectedFiles.push(`${model}/${file}`);

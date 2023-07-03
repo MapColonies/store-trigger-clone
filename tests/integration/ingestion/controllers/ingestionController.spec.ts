@@ -1,4 +1,3 @@
-/* eslint-disable jest/no-commented-out-tests */
 import jsLogger from '@map-colonies/js-logger';
 import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import httpStatusCodes from 'http-status-codes';
@@ -12,7 +11,6 @@ import { IngestionRequestSender } from '../helpers/requestSender';
 
 describe('IngestionController on S3', function () {
   let requestSender: IngestionRequestSender;
-  // let s3Helper: S3Helper;
 
   const jobManagerClientMock = {
     createJob: jest.fn(),
@@ -33,7 +31,6 @@ describe('IngestionController on S3', function () {
         },
       ],
     });
-    // s3Helper = container.resolve(S3Helper);
 
     requestSender = new IngestionRequestSender(app);
   });
@@ -118,7 +115,6 @@ describe('IngestionController on NFS', function () {
     describe('Sad Path 😥', function () {
       it('should return 500 status code if a network exception happens in job manager', async function () {
         const payload = createPayload('bla');
-        // s3Mock.on(ListObjectsCommand).resolves(s3Output);
         jobManagerClientMock.createJob.mockRejectedValueOnce(new Error('JobManager is not available'));
 
         const response = await requestSender.create(payload);
