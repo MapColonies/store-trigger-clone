@@ -7,13 +7,10 @@ import { AppError } from '../../../../src/common/appError';
 import { SERVICES } from '../../../../src/common/constants';
 import { IJobStatusResponse } from '../../../../src/common/interfaces';
 import { JobStatusManager } from '../../../../src/jobStatus/models/jobStatusManager';
+import { jobManagerClientMock } from '../../../helpers/mockCreator';
 
 describe('jobStatusManager', () => {
   let jobStatusManager: JobStatusManager;
-
-  const jobManagerClientMock = {
-    getJob: jest.fn(),
-  };
 
   beforeAll(() => {
     getApp({

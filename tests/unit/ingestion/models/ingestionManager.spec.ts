@@ -1,26 +1,22 @@
 import jsLogger from '@map-colonies/js-logger';
-import { ICreateTaskBody, OperationStatus } from '@map-colonies/mc-priority-queue';
+import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import { randNumber } from '@ngneat/falso';
 import httpStatus from 'http-status-codes';
 import { container } from 'tsyringe';
 import { getApp } from '../../../../src/app';
 import { AppError } from '../../../../src/common/appError';
 import { SERVICES } from '../../../../src/common/constants';
-import { CreateJobBody, IIngestionResponse, ITaskParameters, Payload } from '../../../../src/common/interfaces';
+import { CreateJobBody, IIngestionResponse, Payload } from '../../../../src/common/interfaces';
 import { IngestionManager } from '../../../../src/ingestion/models/ingestionManager';
 import {
   configProviderMock,
-  createBatch,
   createJobPayload,
-  createFakeTasks,
   createPayload,
-  createFakeTask,
   createUuid,
   jobManagerClientMock,
   queueFileHandlerMock,
   createFile,
-  getTaskType,
-  createBlackListFile,
+  createJobParameters,
 } from '../../../helpers/mockCreator';
 
 let ingestionManager: IngestionManager;
@@ -74,13 +70,18 @@ describe('ingestionManager', () => {
     it('resolves without error when everything is ok', async () => {
       // Arrange
       const jobId = createUuid();
-      const tasks = createFakeTasks();
-      queueFileHandlerMock.initialize.mockResolvedValue('');
-      configProviderMock.streamModelPathsToQueueFile.mockResolvedValue('');
-      ingestionManager['createTasks'] = jest.fn().mockResolvedValue(tasks);
-      ingestionManager['createTasksForJob'] = jest.fn().mockResolvedValue('');
-      ingestionManager['updateFileCountInJobParams'] = jest.fn().mockResolvedValue('');
-      queueFileHandlerMock.emptyQueueFile.mockResolvedValue('');
+      const parameters = createJobParameters();
+      const filesAmount = randNumber({ min: 1, max: 8 });
+      queueFileHandlerMock.initialize.mockResolvedValue(undefined);
+      configProviderMock.streamModelPathsToQueueFile.mockResolvedValue(filesAmount);
+      for (let i = 0; i < filesAmount; i++) {
+        queueFileHandlerMock.readline.mockReturnValueOnce(createFile());
+      }
+      queueFileHandlerMock.readline.mockReturnValueOnce(createFile(true));
+      queueFileHandlerMock.readline.mockReturnValueOnce(null);
+      jobManagerClientMock.getJob.mockResolvedValue({ parameters });
+      jobManagerClientMock.updateJob.mockResolvedValue(undefined);
+      queueFileHandlerMock.emptyQueueFile.mockResolvedValue(undefined);
 
       // Act
       const response = await ingestionManager.createModel(payload, jobId);
@@ -89,118 +90,64 @@ describe('ingestionManager', () => {
       expect(response).toBeUndefined();
     });
 
-    it('rejects if one of the services fails', async () => {
+    it(`rejects if couldn't initialize queue file`, async () => {
       // Arrange
       const jobId = createUuid();
-      queueFileHandlerMock.initialize.mockResolvedValue('');
+      queueFileHandlerMock.initialize.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
+
+      // Act && Assert
+      await expect(ingestionManager.createModel(payload, jobId)).rejects.toThrow(AppError);
+    });
+
+    it(`rejects if couldn't empty queue file`, async () => {
+      // Arrange
+      const jobId = createUuid();
+      queueFileHandlerMock.emptyQueueFile.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
+
+      // Act && Assert
+      await expect(ingestionManager.createModel(payload, jobId)).rejects.toThrow(AppError);
+    });
+
+    it('rejects if the provider failed', async () => {
+      // Arrange
+      const jobId = createUuid();
+      queueFileHandlerMock.initialize.mockResolvedValue(undefined);
       configProviderMock.streamModelPathsToQueueFile.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
 
       // Act && Assert
       await expect(ingestionManager.createModel(payload, jobId)).rejects.toThrow(AppError);
     });
-  });
 
-  describe('isFileInBlackList tests', () => {
-    it('returns true if the file is in the black list', () => {
-      const file = 'word.zip';
-
-      const response = ingestionManager['isFileInBlackList'](file);
-
-      expect(response).toBe(true);
-    });
-
-    it('returns false if the file is not in the black list', () => {
-      const file = 'word.txt';
-
-      const response = ingestionManager['isFileInBlackList'](file);
-
-      expect(response).toBe(false);
-    });
-  });
-
-  describe('createTasksForJob Function', () => {
-    it('resolves without error when jobManager is ok', async () => {
+    it(`rejects if couldn't read from queue file`, async () => {
       // Arrange
-      const jobID = createUuid();
-      const tasks = createFakeTasks();
-      jobManagerClientMock.createTaskForJob.mockResolvedValue('');
-
-      // Act
-      const response = await ingestionManager['createTasksForJob'](jobID, tasks);
-
-      //Assert
-      expect(response).toBeUndefined();
-    });
-
-    it('rejects if there is a problem with jobManager', async () => {
-      // Arrange
-      const jobID = createUuid();
-      const tasks = createFakeTasks();
-      jobManagerClientMock.createTaskForJob.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
+      const jobId = createUuid();
+      const filesAmount = randNumber({ min: 1, max: 8 });
+      queueFileHandlerMock.initialize.mockResolvedValue(undefined);
+      configProviderMock.streamModelPathsToQueueFile.mockResolvedValue(filesAmount);
+      queueFileHandlerMock.readline.mockImplementation(() => {
+        throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true);
+      });
+      queueFileHandlerMock.emptyQueueFile.mockResolvedValue(undefined);
 
       // Act && Assert
-      await expect(ingestionManager['createTasksForJob'](jobID, tasks)).rejects.toThrow(AppError);
+      await expect(ingestionManager.createModel(payload, jobId)).rejects.toThrow(AppError);
     });
-  });
 
-  describe('createTasks Function', () => {
-    it('creates tasks with paths in length of batch size', () => {
+    it('rejects if there is a problem with job manager', async () => {
       // Arrange
-      const batchSize = createBatch({ min: 1, max: 5 });
-      const modelId = createUuid();
+      const jobId = createUuid();
       const filesAmount = randNumber({ min: 1, max: 8 });
+      queueFileHandlerMock.initialize.mockResolvedValue(undefined);
+      configProviderMock.streamModelPathsToQueueFile.mockResolvedValue(filesAmount);
       for (let i = 0; i < filesAmount; i++) {
         queueFileHandlerMock.readline.mockReturnValueOnce(createFile());
       }
       queueFileHandlerMock.readline.mockReturnValueOnce(null);
-      ingestionManager['buildTaskFromChunk'] = jest.fn().mockReturnValue(createFakeTask());
+      jobManagerClientMock.getJob.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
+      queueFileHandlerMock.emptyQueueFile.mockResolvedValue(undefined);
 
-      // Act
-      const response = ingestionManager['createTasks'](batchSize, modelId);
-
-      //Assert
-      expect(response).toEqual(expect.objectContaining<ICreateTaskBody<ITaskParameters>[]>([]));
-      expect(response).toHaveLength(Math.ceil(filesAmount / batchSize));
-    });
-
-    it('when read file paths with black list extensions, it should ignore these file paths', () => {
-      // Arrange
-      const batchSize = createBatch({ min: 1, max: 5 });
-      const modelId = createUuid();
-      const filesAmount = randNumber({ min: 1, max: 8 });
-      const blackFilesAmount = randNumber({ min: 1, max: 8 });
-      for (let i = 0; i < filesAmount; i++) {
-        queueFileHandlerMock.readline.mockReturnValueOnce(createFile());
-      }
-      for (let i = 0; i < blackFilesAmount; i++) {
-        queueFileHandlerMock.readline.mockReturnValueOnce(createBlackListFile());
-      }
-      queueFileHandlerMock.readline.mockReturnValueOnce(null);
-      ingestionManager['buildTaskFromChunk'] = jest.fn().mockReturnValue(createFakeTask());
-
-      // Act
-      const response = ingestionManager['createTasks'](batchSize, modelId);
-
-      //Assert
-      expect(response).toHaveLength(Math.ceil(filesAmount / batchSize));
-    });
-  });
-
-  describe('buildTaskFromChunk Function', () => {
-    it('creates tasks array of paths', () => {
-      // Arrange
-      const paths = [createFile(), createFile(), createFile()];
-      const modelId = createUuid();
-      const tasks: ICreateTaskBody<ITaskParameters> = {
-        type: getTaskType(),
-        parameters: { paths, modelId, lastIndexError: -1 },
-      };
-
-      // Act
-      const response = ingestionManager['buildTaskFromChunk'](paths, modelId);
-
-      //Assert
-      expect(response).toStrictEqual(tasks);
+      // Act && Assert
+      await expect(ingestionManager.createModel(payload, jobId)).rejects.toThrow(AppError);
     });
   });
 });

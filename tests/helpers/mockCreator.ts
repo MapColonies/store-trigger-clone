@@ -1,7 +1,6 @@
 import config from 'config';
 import RandExp from 'randexp';
-import { mockClient } from 'aws-sdk-client-mock';
-import { ListObjectsCommandOutput, S3Client } from '@aws-sdk/client-s3';
+import { ListObjectsCommandOutput } from '@aws-sdk/client-s3';
 import { randBetweenDate, randNumber, randPastDate, randUuid, randWord } from '@ngneat/falso';
 import { Polygon } from 'geojson';
 import { Layer3DMetadata, ProductType, RecordStatus, RecordType } from '@map-colonies/mc-model-types';
@@ -56,12 +55,8 @@ export const createBatch = (options?: RandomNumberOptions | undefined): number =
   return randNumber(options);
 };
 
-export const createFile = (): string => {
-  return `${randWord()}.txt`;
-};
-
-export const createBlackListFile = (): string => {
-  return `${randWord()}.zip`;
+export const createFile = (isBlackFile = false): string => {
+  return isBlackFile ? `${randWord()}.zip` : `${randWord()}.txt`;
 };
 
 export const getTaskType = (): string => {
@@ -177,8 +172,6 @@ export const fsMock = {
   appendFile: jest.fn(),
 };
 
-export const s3Mock = mockClient(S3Client);
-
 /* eslint-disable @typescript-eslint/naming-convention */
 export const s3Output: ListObjectsCommandOutput = {
   Contents: [{ Key: 'model1/file1' }],
@@ -194,6 +187,8 @@ export const s3EmptyOutput: ListObjectsCommandOutput = {
 export const jobManagerClientMock = {
   createJob: jest.fn(),
   createTaskForJob: jest.fn(),
+  getJob: jest.fn(),
+  updateJob: jest.fn(),
 };
 
 export const configProviderMock = {

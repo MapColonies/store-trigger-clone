@@ -1,22 +1,24 @@
 import fs from 'fs';
 import os from 'os';
 import config from 'config';
-import { ListObjectsCommand } from '@aws-sdk/client-s3';
 import jsLogger from '@map-colonies/js-logger';
+import { randNumber, randWord } from '@ngneat/falso';
 import { container } from 'tsyringe';
 import { AppError } from '../../../src/common/appError';
 import { S3Provider } from '../../../src/providers/s3Provider';
 import { getApp } from '../../../src/app';
-import { s3EmptyOutput, s3Mock, s3Output } from '../../helpers/mockCreator';
 import { SERVICES } from '../../../src/common/constants';
 import { IS3Config } from '../../../src/common/interfaces';
+import { S3Helper } from '../../helpers/s3Helper';
 
 describe('S3Provider tests', () => {
   let provider: S3Provider;
+  let s3Helper: S3Helper;
+
   const queueFilePath = `${os.tmpdir()}/${config.get<string>('ingestion.queueFilePath')}`;
   const s3Config = config.get<IS3Config>('S3');
 
-  beforeAll(() => {
+  beforeAll(async () => {
     getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
@@ -24,6 +26,9 @@ describe('S3Provider tests', () => {
       ],
     });
     provider = container.resolve(S3Provider);
+    s3Helper = container.resolve(S3Helper);
+
+    await s3Helper.createBucket();
   });
 
   beforeEach(() => {
@@ -34,23 +39,35 @@ describe('S3Provider tests', () => {
     jest.clearAllMocks();
   });
 
-  describe('streamModelPathsToQueueFile Function', () => {
+  afterAll(async () => {
+    await s3Helper.clearBucket();
+    await s3Helper.deleteBucket();
+    s3Helper.killS3();
+  });
+
+  describe('streamModelPathsToQueueFile', () => {
     it('returns all the files from S3', async () => {
-      const model = 'model1';
-      const expected = `${model}/file1\n${model}/file2\n`;
-      s3Mock.on(ListObjectsCommand).resolvesOnce(s3Output);
+      const model = randWord();
+      const fileLength = randNumber({ min: 1, max: 5 });
+      const expectedFiles: string[] = [];
+      for (let i = 0; i < fileLength; i++) {
+        const file = randWord();
+        await s3Helper.createFileOfModel(model, file);
+        expectedFiles.push(`${model}/${file}`);
+      }
+      await s3Helper.createFileOfModel(model, 'subDir/file');
+      expectedFiles.push(`${model}/subDir/file`);
 
       await provider.streamModelPathsToQueueFile(model);
       const result = fs.readFileSync(queueFilePath, 'utf-8');
 
-      expect(result).toStrictEqual(expected);
+      for (const file of expectedFiles) {
+        expect(result).toContain(file);
+      }
     });
 
     it('returns error string when model is not in the agreed folder', async () => {
-      const model = 'bla';
-      s3Mock.on(ListObjectsCommand).resolvesOnce(s3EmptyOutput);
-
-      await expect(provider.streamModelPathsToQueueFile(model)).rejects.toThrow(AppError);
+      await expect(provider.streamModelPathsToQueueFile('bla')).rejects.toThrow(AppError);
     });
   });
 });
