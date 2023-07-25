@@ -2,7 +2,7 @@ import config from 'config';
 import httpStatus from 'http-status-codes';
 import { container } from 'tsyringe';
 import { AppError } from '../common/appError';
-import {  ProviderConfig } from '../common/interfaces';
+import { ProviderConfig } from '../common/interfaces';
 import { NFSProvider } from './nfsProvider';
 import { S3Provider } from './s3Provider';
 
