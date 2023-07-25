@@ -6,12 +6,12 @@ import config from 'config';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
 import { SERVICES, SERVICE_NAME } from './common/constants';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
-import { INFSConfig, IProvider, IS3Config } from './common/interfaces';
-import { getProvider, getProviderConfig } from './providers/getProvider';
+import { IProvider, ProviderConfig } from './common/interfaces';
 import { tracing } from './common/tracing';
 import { QueueFileHandler } from './handlers/queueFileHandler';
 import { ingestionRouterFactory, INGESTION_ROUTER_SYMBOL } from './ingestion/routes/ingestionRouter';
 import { jobStatusRouterFactory, JOB_STATUS_ROUTER_SYMBOL } from './jobStatus/routes/jobStatusRouter';
+import { getProvider, getProviderConfig } from './providers/getProvider';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -48,7 +48,7 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
     {
       token: SERVICES.PROVIDER_CONFIG,
       provider: {
-        useFactory: (): INFSConfig | IS3Config => {
+        useFactory: (): ProviderConfig => {
           return getProviderConfig(provider);
         },
       },

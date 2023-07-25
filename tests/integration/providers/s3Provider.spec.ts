@@ -8,7 +8,7 @@ import { AppError } from '../../../src/common/appError';
 import { S3Provider } from '../../../src/providers/s3Provider';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
-import { IS3Config } from '../../../src/common/interfaces';
+import { S3Config } from '../../../src/common/interfaces';
 import { S3Helper } from '../../helpers/s3Helper';
 
 describe('S3Provider tests', () => {
@@ -16,7 +16,7 @@ describe('S3Provider tests', () => {
   let s3Helper: S3Helper;
 
   const queueFilePath = `${os.tmpdir()}/${config.get<string>('ingestion.queueFilePath')}`;
-  const s3Config = config.get<IS3Config>('S3');
+  const s3Config = config.get<S3Config>('S3');
 
   beforeAll(async () => {
     getApp({
