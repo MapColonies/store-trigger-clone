@@ -7,14 +7,14 @@ import jsLogger from '@map-colonies/js-logger';
 import { getApp } from '../../../src/app';
 import { NFSProvider } from '../../../src/providers/nfsProvider';
 import { SERVICES } from '../../../src/common/constants';
-import { INFSConfig } from '../../../src/common/interfaces';
+import { NFSConfig } from '../../../src/common/interfaces';
 import { AppError } from '../../../src/common/appError';
 import { queueFileHandlerMock } from '../../helpers/mockCreator';
 
 describe('NFSProvider tests', () => {
   let provider: NFSProvider;
   const queueFilePath = `${os.tmpdir()}/${config.get<string>('ingestion.queueFilePath')}`;
-  const nfsConfig = config.get<INFSConfig>('NFS');
+  const nfsConfig = config.get<NFSConfig>('NFS');
 
   beforeAll(() => {
     getApp({

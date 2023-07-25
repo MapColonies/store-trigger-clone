@@ -16,13 +16,13 @@ import {
 import { randSentence } from '@ngneat/falso';
 import { inject, injectable } from 'tsyringe';
 import { SERVICES } from '../../src/common/constants';
-import { IS3Config } from '../../src/common/interfaces';
+import { S3Config } from '../../src/common/interfaces';
 
 @injectable()
 export class S3Helper {
   private readonly s3: S3Client;
 
-  public constructor(@inject(SERVICES.PROVIDER_CONFIG) protected readonly s3Config: IS3Config) {
+  public constructor(@inject(SERVICES.PROVIDER_CONFIG) protected readonly s3Config: S3Config) {
     const s3ClientConfig: S3ClientConfig = {
       endpoint: this.s3Config.endpointUrl,
       forcePathStyle: this.s3Config.forcePathStyle,
