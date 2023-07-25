@@ -54,7 +54,7 @@ export interface ITaskParameters {
   lastIndexError: number;
 }
 
-export interface IS3Config {
+export interface S3Config {
   accessKeyId: string;
   secretAccessKey: string;
   endpointUrl: string;
@@ -64,9 +64,11 @@ export interface IS3Config {
   forcePathStyle: boolean;
 }
 
-export interface INFSConfig {
+export interface NFSConfig {
   pvPath: string;
 }
+
+export type ProviderConfig = S3Config | NFSConfig;
 
 export interface IIngestionResponse {
   jobID: string;

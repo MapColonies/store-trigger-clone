@@ -2,11 +2,11 @@ import config from 'config';
 import httpStatus from 'http-status-codes';
 import { container } from 'tsyringe';
 import { AppError } from '../common/appError';
-import { INFSConfig, IProvider, IS3Config } from '../common/interfaces';
+import {  ProviderConfig } from '../common/interfaces';
 import { NFSProvider } from './nfsProvider';
 import { S3Provider } from './s3Provider';
 
-function getProvider(provider: string): IProvider {
+function getProvider(provider: string): S3Provider | NFSProvider {
   switch (provider.toLowerCase()) {
     case 'nfs':
       return container.resolve(NFSProvider);
@@ -17,7 +17,7 @@ function getProvider(provider: string): IProvider {
   }
 }
 
-function getProviderConfig(provider: string): INFSConfig | IS3Config {
+function getProviderConfig(provider: string): ProviderConfig {
   try {
     return config.get(provider);
   } catch (err) {
