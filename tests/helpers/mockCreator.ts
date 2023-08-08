@@ -60,7 +60,7 @@ export const createFile = (isBlackFile = false): string => {
 };
 
 export const getTaskType = (): string => {
-  return config.get<string>('fileSyncer.task.type');
+  return config.get<string>('jobManager.task.type');
 };
 
 export const createMetadata = (): Layer3DMetadata => {
@@ -118,7 +118,7 @@ export const createJobPayload = (payload: Payload): CreateJobBody => {
   return {
     resourceId: payload.modelId,
     version: '1',
-    type: config.get<string>('fileSyncer.job.type'),
+    type: config.get<string>('jobManager.job.type'),
     parameters: createJobParameters(),
     productType: payload.metadata.productType,
     productName: payload.metadata.productName,
