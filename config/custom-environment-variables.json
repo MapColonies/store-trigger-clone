@@ -67,9 +67,7 @@
     "blackList": "BLACK_LIST"
   },
   "jobManager": {
-    "url": "JOB_MANAGER_URL"
-  },
-  "fileSyncer": {
+    "url": "JOB_MANAGER_URL",
     "job": {
       "type": "JOB_TYPE"
     },
@@ -80,5 +78,6 @@
       },
       "type": "TASK_TYPE"
     }
-  }
+  },
+  "maxConcurrency": "MAX_CONCURRENCY"
 }

@@ -18,9 +18,7 @@
     "blackList": ["tar", "zip", "rar", "7z"]
   },
   "jobManager": {
-    "url": "http://127.0.0.1:8080"
-  },
-  "fileSyncer": {
+    "url": "http://127.0.0.1:8080",
     "job": {
       "type": "Ingestion_New_3D"
     },
@@ -28,5 +26,6 @@
       "batches": 5,
       "type": "Ingestion"
     }
-  }
+  },
+  "maxConcurrency": 5
 }

@@ -20,9 +20,9 @@ export class IngestionManager {
     @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler
   ) {
     this.providerName = this.config.get<string>('ingestion.provider');
-    this.batchSize = config.get<number>('fileSyncer.task.batches');
-    this.taskType = config.get<string>('fileSyncer.task.type');
-    this.maxConcurrency = this.config.get<number>('fileSyncer.maxConcurrency');
+    this.batchSize = config.get<number>('jobManager.task.batches');
+    this.taskType = config.get<string>('jobManager.task.type');
+    this.maxConcurrency = this.config.get<number>('maxConcurrency');
   }
 
   public async createJob(job: CreateJobBody): Promise<IIngestionResponse> {
