@@ -50,7 +50,7 @@ describe('IngestionController on S3', function () {
 
         expect(response.status).toBe(httpStatusCodes.CREATED);
         expect(response.body).toHaveProperty('jobID', '1');
-        expect(response.body).toHaveProperty('status', OperationStatus.IN_PROGRESS);
+        expect(response.body).toHaveProperty('status', OperationStatus.PENDING);
       });
     });
 
@@ -108,7 +108,7 @@ describe('IngestionController on NFS', function () {
 
         expect(response.status).toBe(httpStatusCodes.CREATED);
         expect(response.body).toHaveProperty('jobID', '1');
-        expect(response.body).toHaveProperty('status', OperationStatus.IN_PROGRESS);
+        expect(response.body).toHaveProperty('status', OperationStatus.PENDING);
       });
     });
 

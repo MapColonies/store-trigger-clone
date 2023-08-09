@@ -30,7 +30,7 @@ export class IngestionManager {
 
     const res: IIngestionResponse = {
       jobID: jobResponse.id,
-      status: OperationStatus.IN_PROGRESS,
+      status: OperationStatus.PENDING,
     };
 
     return res;
@@ -50,7 +50,7 @@ export class IngestionManager {
       this.logger.info({ msg: 'Tasks created successfully' });
 
       await this.createTasksForJob(jobId, tasks, this.maxConcurrency);
-      await this.updateFileCountInJobParams(jobId, fileCount);
+      await this.updateFileCountAndStatusOfJob(jobId, fileCount);
 
       await this.queueFileHandler.emptyQueueFile();
     } catch (error) {
@@ -111,9 +111,9 @@ export class IngestionManager {
     return blackList.includes(fileExtension);
   }
 
-  private async updateFileCountInJobParams(jobId: string, fileCount: number): Promise<void> {
+  private async updateFileCountAndStatusOfJob(jobId: string, fileCount: number): Promise<void> {
     const job = await this.jobManagerClient.getJob<IJobParameters, ITaskParameters>(jobId, false);
     const parameters: IJobParameters = { ...job.parameters, filesCount: fileCount };
-    await this.jobManagerClient.updateJob(jobId, { parameters });
+    await this.jobManagerClient.updateJob(jobId, { status: OperationStatus.PENDING, parameters });
   }
 }
