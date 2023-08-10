@@ -34,7 +34,7 @@ export class IngestionController {
       productName: payload.metadata.productName,
       percentage: 0,
       producerName: payload.metadata.producerName,
-      status: OperationStatus.IN_PROGRESS,
+      status: OperationStatus.PENDING,
       domain: '3D',
     };
     try {

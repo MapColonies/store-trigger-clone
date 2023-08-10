@@ -124,7 +124,7 @@ export const createJobPayload = (payload: Payload): CreateJobBody => {
     productName: payload.metadata.productName,
     percentage: 0,
     producerName: payload.metadata.producerName,
-    status: OperationStatus.IN_PROGRESS,
+    status: OperationStatus.PENDING,
     domain: '3D',
   };
 };
@@ -197,5 +197,5 @@ export const configProviderMock = {
 
 export const ingestionResponseMock = {
   jobID: 'my-job-id',
-  status: OperationStatus.IN_PROGRESS,
+  status: OperationStatus.PENDING,
 };

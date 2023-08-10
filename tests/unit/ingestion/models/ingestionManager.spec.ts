@@ -49,9 +49,9 @@ describe('ingestionManager', () => {
       // Arrange
       const response: IIngestionResponse = {
         jobID: '1234',
-        status: OperationStatus.IN_PROGRESS,
+        status: OperationStatus.PENDING,
       };
-      jobManagerClientMock.createJob.mockResolvedValue({ id: '1234', status: OperationStatus.IN_PROGRESS });
+      jobManagerClientMock.createJob.mockResolvedValue({ id: '1234', status: OperationStatus.PENDING });
       // Act
       const modelResponse = await ingestionManager.createJob(jobPayload);
       //Assert
