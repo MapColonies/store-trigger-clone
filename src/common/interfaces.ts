@@ -1,6 +1,5 @@
 import { Layer3DMetadata } from '@map-colonies/mc-model-types';
 import { ICreateJobBody, IJobResponse, OperationStatus } from '@map-colonies/mc-priority-queue';
-import { Providers } from './enums';
 
 export interface IConfig {
   get: <T>(setting: string) => T;
@@ -33,22 +32,18 @@ export interface Payload {
   metadata: Layer3DMetadata;
 }
 
-export interface IProvider {
-  streamModelPathsToQueueFile: (model: string) => Promise<number>;
+export interface Provider {
+  streamModelPathsToQueueFile: (modelId: string, modelName: string) => Promise<number>;
 }
 
-export interface IIngestionConfig {
-  configProvider: Providers;
-}
-
-export interface IJobParameters {
+export interface JobParameters {
   tilesetFilename: string;
   modelId: string;
   metadata: Layer3DMetadata;
   filesCount: number;
 }
 
-export interface ITaskParameters {
+export interface TaskParameters {
   paths: string[];
   modelId: string;
   lastIndexError: number;
@@ -70,12 +65,12 @@ export interface NFSConfig {
 
 export type ProviderConfig = S3Config | NFSConfig;
 
-export interface IIngestionResponse {
+export interface IngestionResponse {
   jobID: string;
   status: OperationStatus;
 }
 
-export interface IJobStatusResponse {
+export interface JobStatusResponse {
   percentage: number;
   status: OperationStatus;
 }
@@ -84,5 +79,9 @@ export interface JobStatusParams {
   jobID: string;
 }
 
-export type JobResponse = IJobResponse<IJobParameters, ITaskParameters>;
-export type CreateJobBody = ICreateJobBody<IJobParameters, ITaskParameters>;
+// export interface LinerDictionary {
+//   [key: string]: LineByLine
+// }
+
+export type JobResponse = IJobResponse<JobParameters, TaskParameters>;
+export type CreateJobBody = ICreateJobBody<JobParameters, TaskParameters>;

@@ -7,7 +7,7 @@ import { Layer3DMetadata, ProductType, RecordStatus, RecordType } from '@map-col
 import jsLogger from '@map-colonies/js-logger';
 import { ICreateTaskBody, OperationStatus } from '@map-colonies/mc-priority-queue';
 import { RandomNumberOptions } from '@ngneat/falso/lib/number';
-import { CreateJobBody, IJobParameters, ITaskParameters, Payload } from '../../src/common/interfaces';
+import { CreateJobBody, JobParameters, TaskParameters, Payload } from '../../src/common/interfaces';
 import { RegisterOptions } from '../../src/containerConfig';
 import { SERVICES } from '../../src/common/constants';
 
@@ -129,7 +129,7 @@ export const createJobPayload = (payload: Payload): CreateJobBody => {
   };
 };
 
-export const createFakeTask = (): ICreateTaskBody<ITaskParameters> => {
+export const createFakeTask = (): ICreateTaskBody<TaskParameters> => {
   const modelId = createUuid();
   return {
     parameters: {
@@ -140,16 +140,16 @@ export const createFakeTask = (): ICreateTaskBody<ITaskParameters> => {
   };
 };
 
-export const createFakeTasks = (): ICreateTaskBody<ITaskParameters>[] => {
+export const createFakeTasks = (): ICreateTaskBody<TaskParameters>[] => {
   const taskSize = randNumber({ min: 1, max: 5 });
-  const tasks: ICreateTaskBody<ITaskParameters>[] = [];
+  const tasks: ICreateTaskBody<TaskParameters>[] = [];
   for (let i = 0; i < taskSize; i++) {
     tasks.push(createFakeTask());
   }
   return tasks;
 };
 
-export const createJobParameters = (): IJobParameters => {
+export const createJobParameters = (): JobParameters => {
   return {
     metadata: createMetadata(),
     modelId: createUuid(),
@@ -159,9 +159,9 @@ export const createJobParameters = (): IJobParameters => {
 };
 
 export const queueFileHandlerMock = {
-  emptyQueueFile: jest.fn(),
+  deleteQueueFile: jest.fn(),
   readline: jest.fn(),
-  initialize: jest.fn(),
+  createQueueFile: jest.fn(),
   writeFileNameToQueueFile: jest.fn(),
 };
 

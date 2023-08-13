@@ -5,10 +5,10 @@ import { inject, injectable } from 'tsyringe';
 import { QueueFileHandler } from '../handlers/queueFileHandler';
 import { AppError } from '../common/appError';
 import { SERVICES } from '../common/constants';
-import { IProvider, S3Config } from '../common/interfaces';
+import { Provider, S3Config } from '../common/interfaces';
 
 @injectable()
-export class S3Provider implements IProvider {
+export class S3Provider implements Provider {
   private readonly s3: S3Client;
   private filesCount: number;
 
@@ -31,7 +31,7 @@ export class S3Provider implements IProvider {
     this.filesCount = 0;
   }
 
-  public async streamModelPathsToQueueFile(model: string): Promise<number> {
+  public async streamModelPathsToQueueFile(modelId: string, model: string): Promise<number> {
     const modelName = model + '/';
 
     /* eslint-disable @typescript-eslint/naming-convention */
@@ -41,9 +41,9 @@ export class S3Provider implements IProvider {
       Prefix: modelName,
     };
 
-    await this.listS3Recursively(params);
+    await this.listS3Recursively(modelId, params);
 
-    if (await this.queueFileHandler.checkIfTempFileEmpty()) {
+    if (await this.queueFileHandler.checkIfTempFileEmpty(modelId)) {
       throw new AppError(httpStatus.NOT_FOUND, `Model ${model} doesn't exists in bucket ${this.s3Config.bucket}!`, true);
     }
 
@@ -54,17 +54,17 @@ export class S3Provider implements IProvider {
     return lastFileCount;
   }
 
-  private async listS3Recursively(params: ListObjectsRequest): Promise<void> {
+  private async listS3Recursively(modelId: string, params: ListObjectsRequest): Promise<void> {
     try {
       const listObject = new ListObjectsCommand(params);
       const data = await this.s3.send(listObject);
 
       if (data.Contents) {
-        await this.writeFileContent(data.Contents);
+        await this.writeFileContent(modelId, data.Contents);
       }
 
       if (data.CommonPrefixes) {
-        await this.writeFolderContent(data.CommonPrefixes);
+        await this.writeFolderContent(modelId, data.CommonPrefixes);
       }
 
       if (data.IsTruncated === true) {
@@ -74,7 +74,7 @@ export class S3Provider implements IProvider {
           Prefix: data.Prefix,
           Marker: data.NextMarker,
         };
-        await this.listS3Recursively(nextParams);
+        await this.listS3Recursively(modelId, nextParams);
       }
 
       this.logger.debug({ msg: `Listed ${this.filesCount} files` });
@@ -84,17 +84,17 @@ export class S3Provider implements IProvider {
     }
   }
 
-  private async writeFileContent(contents: _Object[]): Promise<void> {
+  private async writeFileContent(modelId: string, contents: _Object[]): Promise<void> {
     for (const content of contents) {
       if (content.Key == undefined) {
         throw new AppError(httpStatus.NO_CONTENT, 'found content without file name', true);
       }
-      await this.queueFileHandler.writeFileNameToQueueFile(content.Key);
+      await this.queueFileHandler.writeFileNameToQueueFile(modelId, content.Key);
       this.filesCount++;
     }
   }
 
-  private async writeFolderContent(CommonPrefixes: CommonPrefix[]): Promise<void> {
+  private async writeFolderContent(modelId: string, CommonPrefixes: CommonPrefix[]): Promise<void> {
     for (const commonPrefix of CommonPrefixes) {
       if (commonPrefix.Prefix != undefined) {
         const nextParams: ListObjectsRequest = {
@@ -102,7 +102,7 @@ export class S3Provider implements IProvider {
           Delimiter: '/',
           Prefix: commonPrefix.Prefix,
         };
-        await this.listS3Recursively(nextParams);
+        await this.listS3Recursively(modelId, nextParams);
       }
     }
   }

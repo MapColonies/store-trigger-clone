@@ -3,10 +3,10 @@ import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { inject, injectable } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
-import { IJobStatusResponse, JobStatusParams } from '../../common/interfaces';
+import { JobStatusResponse, JobStatusParams } from '../../common/interfaces';
 import { JobStatusManager } from '../models/jobStatusManager';
 
-type GetResourceHandler = RequestHandler<JobStatusParams, IJobStatusResponse>;
+type GetResourceHandler = RequestHandler<JobStatusParams, JobStatusResponse>;
 
 @injectable()
 export class JobStatusController {

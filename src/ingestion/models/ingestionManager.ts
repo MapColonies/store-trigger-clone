@@ -2,7 +2,7 @@ import { Logger } from '@map-colonies/js-logger';
 import { ICreateTaskBody, JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
 import { inject, injectable } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
-import { CreateJobBody, IConfig, IIngestionResponse, IJobParameters, IProvider, ITaskParameters, Payload } from '../../common/interfaces';
+import { CreateJobBody, IConfig, IngestionResponse, JobParameters, Provider, TaskParameters, Payload } from '../../common/interfaces';
 import { QueueFileHandler } from '../../handlers/queueFileHandler';
 
 @injectable()
@@ -16,7 +16,7 @@ export class IngestionManager {
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(SERVICES.CONFIG) private readonly config: IConfig,
     @inject(SERVICES.JOB_MANAGER_CLIENT) private readonly jobManagerClient: JobManagerClient,
-    @inject(SERVICES.PROVIDER) private readonly provider: IProvider,
+    @inject(SERVICES.PROVIDER) private readonly provider: Provider,
     @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler
   ) {
     this.providerName = this.config.get<string>('ingestion.provider');
@@ -25,10 +25,10 @@ export class IngestionManager {
     this.maxConcurrency = this.config.get<number>('maxConcurrency');
   }
 
-  public async createJob(job: CreateJobBody): Promise<IIngestionResponse> {
-    const jobResponse = await this.jobManagerClient.createJob<IJobParameters, ITaskParameters>(job);
+  public async createJob(job: CreateJobBody): Promise<IngestionResponse> {
+    const jobResponse = await this.jobManagerClient.createJob<JobParameters, TaskParameters>(job);
 
-    const res: IIngestionResponse = {
+    const res: IngestionResponse = {
       jobID: jobResponse.id,
       status: OperationStatus.PENDING,
     };
@@ -40,10 +40,10 @@ export class IngestionManager {
     this.logger.info({ msg: 'Creating job for model', name: payload.modelName, provider: this.providerName });
 
     this.logger.debug({ msg: 'Starts writing content to queue file' });
-    await this.queueFileHandler.initialize();
+    await this.queueFileHandler.createQueueFile(payload.modelId);
 
     try {
-      const fileCount: number = await this.provider.streamModelPathsToQueueFile(payload.modelName);
+      const fileCount: number = await this.provider.streamModelPathsToQueueFile(payload.modelId, payload.modelName);
       this.logger.debug({ msg: 'Finished writing content to queue file. Creating Tasks' });
 
       const tasks = this.createTasks(this.batchSize, payload.modelId);
@@ -51,16 +51,17 @@ export class IngestionManager {
 
       await this.createTasksForJob(jobId, tasks, this.maxConcurrency);
       await this.updateFileCountAndStatusOfJob(jobId, fileCount);
+      this.logger.info({ msg: 'Job created successfully' });
 
-      await this.queueFileHandler.emptyQueueFile();
+      await this.queueFileHandler.deleteQueueFile(payload.modelId);
     } catch (error) {
       this.logger.error({ msg: 'Failed in creating tasks', error });
-      await this.queueFileHandler.emptyQueueFile();
+      await this.queueFileHandler.deleteQueueFile(payload.modelId);
       throw error;
     }
   }
 
-  private async createTasksForJob(jobId: string, tasks: ICreateTaskBody<ITaskParameters>[], maxRequests: number): Promise<void> {
+  private async createTasksForJob(jobId: string, tasks: ICreateTaskBody<TaskParameters>[], maxRequests: number): Promise<void> {
     const tempTasks = [...tasks];
 
     while (tempTasks.length) {
@@ -69,10 +70,10 @@ export class IngestionManager {
     }
   }
 
-  private createTasks(batchSize: number, modelId: string): ICreateTaskBody<ITaskParameters>[] {
-    const tasks: ICreateTaskBody<ITaskParameters>[] = [];
+  private createTasks(batchSize: number, modelId: string): ICreateTaskBody<TaskParameters>[] {
+    const tasks: ICreateTaskBody<TaskParameters>[] = [];
     let chunk: string[] = [];
-    let data: string | null = this.queueFileHandler.readline();
+    let data: string | null = this.queueFileHandler.readline(modelId);
 
     while (data !== null) {
       if (this.isFileInBlackList(data)) {
@@ -87,7 +88,7 @@ export class IngestionManager {
         }
       }
 
-      data = this.queueFileHandler.readline();
+      data = this.queueFileHandler.readline(modelId);
     }
 
     // Create task from the rest of the last chunk
@@ -99,8 +100,8 @@ export class IngestionManager {
     return tasks;
   }
 
-  private buildTaskFromChunk(chunk: string[], modelId: string): ICreateTaskBody<ITaskParameters> {
-    const parameters: ITaskParameters = { paths: chunk, modelId, lastIndexError: -1 };
+  private buildTaskFromChunk(chunk: string[], modelId: string): ICreateTaskBody<TaskParameters> {
+    const parameters: TaskParameters = { paths: chunk, modelId, lastIndexError: -1 };
     return { type: this.taskType, parameters };
   }
 
@@ -112,8 +113,8 @@ export class IngestionManager {
   }
 
   private async updateFileCountAndStatusOfJob(jobId: string, fileCount: number): Promise<void> {
-    const job = await this.jobManagerClient.getJob<IJobParameters, ITaskParameters>(jobId, false);
-    const parameters: IJobParameters = { ...job.parameters, filesCount: fileCount };
-    await this.jobManagerClient.updateJob(jobId, { status: OperationStatus.PENDING, parameters });
+    const job = await this.jobManagerClient.getJob<JobParameters, TaskParameters>(jobId, false);
+    const parameters: JobParameters = { ...job.parameters, filesCount: fileCount };
+    await this.jobManagerClient.updateJob(jobId, { status: OperationStatus.IN_PROGRESS, parameters });
   }
 }

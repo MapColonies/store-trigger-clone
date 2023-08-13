@@ -4,7 +4,7 @@ import httpStatusCodes from 'http-status-codes';
 import { container } from 'tsyringe';
 import { getApp } from '../../../../src/app';
 import { SERVICES } from '../../../../src/common/constants';
-import { IProvider } from '../../../../src/common/interfaces';
+import { Provider } from '../../../../src/common/interfaces';
 import { getProvider } from '../../../../src/providers/getProvider';
 import { createPayload } from '../../../helpers/mockCreator';
 import { IngestionRequestSender } from '../helpers/requestSender';
@@ -24,7 +24,7 @@ describe('IngestionController on S3', function () {
         {
           token: SERVICES.PROVIDER,
           provider: {
-            useFactory: (): IProvider => {
+            useFactory: (): Provider => {
               return getProvider('s3');
             },
           },
@@ -82,7 +82,7 @@ describe('IngestionController on NFS', function () {
         {
           token: SERVICES.PROVIDER,
           provider: {
-            useFactory: (): IProvider => {
+            useFactory: (): Provider => {
               return getProvider('nfs');
             },
           },

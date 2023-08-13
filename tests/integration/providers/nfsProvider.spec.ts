@@ -10,10 +10,14 @@ import { SERVICES } from '../../../src/common/constants';
 import { NFSConfig } from '../../../src/common/interfaces';
 import { AppError } from '../../../src/common/appError';
 import { queueFileHandlerMock } from '../../helpers/mockCreator';
+import { QueueFileHandler } from '../../../src/handlers/queueFileHandler';
 
 describe('NFSProvider tests', () => {
   let provider: NFSProvider;
-  const queueFilePath = `${os.tmpdir()}/${config.get<string>('ingestion.queueFilePath')}`;
+  let queueFileHandler: QueueFileHandler;
+  const modelName = 'model1';
+  const modelId = 'someId';
+  const queueFilePath = os.tmpdir();
   const nfsConfig = config.get<NFSConfig>('NFS');
 
   beforeAll(() => {
@@ -24,32 +28,33 @@ describe('NFSProvider tests', () => {
       ],
     });
     provider = container.resolve(NFSProvider);
+    queueFileHandler = container.resolve(QueueFileHandler);
   });
 
-  beforeEach(() => {
-    fs.truncateSync(queueFilePath, 0);
+  beforeEach(async () => {
+    await queueFileHandler.createQueueFile(modelId);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     jest.clearAllMocks();
+    await queueFileHandler.deleteQueueFile(modelId);
   });
 
   describe('streamModelPathsToQueueFile Function', () => {
     it('if the model exists in the agreed folder, returns all the file paths of the model', async () => {
-      const model = 'model1';
-      const expected = `${model}/b.txt\n${model}/folder/a.txt\n`;
+      const expected = `${modelName}/b.txt\n${modelName}/folder/a.txt\n`;
 
-      await provider.streamModelPathsToQueueFile(model);
-      const result = fs.readFileSync(queueFilePath, 'utf-8');
+      await provider.streamModelPathsToQueueFile(modelId, modelName);
+      const result = fs.readFileSync(`${queueFilePath}/${modelId}`, 'utf-8');
 
       expect(result).toStrictEqual(expected);
     });
 
     it('if the model does not exists in the agreed folder, throws error', async () => {
-      const model = 'bla';
+      const modelName = 'bla';
 
       const result = async () => {
-        await provider.streamModelPathsToQueueFile(model);
+        await provider.streamModelPathsToQueueFile(modelId, modelName);
       };
 
       await expect(result).rejects.toThrow(AppError);
@@ -65,11 +70,10 @@ describe('NFSProvider tests', () => {
       });
       provider = container.resolve(NFSProvider);
 
-      const model = 'model1';
       queueFileHandlerMock.writeFileNameToQueueFile.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, 'queueFileHandler', false));
 
       const result = async () => {
-        await provider.streamModelPathsToQueueFile(model);
+        await provider.streamModelPathsToQueueFile(modelId, modelName);
       };
 
       await expect(result).rejects.toThrow(AppError);
