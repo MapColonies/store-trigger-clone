@@ -79,9 +79,5 @@ export interface JobStatusParams {
   jobID: string;
 }
 
-// export interface LinerDictionary {
-//   [key: string]: LineByLine
-// }
-
 export type JobResponse = IJobResponse<JobParameters, TaskParameters>;
 export type CreateJobBody = ICreateJobBody<JobParameters, TaskParameters>;
