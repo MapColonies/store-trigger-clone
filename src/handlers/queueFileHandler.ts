@@ -6,7 +6,7 @@ import { singleton } from 'tsyringe';
 @singleton()
 export class QueueFileHandler {
   private readonly queueFilePath: string;
-  private readonly linerDictionary: { [key: string]: LineByLine };
+  private readonly linerDictionary: Record<string, LineByLine>;
 
   public constructor() {
     this.queueFilePath = os.tmpdir();
@@ -14,7 +14,8 @@ export class QueueFileHandler {
   }
 
   public async createQueueFile(model: string): Promise<void> {
-    await fs.writeFile(`${this.queueFilePath}/${model}`, '', 'utf8');
+    const filePath = `${this.queueFilePath}/${model}`;
+    await fs.writeFile(filePath, '', 'utf8');
     this.linerDictionary[model] = new LineByLine(`${this.queueFilePath}/${model}`);
   }
 
@@ -29,16 +30,19 @@ export class QueueFileHandler {
   }
 
   public async writeFileNameToQueueFile(model: string, fileName: string): Promise<void> {
-    await fs.appendFile(`${this.queueFilePath}/${model}`, fileName + '\n');
+    const filePath = `${this.queueFilePath}/${model}`;
+    await fs.appendFile(filePath, fileName + '\n');
   }
 
   public async checkIfTempFileEmpty(model: string): Promise<boolean> {
-    const fileStat = await fs.stat(`${this.queueFilePath}/${model}`);
+    const filePath = `${this.queueFilePath}/${model}`;
+    const fileStat = await fs.stat(filePath);
     return fileStat.size === 0;
   }
 
   public async deleteQueueFile(model: string): Promise<void> {
-    await fs.rm(`${this.queueFilePath}/${model}`);
+    const filePath = `${this.queueFilePath}/${model}`;
+    await fs.rm(filePath);
     delete this.linerDictionary[model];
   }
 }
