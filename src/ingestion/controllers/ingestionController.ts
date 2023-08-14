@@ -5,10 +5,10 @@ import httpStatus from 'http-status-codes';
 import { inject, injectable } from 'tsyringe';
 import { AppError } from '../../common/appError';
 import { JOB_TYPE, SERVICES } from '../../common/constants';
-import { CreateJobBody, IIngestionResponse, Payload } from '../../common/interfaces';
+import { CreateJobBody, IngestionResponse, Payload } from '../../common/interfaces';
 import { IngestionManager } from '../models/ingestionManager';
 
-type CreateResourceHandler = RequestHandler<undefined, IIngestionResponse, Payload>;
+type CreateResourceHandler = RequestHandler<undefined, IngestionResponse, Payload>;
 
 @injectable()
 export class IngestionController {

@@ -10,13 +10,16 @@ import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { S3Config } from '../../../src/common/interfaces';
 import { S3Helper } from '../../helpers/s3Helper';
+import { QueueFileHandler } from '../../../src/handlers/queueFileHandler';
 
 describe('S3Provider tests', () => {
   let provider: S3Provider;
   let s3Helper: S3Helper;
+  let queueFileHandler: QueueFileHandler;
 
-  const queueFilePath = `${os.tmpdir()}/${config.get<string>('ingestion.queueFilePath')}`;
+  const queueFilePath = os.tmpdir();
   const s3Config = config.get<S3Config>('S3');
+  const modelId = randWord();
 
   beforeAll(async () => {
     getApp({
@@ -27,16 +30,18 @@ describe('S3Provider tests', () => {
     });
     provider = container.resolve(S3Provider);
     s3Helper = container.resolve(S3Helper);
+    queueFileHandler = container.resolve(QueueFileHandler);
 
     await s3Helper.createBucket();
   });
 
-  beforeEach(() => {
-    fs.truncateSync(queueFilePath, 0);
+  beforeEach(async () => {
+    await queueFileHandler.createQueueFile(modelId);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     jest.clearAllMocks();
+    await queueFileHandler.deleteQueueFile(modelId);
   });
 
   afterAll(async () => {
@@ -47,19 +52,19 @@ describe('S3Provider tests', () => {
 
   describe('streamModelPathsToQueueFile', () => {
     it('returns all the files from S3', async () => {
-      const model = randWord();
+      const modelName = randWord();
       const fileLength = randNumber({ min: 1, max: 5 });
       const expectedFiles: string[] = [];
       for (let i = 0; i < fileLength; i++) {
         const file = randWord();
-        await s3Helper.createFileOfModel(model, file);
-        expectedFiles.push(`${model}/${file}`);
+        await s3Helper.createFileOfModel(modelName, file);
+        expectedFiles.push(`${modelName}/${file}`);
       }
-      await s3Helper.createFileOfModel(model, 'subDir/file');
-      expectedFiles.push(`${model}/subDir/file`);
+      await s3Helper.createFileOfModel(modelName, 'subDir/file');
+      expectedFiles.push(`${modelName}/subDir/file`);
 
-      await provider.streamModelPathsToQueueFile(model);
-      const result = fs.readFileSync(queueFilePath, 'utf-8');
+      await provider.streamModelPathsToQueueFile(modelId, modelName);
+      const result = fs.readFileSync(`${queueFilePath}/${modelId}`, 'utf-8');
 
       for (const file of expectedFiles) {
         expect(result).toContain(file);
@@ -67,7 +72,9 @@ describe('S3Provider tests', () => {
     });
 
     it('returns error string when model is not in the agreed folder', async () => {
-      await expect(provider.streamModelPathsToQueueFile('bla')).rejects.toThrow(AppError);
+      const modelName = randWord();
+
+      await expect(provider.streamModelPathsToQueueFile(modelId, modelName)).rejects.toThrow(AppError);
     });
   });
 });

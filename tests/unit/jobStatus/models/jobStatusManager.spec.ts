@@ -5,7 +5,7 @@ import { container } from 'tsyringe';
 import { getApp } from '../../../../src/app';
 import { AppError } from '../../../../src/common/appError';
 import { SERVICES } from '../../../../src/common/constants';
-import { IJobStatusResponse } from '../../../../src/common/interfaces';
+import { JobStatusResponse } from '../../../../src/common/interfaces';
 import { JobStatusManager } from '../../../../src/jobStatus/models/jobStatusManager';
 import { jobManagerClientMock } from '../../../helpers/mockCreator';
 
@@ -30,7 +30,7 @@ describe('jobStatusManager', () => {
   describe('#checkStatus', () => {
     it('return job status manager', async function () {
       const jobId = '123';
-      const expectedResponse: IJobStatusResponse = {
+      const expectedResponse: JobStatusResponse = {
         percentage: 100,
         status: OperationStatus.COMPLETED,
       };

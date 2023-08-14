@@ -1,27 +1,26 @@
 import fs from 'fs/promises';
 import os from 'os';
-import path from 'path';
-import config from 'config';
 import LineByLine from 'n-readlines';
 import { singleton } from 'tsyringe';
 
 @singleton()
 export class QueueFileHandler {
   private readonly queueFilePath: string;
-  private liner!: LineByLine;
+  private readonly linerDictionary: Record<string, LineByLine>;
 
   public constructor() {
-    const tempDir = os.tmpdir();
-    this.queueFilePath = `${tempDir}/${config.get<string>('ingestion.queueFilePath')}`;
+    this.queueFilePath = os.tmpdir();
+    this.linerDictionary = {};
   }
 
-  public async initialize(): Promise<void> {
-    await this.createQueueFile();
-    this.liner = new LineByLine(this.queueFilePath);
+  public async createQueueFile(model: string): Promise<void> {
+    const filePath = `${this.queueFilePath}/${model}`;
+    await fs.writeFile(filePath, '', 'utf8');
+    this.linerDictionary[model] = new LineByLine(`${this.queueFilePath}/${model}`);
   }
 
-  public readline(): string | null {
-    const line = this.liner.next();
+  public readline(model: string): string | null {
+    const line = this.linerDictionary[model].next();
 
     if (line === false) {
       return null;
@@ -30,22 +29,20 @@ export class QueueFileHandler {
     return line.toString('ascii');
   }
 
-  public async writeFileNameToQueueFile(fileName: string): Promise<void> {
-    await fs.appendFile(this.queueFilePath, fileName + '\n');
+  public async writeFileNameToQueueFile(model: string, fileName: string): Promise<void> {
+    const filePath = `${this.queueFilePath}/${model}`;
+    await fs.appendFile(filePath, fileName + '\n');
   }
 
-  public async checkIfTempFileEmpty(): Promise<boolean> {
-    const fileStat = await fs.stat(this.queueFilePath);
+  public async checkIfTempFileEmpty(model: string): Promise<boolean> {
+    const filePath = `${this.queueFilePath}/${model}`;
+    const fileStat = await fs.stat(filePath);
     return fileStat.size === 0;
   }
 
-  public async emptyQueueFile(): Promise<void> {
-    await fs.truncate(this.queueFilePath, 0);
-    this.liner = new LineByLine(this.queueFilePath);
-  }
-
-  private async createQueueFile(): Promise<void> {
-    const filePath = path.join(this.queueFilePath);
-    await fs.writeFile(filePath, '', 'utf8');
+  public async deleteQueueFile(model: string): Promise<void> {
+    const filePath = `${this.queueFilePath}/${model}`;
+    await fs.rm(filePath);
+    delete this.linerDictionary[model];
   }
 }

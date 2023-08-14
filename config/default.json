@@ -40,7 +40,6 @@
   },
   "ingestion": {
     "provider": "NFS",
-    "queueFilePath": "queueFile.txt",
     "blackList": ["tar", "zip", "rar", "7z"]
   },
   "jobManager": {

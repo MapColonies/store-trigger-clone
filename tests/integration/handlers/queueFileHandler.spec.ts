@@ -1,54 +1,83 @@
 import fs from 'fs';
+import { randWord } from '@ngneat/falso';
 import { QueueFileHandler } from '../../../src/handlers/queueFileHandler';
 
 describe('QueueFileHandler', () => {
   let queueFileHandler: QueueFileHandler;
+  const model = randWord();
 
   beforeEach(async () => {
     queueFileHandler = new QueueFileHandler();
-    await queueFileHandler.initialize();
+    await queueFileHandler.createQueueFile(model);
   });
 
   afterEach(async () => {
-    await queueFileHandler.emptyQueueFile();
+    await queueFileHandler.deleteQueueFile(model);
   });
 
-  it('should be able to write a file name to the queue file and read it', async () => {
-    const fileName = 'test-file.txt';
-    await queueFileHandler.writeFileNameToQueueFile(fileName);
+  describe('writeFileNameToQueueFile tests', () => {
+    it('should write a file name to the queue file and read it', async () => {
+      const fileName = 'test-file.txt';
+      await queueFileHandler.writeFileNameToQueueFile(model, fileName);
 
-    const line = queueFileHandler.readline();
+      const line = queueFileHandler.readline(model);
 
-    expect(line).toBe(fileName);
+      expect(line).toBe(fileName);
+    });
   });
 
-  it('should be able to return null when there is no data', () => {
-    const line = queueFileHandler.readline();
+  describe('readline tests', () => {
+    it('should return null when there is no data', () => {
+      const line = queueFileHandler.readline(model);
 
-    expect(line).toBeNull();
+      expect(line).toBeNull();
+    });
   });
 
-  it('should be able to empty the queue file', async () => {
-    const fileName = 'test-file.txt';
-    await queueFileHandler.writeFileNameToQueueFile(fileName);
+  describe('deleteQueueFile tests', () => {
+    afterEach(async () => {
+      await queueFileHandler.createQueueFile(model);
+    });
 
-    let isEmpty = await queueFileHandler.checkIfTempFileEmpty();
-    expect(isEmpty).toBe(false);
+    it('should delete the queue file', async () => {
+      const response = await queueFileHandler.deleteQueueFile(model);
 
-    await queueFileHandler.emptyQueueFile();
-    isEmpty = await queueFileHandler.checkIfTempFileEmpty();
-    expect(isEmpty).toBe(true);
+      expect(response).toBeUndefined();
+    });
   });
 
-  it('should be able to create a queue file', async () => {
-    const filePath = queueFileHandler['queueFilePath'];
-    await queueFileHandler.emptyQueueFile();
-    await queueFileHandler['createQueueFile']();
+  describe('checkIfTempFileEmpty tests', () => {
+    it(`returns false if model's queue file is not empty`, async () => {
+      const fileName = 'test-file.txt';
+      await queueFileHandler.writeFileNameToQueueFile(model, fileName);
 
-    const fileExists = await fs.promises
-      .access(filePath, fs.constants.F_OK)
-      .then(() => true)
-      .catch(() => false);
-    expect(fileExists).toBe(true);
+      const isExists = await queueFileHandler.checkIfTempFileEmpty(model);
+
+      expect(isExists).toBe(false);
+    });
+
+    it(`returns true if model's queue file is empty`, async () => {
+      const model = 'bla';
+      await queueFileHandler.createQueueFile(model);
+
+      const isExists = await queueFileHandler.checkIfTempFileEmpty(model);
+
+      expect(isExists).toBe(true);
+    });
+  });
+
+  describe('createQueueFile tests', () => {
+    it('should create a queue file', async () => {
+      const filePath = queueFileHandler['queueFilePath'];
+      await queueFileHandler.deleteQueueFile(model);
+
+      await queueFileHandler.createQueueFile(model);
+
+      const fileExists = await fs.promises
+        .access(filePath, fs.constants.F_OK)
+        .then(() => true)
+        .catch(() => false);
+      expect(fileExists).toBe(true);
+    });
   });
 });

@@ -5,27 +5,27 @@ import { inject, injectable } from 'tsyringe';
 import { QueueFileHandler } from '../handlers/queueFileHandler';
 import { AppError } from '../common/appError';
 import { SERVICES } from '../common/constants';
-import { IProvider, NFSConfig } from '../common/interfaces';
+import { Provider, NFSConfig } from '../common/interfaces';
 
 @injectable()
-export class NFSProvider implements IProvider {
+export class NFSProvider implements Provider {
   public constructor(
     @inject(SERVICES.PROVIDER_CONFIG) protected readonly config: NFSConfig,
     @inject(SERVICES.LOGGER) protected readonly logger: Logger,
     @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler
   ) {}
 
-  public async streamModelPathsToQueueFile(model: string): Promise<number> {
+  public async streamModelPathsToQueueFile(modelId: string, modelName: string): Promise<number> {
     let filesCount = 0;
-    const modelPath = `${this.config.pvPath}/${model}`;
+    const modelPath = `${this.config.pvPath}/${modelName}`;
     try {
       await fs.access(modelPath);
     } catch (error) {
       this.logger.error(error, modelPath);
-      throw new AppError(httpStatus.NOT_FOUND, `Model ${model} doesn't exists in the agreed folder`, true);
+      throw new AppError(httpStatus.NOT_FOUND, `Model ${modelName} doesn't exists in the agreed folder`, true);
     }
 
-    const folders: string[] = [model];
+    const folders: string[] = [modelName];
 
     while (folders.length > 0) {
       const files = await fs.readdir(`${this.config.pvPath}/${folders[0]}`);
@@ -36,7 +36,7 @@ export class NFSProvider implements IProvider {
           folders.push(`${folders[0]}/${file}`);
         } else {
           try {
-            await this.queueFileHandler.writeFileNameToQueueFile(`${folders[0]}/${file}`);
+            await this.queueFileHandler.writeFileNameToQueueFile(modelId, `${folders[0]}/${file}`);
             filesCount++;
           } catch (error) {
             this.logger.error({ msg: `Didn't write the file: '${folders[0]}/${file}' in FS.`, err: error });
@@ -48,7 +48,7 @@ export class NFSProvider implements IProvider {
       folders.shift();
     }
 
-    this.logger.info({ msg: 'Finished listing the files', filesCount: filesCount, model });
+    this.logger.info({ msg: 'Finished listing the files', filesCount: filesCount, model: modelName });
     return filesCount;
   }
 }

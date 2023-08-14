@@ -6,7 +6,7 @@ import config from 'config';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
 import { SERVICES, SERVICE_NAME } from './common/constants';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
-import { IProvider, ProviderConfig } from './common/interfaces';
+import { Provider, ProviderConfig } from './common/interfaces';
 import { tracing } from './common/tracing';
 import { QueueFileHandler } from './handlers/queueFileHandler';
 import { ingestionRouterFactory, INGESTION_ROUTER_SYMBOL } from './ingestion/routes/ingestionRouter';
@@ -53,12 +53,11 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
         },
       },
     },
-    // { token: SERVICES.S3, provider: { useValue: s3Config } },
     { token: SERVICES.QUEUE_FILE_HANDLER, provider: { useClass: QueueFileHandler } },
     {
       token: SERVICES.PROVIDER,
       provider: {
-        useFactory: (): IProvider => {
+        useFactory: (): Provider => {
           return getProvider(provider);
         },
       },

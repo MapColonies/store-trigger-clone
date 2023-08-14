@@ -14,7 +14,6 @@
   },
   "ingestion": {
     "provider": "S3",
-    "queueFilePath": "queueFile.txt",
     "blackList": ["tar", "zip", "rar", "7z"]
   },
   "jobManager": {
