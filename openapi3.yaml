@@ -82,7 +82,7 @@ components:
       description: 3d model payload
       required:
         - modelId
-        - modelName
+        - pathToTileset
         - tilesetFilename
         - metadata
       properties:
@@ -90,9 +90,9 @@ components:
           type: string
           description: Model identifier
           example: 'a2234fdf'
-        modelName:
+        pathToTileset:
           type: string
-          description: Model name
+          description: path to tileset
           example: 'NewYork'
         tilesetFilename:
           type: string

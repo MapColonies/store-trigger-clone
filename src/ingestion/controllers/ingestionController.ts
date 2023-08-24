@@ -29,6 +29,7 @@ export class IngestionController {
         modelId: payload.modelId,
         tilesetFilename: payload.tilesetFilename,
         filesCount: 0,
+        pathToTileset: payload.pathToTileset,
       },
       productType: payload.metadata.productType,
       productName: payload.metadata.productName,

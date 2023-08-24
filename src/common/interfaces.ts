@@ -19,9 +19,9 @@ export interface Payload {
    */
   modelId: string;
   /**
-   * Model name
+   * path to tileset
    */
-  modelName: string;
+  pathToTileset: string;
   /**
    * Model tileset filename
    */
@@ -33,7 +33,7 @@ export interface Payload {
 }
 
 export interface Provider {
-  streamModelPathsToQueueFile: (modelId: string, modelName: string) => Promise<number>;
+  streamModelPathsToQueueFile: (modelId: string, pathToTileset: string) => Promise<number>;
 }
 
 export interface JobParameters {
@@ -41,6 +41,7 @@ export interface JobParameters {
   modelId: string;
   metadata: Layer3DMetadata;
   filesCount: number;
+  pathToTileset: string
 }
 
 export interface TaskParameters {
