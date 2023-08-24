@@ -15,17 +15,17 @@ export class NFSProvider implements Provider {
     @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler
   ) {}
 
-  public async streamModelPathsToQueueFile(modelId: string, modelName: string): Promise<number> {
+  public async streamModelPathsToQueueFile(modelId: string, pathToTileset: string): Promise<number> {
     let filesCount = 0;
-    const modelPath = `${this.config.pvPath}/${modelName}`;
+    const modelPath = `${this.config.pvPath}/${pathToTileset}`;
     try {
       await fs.access(modelPath);
     } catch (error) {
       this.logger.error(error, modelPath);
-      throw new AppError(httpStatus.NOT_FOUND, `Model ${modelName} doesn't exists in the agreed folder`, true);
+      throw new AppError(httpStatus.NOT_FOUND, `Model ${pathToTileset} doesn't exists in the agreed folder`, true);
     }
 
-    const folders: string[] = [modelName];
+    const folders: string[] = [pathToTileset];
 
     while (folders.length > 0) {
       const files = await fs.readdir(`${this.config.pvPath}/${folders[0]}`);
@@ -48,7 +48,7 @@ export class NFSProvider implements Provider {
       folders.shift();
     }
 
-    this.logger.info({ msg: 'Finished listing the files', filesCount: filesCount, model: modelName });
+    this.logger.info({ msg: 'Finished listing the files', filesCount: filesCount, model: pathToTileset });
     return filesCount;
   }
 }
