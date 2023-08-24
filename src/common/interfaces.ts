@@ -41,7 +41,7 @@ export interface JobParameters {
   modelId: string;
   metadata: Layer3DMetadata;
   filesCount: number;
-  pathToTileset: string
+  pathToTileset: string;
 }
 
 export interface TaskParameters {

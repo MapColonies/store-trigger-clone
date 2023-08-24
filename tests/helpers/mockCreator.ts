@@ -155,7 +155,7 @@ export const createJobParameters = (): JobParameters => {
     modelId: createUuid(),
     tilesetFilename: 'tileset.json',
     filesCount: 0,
-    pathToTileset: 'path/to/tileset'
+    pathToTileset: 'path/to/tileset',
   };
 };
 
