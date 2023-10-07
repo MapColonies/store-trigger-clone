@@ -47,7 +47,7 @@ export class S3Provider implements Provider {
       throw new AppError(httpStatus.NOT_FOUND, `Model ${model} doesn't exists in bucket ${this.s3Config.bucket}!`, true);
     }
 
-    this.logger.info({ msg: 'Finished listing the files', filesCount: this.filesCount, model });
+    this.logger.info({ msg: 'Finished listing the files', filesCount: this.filesCount, modelName: model, modelId });
     const lastFileCount = this.filesCount;
     this.filesCount = 0;
 

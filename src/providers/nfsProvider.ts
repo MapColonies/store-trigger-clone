@@ -48,7 +48,7 @@ export class NFSProvider implements Provider {
       folders.shift();
     }
 
-    this.logger.info({ msg: 'Finished listing the files', filesCount: filesCount, model: pathToTileset });
+    this.logger.info({ msg: 'Finished listing the files', filesCount: filesCount, modelName: pathToTileset, modelId });
     return filesCount;
   }
 }
