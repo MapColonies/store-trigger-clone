@@ -99,7 +99,7 @@ components:
           description: Model tileset filename
           example: 'tileset.json'
         metadata:
-          $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/payload'
+          $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/ingestion-payload'
       additionalProperties: false
     createResponse:
       type: object

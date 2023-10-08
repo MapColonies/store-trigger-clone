@@ -97,7 +97,7 @@ components:
           description: Model tileset filename
           example: tileset.json
         metadata:
-          $ref: '#/components/schemas/schemas-payload'
+          $ref: '#/components/schemas/ingestion-payload'
       additionalProperties: false
     createResponse:
       type: object
@@ -247,10 +247,15 @@ components:
         propertyName: type
       type: object
       anyOf:
+        - $ref: '#/components/schemas/Point'
+        - $ref: '#/components/schemas/LineString'
         - $ref: '#/components/schemas/Polygon'
-    schemas-payload:
+        - $ref: '#/components/schemas/MultiPoint'
+        - $ref: '#/components/schemas/MultiLineString'
+        - $ref: '#/components/schemas/MultiPolygon'
+    ingestion-payload:
       type: object
-      description: 3d tiles metadata payload
+      description: 3d tiles ingestion payload
       required:
         - productName
         - productType
@@ -267,6 +272,7 @@ components:
         - productionSystem
         - productionSystemVer
         - producerName
+        - productSource
       properties:
         type:
           type: string
