@@ -77,7 +77,7 @@ export class S3Provider implements Provider {
         await this.listS3Recursively(modelId, nextParams);
       }
 
-      this.logger.debug({ msg: `Listed ${this.filesCount} files` });
+      this.logger.debug({ msg: `Listed ${this.filesCount} files`, modelId });
     } catch (error) {
       this.logger.error({ msg: 'failed in listing the model', modelId, error });
       this.handleS3Error(this.s3Config.bucket, error);

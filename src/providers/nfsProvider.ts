@@ -29,7 +29,7 @@ export class NFSProvider implements Provider {
 
     while (folders.length > 0) {
       const files = await fs.readdir(`${this.config.pvPath}/${folders[0]}`);
-      this.logger.debug({ msg: 'Listing folder', folder: folders[0], filesCount });
+      this.logger.debug({ msg: 'Listing folder', folder: folders[0], filesCount, modelId });
       for (const file of files) {
         const fileStats = await fs.stat(`${this.config.pvPath}/${folders[0]}/${file}`);
         if (fileStats.isDirectory()) {

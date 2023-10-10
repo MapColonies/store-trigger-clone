@@ -40,7 +40,7 @@ export class IngestionController {
     };
     try {
       const jobCreated = await this.manager.createJob(createJobRequest);
-      this.logger.debug(`Job created payload`, payload);
+      this.logger.debug({ msg: `Job created payload`, modelId: payload.modelId, payload });
       res.status(httpStatus.CREATED).json(jobCreated);
       await this.manager.createModel(payload, jobCreated.jobID);
     } catch (error) {
