@@ -55,7 +55,7 @@ export class IngestionManager {
 
       await this.queueFileHandler.deleteQueueFile(payload.modelId);
     } catch (error) {
-      this.logger.error({ msg: 'Failed in creating tasks', error });
+      this.logger.error({ msg: 'Failed in creating tasks', modelId: payload.modelId, error });
       await this.queueFileHandler.deleteQueueFile(payload.modelId);
       throw error;
     }

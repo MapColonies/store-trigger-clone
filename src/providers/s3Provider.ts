@@ -78,9 +78,9 @@ export class S3Provider implements Provider {
       }
 
       this.logger.debug({ msg: `Listed ${this.filesCount} files` });
-    } catch (e) {
-      this.logger.error({ msg: e });
-      this.handleS3Error(this.s3Config.bucket, e);
+    } catch (error) {
+      this.logger.error({ msg: 'failed in listing the model', modelId, error });
+      this.handleS3Error(this.s3Config.bucket, error);
     }
   }
 
