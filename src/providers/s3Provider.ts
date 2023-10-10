@@ -47,7 +47,7 @@ export class S3Provider implements Provider {
       throw new AppError(httpStatus.NOT_FOUND, `Model ${model} doesn't exists in bucket ${this.s3Config.bucket}!`, true);
     }
 
-    this.logger.info({ msg: 'Finished listing the files', filesCount: this.filesCount, model });
+    this.logger.info({ msg: 'Finished listing the files', filesCount: this.filesCount, modelName: model, modelId });
     const lastFileCount = this.filesCount;
     this.filesCount = 0;
 
@@ -77,10 +77,10 @@ export class S3Provider implements Provider {
         await this.listS3Recursively(modelId, nextParams);
       }
 
-      this.logger.debug({ msg: `Listed ${this.filesCount} files` });
-    } catch (e) {
-      this.logger.error({ msg: e });
-      this.handleS3Error(this.s3Config.bucket, e);
+      this.logger.debug({ msg: `Listed ${this.filesCount} files`, modelId });
+    } catch (error) {
+      this.logger.error({ msg: 'failed in listing the model', modelId, error });
+      this.handleS3Error(this.s3Config.bucket, error);
     }
   }
 

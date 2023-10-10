@@ -37,25 +37,25 @@ export class IngestionManager {
   }
 
   public async createModel(payload: Payload, jobId: string): Promise<void> {
-    this.logger.info({ msg: 'Creating job for model', name: payload.pathToTileset, provider: this.providerName });
+    this.logger.info({ msg: 'Creating job for model', modelId: payload.modelId, pathToTileSet: payload.pathToTileset, provider: this.providerName });
 
-    this.logger.debug({ msg: 'Starts writing content to queue file' });
+    this.logger.debug({ msg: 'Starts writing content to queue file', modelId: payload.modelId });
     await this.queueFileHandler.createQueueFile(payload.modelId);
 
     try {
       const fileCount: number = await this.provider.streamModelPathsToQueueFile(payload.modelId, payload.pathToTileset);
-      this.logger.debug({ msg: 'Finished writing content to queue file. Creating Tasks' });
+      this.logger.debug({ msg: 'Finished writing content to queue file. Creating Tasks', modelId: payload.modelId });
 
       const tasks = this.createTasks(this.batchSize, payload.modelId);
-      this.logger.info({ msg: 'Tasks created successfully' });
+      this.logger.info({ msg: 'Tasks created successfully', modelId: payload.modelId });
 
       await this.createTasksForJob(jobId, tasks, this.maxConcurrency);
       await this.updateFileCountAndStatusOfJob(jobId, fileCount);
-      this.logger.info({ msg: 'Job created successfully' });
+      this.logger.info({ msg: 'Job created successfully', modelId: payload.modelId });
 
       await this.queueFileHandler.deleteQueueFile(payload.modelId);
     } catch (error) {
-      this.logger.error({ msg: 'Failed in creating tasks', error });
+      this.logger.error({ msg: 'Failed in creating tasks', modelId: payload.modelId, error });
       await this.queueFileHandler.deleteQueueFile(payload.modelId);
       throw error;
     }

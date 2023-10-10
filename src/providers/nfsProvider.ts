@@ -21,7 +21,7 @@ export class NFSProvider implements Provider {
     try {
       await fs.access(modelPath);
     } catch (error) {
-      this.logger.error(error, modelPath);
+      this.logger.error({ msg: 'failed to access the folder', modelId, modelPath, error });
       throw new AppError(httpStatus.NOT_FOUND, `Model ${pathToTileset} doesn't exists in the agreed folder`, true);
     }
 
@@ -29,7 +29,7 @@ export class NFSProvider implements Provider {
 
     while (folders.length > 0) {
       const files = await fs.readdir(`${this.config.pvPath}/${folders[0]}`);
-      this.logger.debug({ msg: 'Listing folder', folder: folders[0], filesCount });
+      this.logger.debug({ msg: 'Listing folder', folder: folders[0], filesCount, modelId });
       for (const file of files) {
         const fileStats = await fs.stat(`${this.config.pvPath}/${folders[0]}/${file}`);
         if (fileStats.isDirectory()) {
@@ -39,7 +39,7 @@ export class NFSProvider implements Provider {
             await this.queueFileHandler.writeFileNameToQueueFile(modelId, `${folders[0]}/${file}`);
             filesCount++;
           } catch (error) {
-            this.logger.error({ msg: `Didn't write the file: '${folders[0]}/${file}' in FS.`, err: error });
+            this.logger.error({ msg: `Didn't write the file: '${folders[0]}/${file}' in FS.`, modelId, error });
             throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, 'problem with queueFileHandler', false);
           }
         }
@@ -48,7 +48,7 @@ export class NFSProvider implements Provider {
       folders.shift();
     }
 
-    this.logger.info({ msg: 'Finished listing the files', filesCount: filesCount, model: pathToTileset });
+    this.logger.info({ msg: 'Finished listing the files', filesCount: filesCount, modelPath: pathToTileset, modelId });
     return filesCount;
   }
 }
