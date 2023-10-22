@@ -45,7 +45,11 @@ export class IngestionController {
       await this.manager.createModel(payload, jobCreated.jobID);
     } catch (error) {
       if (error instanceof AppError) {
-        this.logger.error({ msg: `Failed in ingesting a new model! Reason: ${error.message}`, modelId: payload.modelId, modelName: payload.metadata.productName });
+        this.logger.error({
+          msg: `Failed in ingesting a new model! Reason: ${error.message}`,
+          modelId: payload.modelId,
+          modelName: payload.metadata.productName,
+        });
       }
       return next(error);
     }

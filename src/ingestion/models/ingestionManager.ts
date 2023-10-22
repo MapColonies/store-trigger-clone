@@ -37,14 +37,23 @@ export class IngestionManager {
   }
 
   public async createModel(payload: Payload, jobId: string): Promise<void> {
-    this.logger.info({ msg: 'Creating job for model', modelId: payload.modelId, modelName: payload.metadata.productName, provider: this.providerName });
+    this.logger.info({
+      msg: 'Creating job for model',
+      modelId: payload.modelId,
+      modelName: payload.metadata.productName,
+      provider: this.providerName,
+    });
 
     this.logger.debug({ msg: 'Starts writing content to queue file', modelId: payload.modelId, modelName: payload.metadata.productName });
     await this.queueFileHandler.createQueueFile(payload.modelId);
 
     try {
       const fileCount: number = await this.provider.streamModelPathsToQueueFile(payload.modelId, payload.pathToTileset);
-      this.logger.debug({ msg: 'Finished writing content to queue file. Creating Tasks', modelId: payload.modelId, modelName: payload.metadata.productName });
+      this.logger.debug({
+        msg: 'Finished writing content to queue file. Creating Tasks',
+        modelId: payload.modelId,
+        modelName: payload.metadata.productName,
+      });
 
       const tasks = this.createTasks(this.batchSize, payload.modelId);
       this.logger.info({ msg: 'Tasks created successfully', modelId: payload.modelId, modelName: payload.metadata.productName });
