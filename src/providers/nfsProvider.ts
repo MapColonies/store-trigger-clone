@@ -29,7 +29,7 @@ export class NFSProvider implements Provider {
 
     while (folders.length > 0) {
       const files = await fs.readdir(`${this.config.pvPath}/${folders[0]}`);
-      this.logger.debug({ msg: 'Listing folder', folder: folders[0], filesCount, modelId });
+      this.logger.debug({ msg: 'Listing folder', folder: folders[0], filesCount, modelId, modelPath });
       for (const file of files) {
         const fileStats = await fs.stat(`${this.config.pvPath}/${folders[0]}/${file}`);
         if (fileStats.isDirectory()) {
@@ -39,7 +39,7 @@ export class NFSProvider implements Provider {
             await this.queueFileHandler.writeFileNameToQueueFile(modelId, `${folders[0]}/${file}`);
             filesCount++;
           } catch (error) {
-            this.logger.error({ msg: `Didn't write the file: '${folders[0]}/${file}' in FS.`, modelId, error });
+            this.logger.error({ msg: `Didn't write the file: '${folders[0]}/${file}' in FS.`, modelId, modelPath, error });
             throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, 'problem with queueFileHandler', false);
           }
         }
@@ -48,7 +48,7 @@ export class NFSProvider implements Provider {
       folders.shift();
     }
 
-    this.logger.info({ msg: 'Finished listing the files', filesCount: filesCount, modelPath: pathToTileset, modelId });
+    this.logger.info({ msg: 'Finished listing the files', filesCount: filesCount, modelPath, modelId });
     return filesCount;
   }
 }

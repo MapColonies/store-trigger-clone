@@ -40,12 +40,16 @@ export class IngestionController {
     };
     try {
       const jobCreated = await this.manager.createJob(createJobRequest);
-      this.logger.debug({ msg: `Job created payload`, modelId: payload.modelId, payload });
+      this.logger.debug({ msg: `Job created payload`, modelId: payload.modelId, payload, modelName: payload.metadata.productName });
       res.status(httpStatus.CREATED).json(jobCreated);
       await this.manager.createModel(payload, jobCreated.jobID);
     } catch (error) {
       if (error instanceof AppError) {
-        this.logger.error({ msg: `Failed in ingesting a new model! Reason: ${error.message}` });
+        this.logger.error({
+          msg: `Failed in ingesting a new model! Reason: ${error.message}`,
+          modelId: payload.modelId,
+          modelName: payload.metadata.productName,
+        });
       }
       return next(error);
     }
