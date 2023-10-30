@@ -1,7 +1,7 @@
 import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { JobManagerClient } from '@map-colonies/mc-priority-queue';
 import { logMethod, Metrics } from '@map-colonies/telemetry';
-import { trace } from '@opentelemetry/api';
+import { Attributes, trace } from '@opentelemetry/api';
 import config from 'config';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
 import { SERVICES, SERVICE_NAME } from './common/constants';
@@ -24,7 +24,8 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
   const jobManagerBaseUrl = config.get<string>('jobManager.url');
   const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, hooks: { logMethod } });
 
-  const metrics = new Metrics(SERVICE_NAME);
+  const attributes: Attributes = { name: SERVICE_NAME };
+  const metrics = new Metrics(attributes);
   const meter = metrics.start();
 
   tracing.start();
