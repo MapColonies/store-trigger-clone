@@ -55,8 +55,9 @@ export const createBatch = (options?: RandomNumberOptions | undefined): number =
   return randNumber(options);
 };
 
-export const createFile = (isBlackFile = false): string => {
-  return isBlackFile ? `${randWord()}.zip` : `${randWord()}.txt`;
+export const createFile = (isBlackFile = false, isHasSubDir = false): string => {
+  const file = isHasSubDir ? `${randWord()}/${randWord()}` : randWord();
+  return isBlackFile ? `${file}.zip` : `${file}.txt`;
 };
 
 export const getTaskType = (): string => {

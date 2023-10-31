@@ -3,14 +3,14 @@ import os from 'os';
 import config from 'config';
 import { container } from 'tsyringe';
 import httpStatus from 'http-status-codes';
-import { randNumber, randUuid, randWord } from '@ngneat/falso';
+import { randUuid, randWord } from '@ngneat/falso';
 import jsLogger from '@map-colonies/js-logger';
 import { getApp } from '../../../src/app';
 import { NFSProvider } from '../../../src/providers/nfsProvider';
 import { SERVICES } from '../../../src/common/constants';
 import { NFSConfig } from '../../../src/common/interfaces';
 import { AppError } from '../../../src/common/appError';
-import { queueFileHandlerMock } from '../../helpers/mockCreator';
+import { createFile, queueFileHandlerMock } from '../../helpers/mockCreator';
 import { QueueFileHandler } from '../../../src/handlers/queueFileHandler';
 import { NFSHelper } from '../../helpers/nfsHelper';
 
@@ -49,8 +49,8 @@ describe('NFSProvider tests', () => {
       const pathToTileset = randWord();
       const modelName = randWord();
       let expected = '';
-      for (let i = 0; i < randNumber({ min: 1, max: 3 }); i++) {
-        const file = `${i}${randWord()}`;
+      for (let i = 0; i < 4; i++) {
+        const file = i === 3 ? `${i}${createFile(false, true)}` : `${i}${createFile()}`;
         await nfsHelper.createFileOfModel(pathToTileset, file);
         expected = `${expected}${pathToTileset}/${file}\n`;
       }
@@ -86,6 +86,8 @@ describe('NFSProvider tests', () => {
       const pathToTileset = randWord();
       const modelName = randWord();
       const modelId = randUuid();
+      const file = createFile();
+      await nfsHelper.createFileOfModel(pathToTileset, file);
       queueFileHandlerMock.writeFileNameToQueueFile.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, 'queueFileHandler', false));
 
       const result = async () => {

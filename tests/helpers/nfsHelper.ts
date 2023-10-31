@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import { randSentence } from '@ngneat/falso';
 import { NFSConfig } from '../../src/common/interfaces';
 
@@ -6,18 +7,19 @@ export class NFSHelper {
   public constructor(private readonly config: NFSConfig) {}
 
   public async createFileOfModel(modelName: string, file: string): Promise<string> {
-    const dirPath = `${this.config.pvPath}/${modelName}`;
+    const subFolders = path.dirname(file);
+    const fileName = path.basename(file);
+    const dirPath = `${this.config.pvPath}/${modelName}/${subFolders}`;
     if (!fs.existsSync(dirPath)) {
-      await this.createFolder(modelName);
+      await this.createFolder(dirPath);
     }
-    const filePath = `${dirPath}/${file}`;
     const data = randSentence();
-    await fs.promises.writeFile(filePath, data);
+    await fs.promises.writeFile(`${dirPath}/${fileName}`, data);
     return data;
   }
 
   public async createFolder(path: string): Promise<void> {
-    await fs.promises.mkdir(`${this.config.pvPath}/${path}`, { recursive: true });
+    await fs.promises.mkdir(path, { recursive: true });
   }
 
   public async readFile(path: string): Promise<Buffer> {

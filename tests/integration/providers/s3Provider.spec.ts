@@ -19,7 +19,6 @@ describe('S3Provider tests', () => {
 
   const queueFilePath = os.tmpdir();
   const s3Config = config.get<S3Config>('S3');
-  const modelId = randWord();
 
   beforeAll(async () => {
     getApp({
@@ -35,13 +34,8 @@ describe('S3Provider tests', () => {
     await s3Helper.createBucket();
   });
 
-  beforeEach(async () => {
-    await queueFileHandler.createQueueFile(modelId);
-  });
-
-  afterEach(async () => {
+  afterEach(() => {
     jest.clearAllMocks();
-    await queueFileHandler.deleteQueueFile(modelId);
   });
 
   afterAll(async () => {
@@ -52,6 +46,7 @@ describe('S3Provider tests', () => {
 
   describe('streamModelPathsToQueueFile', () => {
     it('returns all the files from S3', async () => {
+      const modelId = randWord();
       const modelName = randWord();
       const pathToTileset = randWord();
       const fileLength = randNumber({ min: 1, max: 5 });
@@ -61,6 +56,7 @@ describe('S3Provider tests', () => {
         await s3Helper.createFileOfModel(pathToTileset, file);
         expectedFiles.push(`${pathToTileset}/${file}`);
       }
+      await queueFileHandler.createQueueFile(modelId);
       await s3Helper.createFileOfModel(pathToTileset, 'subDir/file');
       expectedFiles.push(`${pathToTileset}/subDir/file`);
 
@@ -70,9 +66,12 @@ describe('S3Provider tests', () => {
       for (const file of expectedFiles) {
         expect(result).toContain(file);
       }
+      await queueFileHandler.deleteQueueFile(modelId);
     });
 
     it('returns error string when model is not in the agreed folder', async () => {
+      const modelId = randWord();
+      await queueFileHandler.createQueueFile(modelId);
       const modelName = randWord();
       const pathToTileset = randWord();
 
@@ -81,6 +80,7 @@ describe('S3Provider tests', () => {
       };
 
       await expect(result).rejects.toThrow(AppError);
+      await queueFileHandler.deleteQueueFile(modelId);
     });
   });
 });
