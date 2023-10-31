@@ -53,17 +53,18 @@ describe('S3Provider tests', () => {
   describe('streamModelPathsToQueueFile', () => {
     it('returns all the files from S3', async () => {
       const modelName = randWord();
+      const pathToTileset = randWord();
       const fileLength = randNumber({ min: 1, max: 5 });
       const expectedFiles: string[] = [];
       for (let i = 0; i < fileLength; i++) {
         const file = randWord();
-        await s3Helper.createFileOfModel(modelName, file);
-        expectedFiles.push(`${modelName}/${file}`);
+        await s3Helper.createFileOfModel(pathToTileset, file);
+        expectedFiles.push(`${pathToTileset}/${file}`);
       }
-      await s3Helper.createFileOfModel(modelName, 'subDir/file');
-      expectedFiles.push(`${modelName}/subDir/file`);
+      await s3Helper.createFileOfModel(pathToTileset, 'subDir/file');
+      expectedFiles.push(`${pathToTileset}/subDir/file`);
 
-      await provider.streamModelPathsToQueueFile(modelId, modelName);
+      await provider.streamModelPathsToQueueFile(modelId, pathToTileset, modelName);
       const result = fs.readFileSync(`${queueFilePath}/${modelId}`, 'utf-8');
 
       for (const file of expectedFiles) {
@@ -73,8 +74,13 @@ describe('S3Provider tests', () => {
 
     it('returns error string when model is not in the agreed folder', async () => {
       const modelName = randWord();
+      const pathToTileset = randWord();
 
-      await expect(provider.streamModelPathsToQueueFile(modelId, modelName)).rejects.toThrow(AppError);
+      const result = async () => {
+        await provider.streamModelPathsToQueueFile(modelId, pathToTileset, modelName);
+      };
+
+      await expect(result).rejects.toThrow(AppError);
     });
   });
 });

@@ -3,6 +3,7 @@ import os from 'os';
 import config from 'config';
 import { container } from 'tsyringe';
 import httpStatus from 'http-status-codes';
+import { randNumber, randUuid, randWord } from '@ngneat/falso';
 import jsLogger from '@map-colonies/js-logger';
 import { getApp } from '../../../src/app';
 import { NFSProvider } from '../../../src/providers/nfsProvider';
@@ -11,14 +12,14 @@ import { NFSConfig } from '../../../src/common/interfaces';
 import { AppError } from '../../../src/common/appError';
 import { queueFileHandlerMock } from '../../helpers/mockCreator';
 import { QueueFileHandler } from '../../../src/handlers/queueFileHandler';
+import { NFSHelper } from '../../helpers/nfsHelper';
 
 describe('NFSProvider tests', () => {
   let provider: NFSProvider;
   let queueFileHandler: QueueFileHandler;
-  const modelName = 'model1';
-  const modelId = 'someId';
   const queueFilePath = os.tmpdir();
   const nfsConfig = config.get<NFSConfig>('NFS');
+  let nfsHelper: NFSHelper;
 
   beforeAll(() => {
     getApp({
@@ -29,32 +30,45 @@ describe('NFSProvider tests', () => {
     });
     provider = container.resolve(NFSProvider);
     queueFileHandler = container.resolve(QueueFileHandler);
+    nfsHelper = new NFSHelper(nfsConfig);
   });
 
-  beforeEach(async () => {
-    await queueFileHandler.createQueueFile(modelId);
+  beforeEach(() => {
+    nfsHelper.initNFS();
   });
-
+  
   afterEach(async () => {
+    await nfsHelper.cleanNFS();
     jest.clearAllMocks();
-    await queueFileHandler.deleteQueueFile(modelId);
   });
 
   describe('streamModelPathsToQueueFile Function', () => {
-    it('if the model exists in the agreed folder, returns all the file paths of the model', async () => {
-      const expected = `${modelName}/b.txt\n${modelName}/folder/a.txt\n`;
+    it('if model exists in the agreed folder, returns all the file paths of the model', async () => {
+      const modelId = randUuid();
+      await queueFileHandler.createQueueFile(modelId);
+      const pathToTileset = randWord();
+      const modelName = randWord();
+      let expected = '';
+      for (let i = 0; i < randNumber({min: 1, max: 3}); i++) {
+        const file = `${i}${randWord()}`;
+        await nfsHelper.createFileOfModel(pathToTileset, file);
+        expected = `${expected}${pathToTileset}/${file}\n`;
+      }
 
-      await provider.streamModelPathsToQueueFile(modelId, modelName);
+      await provider.streamModelPathsToQueueFile(modelId, pathToTileset, modelName);
       const result = fs.readFileSync(`${queueFilePath}/${modelId}`, 'utf-8');
-
+      
       expect(result).toStrictEqual(expected);
+      await queueFileHandler.deleteQueueFile(modelId);
     });
 
-    it('if the model does not exists in the agreed folder, throws error', async () => {
-      const modelName = 'bla';
+    it('if model does not exists in the agreed folder, throws error', async () => {
+      const pathToTileset = randWord();
+      const modelName = randWord();
+      const modelId = randUuid();
 
       const result = async () => {
-        await provider.streamModelPathsToQueueFile(modelId, modelName);
+        await provider.streamModelPathsToQueueFile(modelId, pathToTileset, modelName);
       };
 
       await expect(result).rejects.toThrow(AppError);
@@ -69,11 +83,13 @@ describe('NFSProvider tests', () => {
         ],
       });
       provider = container.resolve(NFSProvider);
-
+      const pathToTileset = randWord();
+      const modelName = randWord();
+      const modelId = randUuid();
       queueFileHandlerMock.writeFileNameToQueueFile.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, 'queueFileHandler', false));
 
       const result = async () => {
-        await provider.streamModelPathsToQueueFile(modelId, modelName);
+        await provider.streamModelPathsToQueueFile(modelId, pathToTileset, modelName);
       };
 
       await expect(result).rejects.toThrow(AppError);
