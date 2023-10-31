@@ -36,7 +36,7 @@ describe('NFSProvider tests', () => {
   beforeEach(() => {
     nfsHelper.initNFS();
   });
-  
+
   afterEach(async () => {
     await nfsHelper.cleanNFS();
     jest.clearAllMocks();
@@ -49,7 +49,7 @@ describe('NFSProvider tests', () => {
       const pathToTileset = randWord();
       const modelName = randWord();
       let expected = '';
-      for (let i = 0; i < randNumber({min: 1, max: 3}); i++) {
+      for (let i = 0; i < randNumber({ min: 1, max: 3 }); i++) {
         const file = `${i}${randWord()}`;
         await nfsHelper.createFileOfModel(pathToTileset, file);
         expected = `${expected}${pathToTileset}/${file}\n`;
@@ -57,7 +57,7 @@ describe('NFSProvider tests', () => {
 
       await provider.streamModelPathsToQueueFile(modelId, pathToTileset, modelName);
       const result = fs.readFileSync(`${queueFilePath}/${modelId}`, 'utf-8');
-      
+
       expect(result).toStrictEqual(expected);
       await queueFileHandler.deleteQueueFile(modelId);
     });

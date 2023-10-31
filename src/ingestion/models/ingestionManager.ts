@@ -48,8 +48,12 @@ export class IngestionManager {
     await this.queueFileHandler.createQueueFile(payload.modelId);
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const fileCount: number = await this.provider.streamModelPathsToQueueFile(payload.modelId, payload.pathToTileset, payload.metadata.productName!);
+      const fileCount: number = await this.provider.streamModelPathsToQueueFile(
+        payload.modelId,
+        payload.pathToTileset,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        payload.metadata.productName!
+      );
       this.logger.debug({
         msg: 'Finished writing content to queue file. Creating Tasks',
         modelId: payload.modelId,
