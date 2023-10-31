@@ -31,23 +31,21 @@ export class S3Provider implements Provider {
     this.filesCount = 0;
   }
 
-  public async streamModelPathsToQueueFile(modelId: string, model: string): Promise<number> {
-    const modelName = model + '/';
-
+  public async streamModelPathsToQueueFile(modelId: string, pathToTileset: string, modelName: string): Promise<number> {
     /* eslint-disable @typescript-eslint/naming-convention */
     const params: ListObjectsRequest = {
       Bucket: this.s3Config.bucket,
       Delimiter: '/',
-      Prefix: modelName,
+      Prefix: pathToTileset + '/',
     };
 
     await this.listS3Recursively(modelId, params);
 
     if (await this.queueFileHandler.checkIfTempFileEmpty(modelId)) {
-      throw new AppError(httpStatus.NOT_FOUND, `Model ${model} doesn't exists in bucket ${this.s3Config.bucket}!`, true);
+      throw new AppError(httpStatus.NOT_FOUND, `Model ${modelName} doesn't exists in bucket ${this.s3Config.bucket}! Path: ${pathToTileset}`, true);
     }
 
-    this.logger.info({ msg: 'Finished listing the files', filesCount: this.filesCount, modelName: model, modelId });
+    this.logger.info({ msg: 'Finished listing the files', filesCount: this.filesCount, modelName, modelId });
     const lastFileCount = this.filesCount;
     this.filesCount = 0;
 

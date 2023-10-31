@@ -33,7 +33,7 @@ export interface Payload {
 }
 
 export interface Provider {
-  streamModelPathsToQueueFile: (modelId: string, pathToTileset: string) => Promise<number>;
+  streamModelPathsToQueueFile: (modelId: string, pathToTileset: string, productName: string) => Promise<number>;
 }
 
 export interface JobParameters {
