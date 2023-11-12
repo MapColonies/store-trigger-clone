@@ -163,6 +163,8 @@ components:
       minItems: 2
       items:
         type: number
+        minimum: -180
+        maximum: 180
     Point:
       type: object
       description: GeoJSon geometry
@@ -247,7 +249,12 @@ components:
         propertyName: type
       type: object
       anyOf:
+        - $ref: '#/components/schemas/Point'
+        - $ref: '#/components/schemas/LineString'
         - $ref: '#/components/schemas/Polygon'
+        - $ref: '#/components/schemas/MultiPoint'
+        - $ref: '#/components/schemas/MultiLineString'
+        - $ref: '#/components/schemas/MultiPolygon'
     ingestion-payload:
       type: object
       description: 3d tiles ingestion payload
@@ -289,7 +296,7 @@ components:
           example: 3DPhotoRealistic
         description:
           type: string
-          maxLength: 250
+          maxLength: 500
           nullable: true
           description: description and comments
         creationDate:
@@ -395,7 +402,6 @@ components:
         classification:
           type: string
           example: '5'
-          pattern: ^[0-9]$
           description: Classification of the product
         productionSystem:
           type: string
