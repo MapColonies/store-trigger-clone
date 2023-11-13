@@ -1,11 +1,6 @@
 module.exports = {
   transform: {
-    '^.+\\.ts$': [
-      'ts-jest',
-      {
-        tsconfig: 'tsconfig.test.json',
-      },
-    ],
+    '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.test.json' }],
   },
   testMatch: ['<rootDir>/tests/unit/**/*.spec.ts'],
   coverageReporters: ['text', 'html'],
@@ -34,6 +29,7 @@ module.exports = {
       branches: 10,
       functions: 70,
       lines: 60,
+      statements: -10,
     },
   },
 };
