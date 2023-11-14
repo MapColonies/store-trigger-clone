@@ -20,7 +20,7 @@ export class JobStatusController {
     try {
       const jobStatus = await this.manager.checkStatus(jobID);
       return res.status(httpStatus.OK).json(jobStatus);
-    } catch (error: unknown) {
+    } catch (error) {
       next(error);
     }
   };
