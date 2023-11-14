@@ -6,11 +6,10 @@ import { container } from 'tsyringe';
 import { getApp } from '../../../../src/app';
 import { AppError } from '../../../../src/common/appError';
 import { SERVICES } from '../../../../src/common/constants';
-import { CreateJobBody, IngestionResponse, Payload } from '../../../../src/common/interfaces';
+import { IngestionResponse, Payload } from '../../../../src/common/interfaces';
 import { IngestionManager } from '../../../../src/ingestion/models/ingestionManager';
 import {
   configProviderMock,
-  createJobPayload,
   createPayload,
   createUuid,
   jobManagerClientMock,
@@ -21,12 +20,10 @@ import {
 
 let ingestionManager: IngestionManager;
 let payload: Payload;
-let jobPayload: CreateJobBody;
 
 describe('ingestionManager', () => {
   beforeEach(() => {
     payload = createPayload('model');
-    jobPayload = createJobPayload(payload);
 
     getApp({
       override: [
@@ -53,7 +50,7 @@ describe('ingestionManager', () => {
       };
       jobManagerClientMock.createJob.mockResolvedValue({ id: '1234', status: OperationStatus.PENDING });
       // Act
-      const modelResponse = await ingestionManager.createJob(jobPayload);
+      const modelResponse = await ingestionManager.createJob(payload);
       //Assert
       expect(modelResponse).toMatchObject(response);
     });
@@ -62,7 +59,7 @@ describe('ingestionManager', () => {
       // Arrange
       jobManagerClientMock.createJob.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
       // Act && Assert
-      await expect(ingestionManager.createJob(jobPayload)).rejects.toThrow(AppError);
+      await expect(ingestionManager.createJob(payload)).rejects.toThrow(AppError);
     });
   });
 
