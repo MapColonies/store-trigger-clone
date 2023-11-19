@@ -17,7 +17,7 @@ export class IngestionController {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(IngestionManager) private readonly manager: IngestionManager,
-    @inject(SERVICES.METER) private readonly meter: Meter,
+    @inject(SERVICES.METER) private readonly meter: Meter
   ) {
     this.createdResourceCounter = meter.createCounter('created_resource');
   }

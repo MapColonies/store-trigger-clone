@@ -44,7 +44,7 @@ export class IngestionManager {
       status: OperationStatus.PENDING,
       domain: '3D',
     };
-    
+
     const jobResponse = await this.jobManagerClient.createJob<JobParameters, TaskParameters>(job);
 
     const res: IngestionResponse = {
