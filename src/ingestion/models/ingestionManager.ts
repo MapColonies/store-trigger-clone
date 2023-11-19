@@ -1,7 +1,7 @@
 import { Logger } from '@map-colonies/js-logger';
 import { ICreateTaskBody, JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
 import { inject, injectable } from 'tsyringe';
-import { SERVICES } from '../../common/constants';
+import { JOB_TYPE, SERVICES } from '../../common/constants';
 import { CreateJobBody, IConfig, IngestionResponse, JobParameters, Provider, TaskParameters, Payload } from '../../common/interfaces';
 import { QueueFileHandler } from '../../handlers/queueFileHandler';
 
@@ -25,7 +25,26 @@ export class IngestionManager {
     this.maxConcurrency = this.config.get<number>('maxConcurrency');
   }
 
-  public async createJob(job: CreateJobBody): Promise<IngestionResponse> {
+  public async createJob(payload: Payload): Promise<IngestionResponse> {
+    const job: CreateJobBody = {
+      resourceId: payload.modelId,
+      version: '1',
+      type: JOB_TYPE,
+      parameters: {
+        metadata: payload.metadata,
+        modelId: payload.modelId,
+        tilesetFilename: payload.tilesetFilename,
+        filesCount: 0,
+        pathToTileset: payload.pathToTileset,
+      },
+      productType: payload.metadata.productType,
+      productName: payload.metadata.productName,
+      percentage: 0,
+      producerName: payload.metadata.producerName,
+      status: OperationStatus.PENDING,
+      domain: '3D',
+    };
+
     const jobResponse = await this.jobManagerClient.createJob<JobParameters, TaskParameters>(job);
 
     const res: IngestionResponse = {

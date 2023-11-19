@@ -14,21 +14,9 @@ export interface OpenApiConfig {
 }
 
 export interface Payload {
-  /**
-   * Ingestion model unique identifier
-   */
   modelId: string;
-  /**
-   * path to tileset
-   */
   pathToTileset: string;
-  /**
-   * Model tileset filename
-   */
   tilesetFilename: string;
-  /**
-   * Metadata
-   */
   metadata: Layer3DMetadata;
 }
 

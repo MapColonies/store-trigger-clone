@@ -1,48 +1,35 @@
 import { Logger } from '@map-colonies/js-logger';
-import { OperationStatus } from '@map-colonies/mc-priority-queue';
+import { BoundCounter, Meter } from '@opentelemetry/api-metrics';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { inject, injectable } from 'tsyringe';
 import { AppError } from '../../common/appError';
-import { JOB_TYPE, SERVICES } from '../../common/constants';
-import { CreateJobBody, IngestionResponse, Payload } from '../../common/interfaces';
+import { SERVICES } from '../../common/constants';
+import { IngestionResponse, Payload } from '../../common/interfaces';
 import { IngestionManager } from '../models/ingestionManager';
 
 type CreateResourceHandler = RequestHandler<undefined, IngestionResponse, Payload>;
 
 @injectable()
 export class IngestionController {
+  private readonly createdResourceCounter: BoundCounter;
+
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(IngestionManager) private readonly manager: IngestionManager
-  ) {}
+    @inject(IngestionManager) private readonly manager: IngestionManager,
+    @inject(SERVICES.METER) private readonly meter: Meter
+  ) {
+    this.createdResourceCounter = meter.createCounter('created_resource');
+  }
 
   public create: CreateResourceHandler = async (req, res, next) => {
     const payload: Payload = req.body;
-
-    const createJobRequest: CreateJobBody = {
-      resourceId: payload.modelId,
-      version: '1',
-      type: JOB_TYPE,
-      parameters: {
-        metadata: payload.metadata,
-        modelId: payload.modelId,
-        tilesetFilename: payload.tilesetFilename,
-        filesCount: 0,
-        pathToTileset: payload.pathToTileset,
-      },
-      productType: payload.metadata.productType,
-      productName: payload.metadata.productName,
-      percentage: 0,
-      producerName: payload.metadata.producerName,
-      status: OperationStatus.PENDING,
-      domain: '3D',
-    };
     try {
-      const jobCreated = await this.manager.createJob(createJobRequest);
+      const jobCreated = await this.manager.createJob(payload);
       this.logger.debug({ msg: `Job created payload`, modelId: payload.modelId, payload, modelName: payload.metadata.productName });
       res.status(httpStatus.CREATED).json(jobCreated);
       await this.manager.createModel(payload, jobCreated.jobID);
+      this.createdResourceCounter.add(1);
     } catch (error) {
       if (error instanceof AppError) {
         this.logger.error({
