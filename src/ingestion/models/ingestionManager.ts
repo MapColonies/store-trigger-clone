@@ -70,7 +70,6 @@ export class IngestionManager {
       const fileCount: number = await this.provider.streamModelPathsToQueueFile(
         payload.modelId,
         payload.pathToTileset,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         payload.metadata.productName!
       );
       this.logger.debug({
