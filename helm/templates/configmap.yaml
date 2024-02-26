@@ -1,0 +1,22 @@
+{{- $chartName := include "store-trigger.name" . -}}
+{{- $tracingUrl := include "store-trigger.tracingUrl" . -}}
+{{- $metricsUrl := include "store-trigger.metricsUrl" . -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-{{ $chartName }}-configmap
+data:
+  LOG_LEVEL: {{ .Values.env.logLevel | quote }}
+  REQUEST_PAYLOAD_LIMIT: {{ .Values.env.requestPayloadLimit | quote }}
+  RESPONSE_COMPRESSION_ENABLED: {{ .Values.env.responseCompressionEnabled | quote }}
+  LOG_PRETTY_PRINT_ENABLED: {{ .Values.env.logPrettyPrintEnabled | quote }}
+  {{ if .Values.env.tracing.enabled }}
+  TELEMETRY_TRACING_ENABLED: 'true'
+  TELEMETRY_TRACING_URL: {{ $tracingUrl }}
+  {{ end }}
+  {{ if .Values.env.metrics.enabled }}
+  TELEMETRY_METRICS_ENABLED: 'true'
+  TELEMETRY_METRICS_URL: {{ $metricsUrl }}
+  {{ end }}
+  BLACK_LIST: {{ .Values.env.blackList | quote }}
+  MAX_CONCURRENCY: {{ .Values.env.maxConcurrency | quote }}
