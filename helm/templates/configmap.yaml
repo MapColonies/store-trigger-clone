@@ -20,3 +20,29 @@ data:
   {{ end }}
   BLACK_LIST: {{ .Values.env.blackList | quote }}
   MAX_CONCURRENCY: {{ .Values.env.maxConcurrency | quote }}
+  {{- $providers := (include "common.providers.merged" . ) | fromYaml }}
+  {{ if eq $providers.source "S3" }}
+  {{- $S3 := (include "common.S3.merged" . ) | fromYaml }}
+  S3_SOURCE_ACCESS_KEY_ID: {{ $S3.accessKey | quote }}
+  S3_SOURCE_SECRET_ACCESS_KEY: {{ $S3.secretAccessKey | quote }}
+  S3_SOURCE_END_POINT_URL: "{{ $S3.serverProto }}://{{ $S3.server }}:{{ $S3.serverPort }}"
+  S3_SOURCE_BUCKET: {{ $S3.bucket | quote }}
+  S3_SOURCE_REGION: {{ $S3.region | quote }}
+  S3_SOURCE_FORCE_PATH_STYLE: {{ eq $S3.style "path" | ternary "true" "false" }}
+  S3_SOURCE_SSL_ENABLED: {{ $S3.sslEnabled | quote }}
+  S3_SOURCE_MAX_ATTEMPTS: {{ $S3.maxAttempts | quote }}
+  S3_SOURCE_SIG_VERSION: v{{ $S3.sigVersion }}
+  {{ end }}
+  {{ if eq $providers.source "NFS" }}
+  {{- $NFS := (include "common.NFS.merged" . ) | fromYaml }}
+  PV_SOURCE_PATH: {{ $NFS.source.pv_path | quote }}
+  {{ end }}
+  PROVIDER_FROM: {{ $providers.source | quote }}
+  {{- $jobManager := (include "common.job-manager.merged" . ) | fromYaml }}
+  JOB_MANAGER_URL: {{ $jobManager.url | quote }}
+  {{- $job := (include "common.job.merged" . ) | fromYaml }}
+  JOB_TYPE: {{ $job.type | quote }}
+  {{- $task := (include "common.task.merged" . ) | fromYaml }}
+  TASK_BATCHES: {{ $task.batches | quote}}
+  TASK_TYPE: {{ $task.type | quote }}
+

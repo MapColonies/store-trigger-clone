@@ -1,0 +1,194 @@
+global:
+  S3:
+    source:
+      accessKey: vector
+      secretAccessKey: vectorPassword
+      server: 10.8.0.9
+      serverPort: 9000
+      serverProto: http
+      bucket: 3dtiles
+      region: "ui-east-1"
+      style: path
+      sslEnabled: false
+      maxAttempts: 3
+      sigVersion: 4
+  ingestion:
+    providers:
+      source: NFS
+      destination: S3 
+    NFS:  
+      source:
+        name: 3d-pvc-source
+        pv_path: /Source3DModels
+        sub_path: ''
+      # destination:
+      #   name: 3d-pvc-dest
+      #   pv_path: /Destination3DModels
+      #   sub_path: ''
+    splunk:
+      enabled: false
+      annotations:
+        collectord.io/index: SPLUNK_INDEX
+        collectord.io/logs-output: splunk
+
+    job:
+      type: Ingestion_New_3D
+    task:
+      type: tilesCopying
+      batches: 1000
+      maxAttempts: 3
+    jobManager:
+      url: http://common-job-manager
+
+  filebeat:
+    enabled: false
+    image: docker.elastic.co/beats/filebeat:7.12.1
+    mountPath: /usr/src/app/logs
+    pycsw:
+      mountPath: /var/log/pycsw
+      logFile: pycsw.log
+    nginxS3Gateway: 
+      mountPath: /var/log/nginx
+    elastic:
+      host: 10.8.0.8
+      port: 9200
+      protocol: http
+      username: 
+      password:
+      index: 3d-np
+      sslEnabled: false
+    kibana:
+      host: 10.8.0.8:5601
+
+  ca:
+    enabled: false
+    useExternal: true
+    secretName: "root-ca"
+    path: "/usr/local/share/ca-certificates"
+    key: "ca.crt"
+
+S3:
+  source:
+    accessKey: vector
+    secretAccessKey: vectorPassword
+    server: 10.8.0.9
+    serverPort: 9000
+    serverProto: http
+    bucket: 3dtiles
+    region: "ui-east-1"
+    style: path
+    sslEnabled: false
+    maxAttempts: 3
+    sigVersion: 4
+
+ingestion:
+    providers:
+      source: NFS
+      destination: S3
+
+    NFS:  
+      source:
+        name: ''
+        pv_path: {}
+        sub_path: ''
+      # destination:
+      #   name: 3d-pvc-dest
+      #   pv_path: /Destination3DModels
+      #   sub_path: ''
+
+    splunk:
+      enabled: true
+      annotations:
+        collectord.io/index: ''
+        collectord.io/logs-output: ''
+
+    job:
+      type: Ingestion_New_3D
+    task:
+      type: tilesCopying
+      batches: 1000
+      maxAttempts: 3
+    jobManager:
+      url: http://common-job-manager
+
+filebeat:
+  enabled: true
+  image: docker.elastic.co/beats/filebeat:7.12.1
+  mountPath: ''
+  pycsw:
+    mountPath: ''
+    logFile: ''
+  nginxS3Gateway: 
+    mountPath: ''
+  elastic:
+    host: 10.8.0.8
+    port: 9200
+    protocol: http
+    username: 
+    password:
+    index: ''
+    sslEnabled: false
+  kibana:
+    host: 
+
+sidecars:
+  filebeat:
+    name: filebeat
+    image: docker.elastic.co/beats/filebeat:7.12.1
+    args: [ "-c", "/etc/filebeat.yml", "-e" ]
+    volumeMounts:
+      - name: ''
+        mountPath: ''
+      - name: ''
+        mountPath: ''
+        subPath: ''
+      
+ca:
+    enabled: false
+    useExternal: true
+    secretName: ''
+    path: ''
+    key: ''
+
+
+replicaCount: 1
+initialDelaySeconds: 60
+nodePort: 30030
+image:
+  repository: store-trigger
+  tag: ''
+env:
+  timeout: 6000
+  port: 80
+  targetPort: 8080
+  protocol: TCP
+  logLevel: info
+  logPrettyPrintEnabled: false
+  responseCompressionEnabled: true
+  requestPayloadLimit: 10mb
+  tracing:
+    enabled: false
+    url: 'http://localhost:55681/v1/trace'
+  metrics:
+    enabled: false
+    url: 'http://localhost:55681/v1/metrics'
+  blackList: ["tar", "zip", "rar", "7z"]
+  maxConcurrency: 5
+resources:
+  enabled: true
+  value:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+route:
+  enabled: false
+  path: /
+  https: true
+  host:
+  useCert: false
+  timeout:
+    enabled: false # defaults to 30s by openshift
+    duration: 60s # supported units (us, ms, s, m, h, d)
