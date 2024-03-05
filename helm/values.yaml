@@ -112,7 +112,7 @@ ingestion:
       url: http://common-job-manager
 
 filebeat:
-  enabled: true
+  enabled: false
   image: docker.elastic.co/beats/filebeat:7.12.1
   mountPath: ''
   pycsw:
