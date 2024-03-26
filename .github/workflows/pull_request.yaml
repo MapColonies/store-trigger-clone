@@ -8,3 +8,5 @@ jobs:
     secrets: inherit
     with:
       openApiFilePath: 'bundledApi.yaml'
+      enableOpenApiCheck: true
+
