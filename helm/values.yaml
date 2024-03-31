@@ -4,7 +4,7 @@ global:
       accessKey: ''
       secretAccessKey: ''
       server: ''
-      serverPort: 9000
+      serverPort: 
       serverProto: ''
       bucket: ''
       region: ''
@@ -35,8 +35,8 @@ global:
       type: ''
     task:
       type: ''
-      batches: 1000
-      maxAttempts: 3
+      batches: 
+      maxAttempts: 
     jobManager:
       url: ''
 
@@ -52,7 +52,7 @@ S3:
     accessKey: ''
     secretAccessKey: ''
     server: ''
-    serverPort: 9000
+    serverPort: 
     serverProto: ''
     bucket: ''
     region: ''
@@ -86,8 +86,8 @@ ingestion:
       type: ''
     task:
       type: ''
-      batches: 1000
-      maxAttempts: 3
+      batches: 
+      maxAttempts: 
     jobManager:
       url: ''
       
@@ -133,7 +133,7 @@ env:
   blackList: ["tar", "zip", "rar", "7z"]
   maxConcurrency: 5
 resources:
-  enabled: true
+  enabled: false
   value:
     limits:
       cpu: 100m
@@ -144,7 +144,7 @@ resources:
 route:
   enabled: false
   path: ''
-  https: true
+  https: false
   host:
   useCert: false
   timeout:
