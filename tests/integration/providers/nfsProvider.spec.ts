@@ -33,7 +33,7 @@ describe('NFSProvider tests', () => {
     queueFileHandler = container.resolve(QueueFileHandler);
     nfsHelper = new NFSHelper(nfsConfig);
   });
-  
+
   afterAll(function () {
     register.clear();
   });
