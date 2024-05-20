@@ -2,7 +2,6 @@ import jsLogger from '@map-colonies/js-logger';
 import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import httpStatusCodes from 'http-status-codes';
 import { container } from 'tsyringe';
-import { register } from 'prom-client';
 import { getApp } from '../../../../src/app';
 import { SERVICES } from '../../../../src/common/constants';
 import { Provider } from '../../../../src/common/interfaces';
@@ -39,7 +38,6 @@ describe('IngestionController on S3', function () {
   afterAll(function () {
     container.reset();
     jest.restoreAllMocks();
-    register.clear();
   });
 
   describe('POST /ingestion', function () {
@@ -98,7 +96,6 @@ describe('IngestionController on NFS', function () {
   afterAll(function () {
     container.reset();
     jest.restoreAllMocks();
-    register.clear();
   });
 
   describe('POST /ingestion', function () {

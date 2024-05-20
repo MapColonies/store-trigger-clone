@@ -3,7 +3,6 @@ import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import { randNumber } from '@ngneat/falso';
 import httpStatus from 'http-status-codes';
 import { container } from 'tsyringe';
-import { register } from 'prom-client';
 import { getApp } from '../../../../src/app';
 import { AppError } from '../../../../src/common/appError';
 import { SERVICES } from '../../../../src/common/constants';
@@ -32,7 +31,7 @@ describe('ingestionManager', () => {
         { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
         { token: SERVICES.PROVIDER, provider: { useValue: configProviderMock } },
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
-      ],
+  ],
     });
 
     ingestionManager = container.resolve(IngestionManager);
@@ -40,7 +39,6 @@ describe('ingestionManager', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-    register.clear();
   });
 
   describe('createJob Service', () => {
