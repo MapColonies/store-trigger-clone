@@ -3,6 +3,7 @@ import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import { randNumber } from '@ngneat/falso';
 import httpStatus from 'http-status-codes';
 import { container } from 'tsyringe';
+import { register } from 'prom-client';
 import { getApp } from '../../../../src/app';
 import { AppError } from '../../../../src/common/appError';
 import { SERVICES } from '../../../../src/common/constants';
@@ -39,6 +40,7 @@ describe('ingestionManager', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    register.clear();
   });
 
   describe('createJob Service', () => {

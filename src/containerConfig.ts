@@ -1,8 +1,10 @@
 import config from 'config';
-import { getOtelMixin, Metrics } from '@map-colonies/telemetry';
-import { trace, metrics as OtelMetrics } from '@opentelemetry/api';
+import { getOtelMixin } from '@map-colonies/telemetry';
+import { trace } from '@opentelemetry/api';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
+import { instanceCachingFactory } from 'tsyringe';
 import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
+import client from 'prom-client';
 import { JobManagerClient } from '@map-colonies/mc-priority-queue';
 import { SERVICES, SERVICE_NAME } from './common/constants';
 import { Provider, ProviderConfig } from './common/interfaces';
@@ -12,6 +14,7 @@ import { InjectionObject, registerDependencies } from './common/dependencyRegist
 import { jobStatusRouterFactory, JOB_STATUS_ROUTER_SYMBOL } from './jobStatus/routes/jobStatusRouter';
 import { QueueFileHandler } from './handlers/queueFileHandler';
 import { getProvider, getProviderConfig } from './providers/getProvider';
+import { IConfig } from './common/interfaces';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -24,9 +27,6 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
   const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
   const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, mixin: getOtelMixin() });
 
-  const metrics = new Metrics();
-  metrics.start();
-
   tracing.start();
   const tracer = trace.getTracer(SERVICE_NAME);
 
@@ -34,7 +34,6 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
     { token: SERVICES.CONFIG, provider: { useValue: config } },
     { token: SERVICES.LOGGER, provider: { useValue: logger } },
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
-    { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeterProvider().getMeter(SERVICE_NAME) } },
     {
       token: SERVICES.JOB_MANAGER_CLIENT,
       provider: {
@@ -45,6 +44,21 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
     },
     { token: INGESTION_ROUTER_SYMBOL, provider: { useFactory: ingestionRouterFactory } },
     { token: JOB_STATUS_ROUTER_SYMBOL, provider: { useFactory: jobStatusRouterFactory } },
+    {
+      token: SERVICES.METRICS_REGISTRY,
+      provider: {
+        useFactory: instanceCachingFactory((container) => {
+          const config = container.resolve<IConfig>(SERVICES.CONFIG);
+
+          if (config.get<boolean>('telemetry.metrics.enabled')) {
+            client.register.setDefaultLabels({
+              app: SERVICE_NAME,
+            });
+            return client.register;
+          }
+        }),
+      },
+    },
     {
       token: SERVICES.PROVIDER_CONFIG,
       provider: {
@@ -67,7 +81,7 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
       provider: {
         useValue: {
           useValue: async (): Promise<void> => {
-            await Promise.all([tracing.stop(), metrics.stop()]);
+            await Promise.all([tracing.stop()]);
           },
         },
       },
