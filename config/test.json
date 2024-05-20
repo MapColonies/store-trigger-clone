@@ -1,4 +1,9 @@
 {
+  "telemetry": {
+    "metrics": {
+      "enabled": false
+    }
+  },
   "S3": {
     "accessKeyId": "minioadmin",
     "secretAccessKey": "minioadmin",
