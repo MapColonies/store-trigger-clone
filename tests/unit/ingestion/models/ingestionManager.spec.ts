@@ -31,7 +31,7 @@ describe('ingestionManager', () => {
         { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
         { token: SERVICES.PROVIDER, provider: { useValue: configProviderMock } },
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
-  ],
+      ],
     });
 
     ingestionManager = container.resolve(IngestionManager);
