@@ -5,6 +5,7 @@ import { container } from 'tsyringe';
 import httpStatus from 'http-status-codes';
 import { randUuid, randWord } from '@ngneat/falso';
 import jsLogger from '@map-colonies/js-logger';
+import { register } from 'prom-client';
 import { getApp } from '../../../src/app';
 import { NFSProvider } from '../../../src/providers/nfsProvider';
 import { SERVICES } from '../../../src/common/constants';
@@ -22,6 +23,7 @@ describe('NFSProvider tests', () => {
   let nfsHelper: NFSHelper;
 
   beforeAll(() => {
+    register.clear();
     getApp({
       override: [
         { token: SERVICES.PROVIDER_CONFIG, provider: { useValue: nfsConfig } },
@@ -75,7 +77,8 @@ describe('NFSProvider tests', () => {
     });
 
     it('if queue file handler does not work, throws error', async () => {
-      getApp({
+    register.clear();
+    getApp({
         override: [
           { token: SERVICES.PROVIDER_CONFIG, provider: { useValue: nfsConfig } },
           { token: SERVICES.QUEUE_FILE_HANDLER, provider: { useValue: queueFileHandlerMock } },

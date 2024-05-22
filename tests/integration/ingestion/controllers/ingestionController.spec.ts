@@ -2,6 +2,7 @@ import jsLogger from '@map-colonies/js-logger';
 import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import httpStatusCodes from 'http-status-codes';
 import { container } from 'tsyringe';
+import { register } from 'prom-client';
 import { getApp } from '../../../../src/app';
 import { SERVICES } from '../../../../src/common/constants';
 import { Provider } from '../../../../src/common/interfaces';
@@ -17,6 +18,7 @@ describe('IngestionController on S3', function () {
   };
 
   beforeAll(() => {
+    register.clear();
     const app = getApp({
       override: [
         { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
@@ -75,6 +77,7 @@ describe('IngestionController on NFS', function () {
   };
 
   beforeAll(() => {
+    register.clear();
     const app = getApp({
       override: [
         { token: SERVICES.JOB_MANAGER_CLIENT, provider: { useValue: jobManagerClientMock } },
