@@ -20,7 +20,7 @@ describe('jobStatusController', function () {
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
       ],
     });
-
+    
     requestSender = new JobStatusRequestSender(app);
   });
 

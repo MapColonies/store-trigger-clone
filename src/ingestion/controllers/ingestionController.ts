@@ -1,5 +1,4 @@
 import { Logger } from '@map-colonies/js-logger';
-import { BoundCounter, Meter } from '@opentelemetry/api-metrics';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { inject, injectable } from 'tsyringe';
@@ -12,15 +11,10 @@ type CreateResourceHandler = RequestHandler<undefined, IngestionResponse, Payloa
 
 @injectable()
 export class IngestionController {
-  private readonly createdResourceCounter: BoundCounter;
-
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(IngestionManager) private readonly manager: IngestionManager,
-    @inject(SERVICES.METER) private readonly meter: Meter
-  ) {
-    this.createdResourceCounter = meter.createCounter('created_resource');
-  }
+    @inject(IngestionManager) private readonly manager: IngestionManager
+  ) {}
 
   public create: CreateResourceHandler = async (req, res, next) => {
     const payload: Payload = req.body;
@@ -29,7 +23,6 @@ export class IngestionController {
       this.logger.debug({ msg: `Job created payload`, modelId: payload.modelId, payload, modelName: payload.metadata.productName });
       res.status(httpStatus.CREATED).json(jobCreated);
       await this.manager.createModel(payload, jobCreated.jobID);
-      this.createdResourceCounter.add(1);
     } catch (error) {
       if (error instanceof AppError) {
         this.logger.error({

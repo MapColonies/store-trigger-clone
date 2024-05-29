@@ -1,12 +1,16 @@
 import { Logger } from '@map-colonies/js-logger';
 import { ICreateTaskBody, JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
 import { inject, injectable } from 'tsyringe';
+import client from 'prom-client';
 import { JOB_TYPE, SERVICES } from '../../common/constants';
 import { CreateJobBody, IConfig, IngestionResponse, JobParameters, Provider, TaskParameters, Payload } from '../../common/interfaces';
 import { QueueFileHandler } from '../../handlers/queueFileHandler';
 
 @injectable()
 export class IngestionManager {
+  //metrics
+  private readonly jobsHistogram?: client.Histogram<'type'>;
+
   private readonly providerName: string;
   private readonly taskType: string;
   private readonly batchSize: number;
@@ -17,8 +21,19 @@ export class IngestionManager {
     @inject(SERVICES.CONFIG) private readonly config: IConfig,
     @inject(SERVICES.JOB_MANAGER_CLIENT) private readonly jobManagerClient: JobManagerClient,
     @inject(SERVICES.PROVIDER) private readonly provider: Provider,
-    @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler
+    @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler,
+    @inject(SERVICES.METRICS_REGISTRY) registry?: client.Registry
   ) {
+    if (registry !== undefined) {
+      this.jobsHistogram = new client.Histogram({
+        name: 'jobs_duration_seconds',
+        help: 'jobs duration time (seconds)',
+        buckets: config.get<number[]>('telemetry.metrics.buckets'),
+        labelNames: ['type'] as const,
+        registers: [registry],
+      });
+    }
+
     this.providerName = this.config.get<string>('ingestion.provider');
     this.batchSize = config.get<number>('jobManager.task.batches');
     this.taskType = config.get<string>('jobManager.task.type');
@@ -67,6 +82,7 @@ export class IngestionManager {
     await this.queueFileHandler.createQueueFile(payload.modelId);
 
     try {
+      const createJobTimerEnd = this.jobsHistogram?.startTimer({ type: JOB_TYPE });
       const fileCount: number = await this.provider.streamModelPathsToQueueFile(
         payload.modelId,
         payload.pathToTileset,
@@ -84,7 +100,9 @@ export class IngestionManager {
       await this.createTasksForJob(jobId, tasks, this.maxConcurrency);
       await this.updateFileCountAndStatusOfJob(jobId, fileCount);
       this.logger.info({ msg: 'Job created successfully', modelId: payload.modelId, modelName: payload.metadata.productName });
-
+      if (createJobTimerEnd) {
+        createJobTimerEnd();
+      }
       await this.queueFileHandler.deleteQueueFile(payload.modelId);
     } catch (error) {
       this.logger.error({ msg: 'Failed in creating tasks', modelId: payload.modelId, modelName: payload.metadata.productName, error });
