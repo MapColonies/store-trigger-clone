@@ -98,7 +98,7 @@ S3:
 
 NFS:  
   name: ''
-  pv_path: {}
+  pv_path: ''
   sub_path: ''
 
 jobManager:
