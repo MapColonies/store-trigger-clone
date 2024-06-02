@@ -176,13 +176,6 @@ export class IngestionManager {
     await this.jobManagerClient.updateJob(jobId, { status: OperationStatus.IN_PROGRESS, parameters });
   }
 
-  @withSpanAsyncV4
-  private async updateFileCountAndStatusOfJob(jobId: string, fileCount: number): Promise<void> {
-    const job = await this.jobManagerClient.getJob<JobParameters, TaskParameters>(jobId, false);
-    const parameters: JobParameters = { ...job.parameters, filesCount: fileCount };
-    await this.jobManagerClient.updateJob(jobId, { status: OperationStatus.IN_PROGRESS, parameters });
-  }
-
   private buildTaskFromChunk(chunk: string[], modelId: string): ICreateTaskBody<TaskParameters> {
     const parameters: TaskParameters = { paths: chunk, modelId, lastIndexError: -1 };
     return { type: this.taskType, parameters };
