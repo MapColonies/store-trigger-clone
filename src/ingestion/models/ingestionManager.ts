@@ -168,7 +168,7 @@ export class IngestionManager {
 
     return tasks;
   }
-  
+
   @withSpanAsyncV4
   private async updateFileCountAndStatusOfJob(jobId: string, fileCount: number): Promise<void> {
     const job = await this.jobManagerClient.getJob<JobParameters, TaskParameters>(jobId, false);
