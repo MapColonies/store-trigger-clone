@@ -30,9 +30,6 @@
   "directories": {
     "test": "tests"
   },
-  "jest": {
-    "collectCoverage": true
-  },
   "author": "MapColonies",
   "license": "ISC",
   "husky": {
