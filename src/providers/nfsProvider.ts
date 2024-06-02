@@ -2,6 +2,8 @@ import fs from 'fs/promises';
 import { Logger } from '@map-colonies/js-logger';
 import httpStatus from 'http-status-codes';
 import { inject, injectable } from 'tsyringe';
+import { Tracer } from '@opentelemetry/api';
+import { withSpanAsyncV4 } from '@map-colonies/telemetry';
 import { QueueFileHandler } from '../handlers/queueFileHandler';
 import { AppError } from '../common/appError';
 import { SERVICES } from '../common/constants';
@@ -10,11 +12,13 @@ import { Provider, NFSConfig } from '../common/interfaces';
 @injectable()
 export class NFSProvider implements Provider {
   public constructor(
-    @inject(SERVICES.PROVIDER_CONFIG) protected readonly config: NFSConfig,
     @inject(SERVICES.LOGGER) protected readonly logger: Logger,
+    @inject(SERVICES.TRACER) public readonly tracer: Tracer,
+    @inject(SERVICES.PROVIDER_CONFIG) protected readonly config: NFSConfig,
     @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler
   ) {}
 
+  @withSpanAsyncV4
   public async streamModelPathsToQueueFile(modelId: string, pathToTileset: string, modelName: string): Promise<number> {
     let filesCount = 0;
     const modelPath = `${this.config.pvPath}/${pathToTileset}`;

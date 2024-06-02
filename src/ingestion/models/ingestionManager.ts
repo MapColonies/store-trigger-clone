@@ -2,6 +2,9 @@ import { Logger } from '@map-colonies/js-logger';
 import { ICreateTaskBody, JobManagerClient, OperationStatus } from '@map-colonies/mc-priority-queue';
 import { inject, injectable } from 'tsyringe';
 import client from 'prom-client';
+import { withSpanAsyncV4, withSpanV4 } from '@map-colonies/telemetry';
+import { Tracer, trace } from '@opentelemetry/api';
+import { INFRA_CONVENTIONS } from '@map-colonies/telemetry/conventions';
 import { JOB_TYPE, SERVICES } from '../../common/constants';
 import { CreateJobBody, IConfig, IngestionResponse, JobParameters, Provider, TaskParameters, Payload } from '../../common/interfaces';
 import { QueueFileHandler } from '../../handlers/queueFileHandler';
@@ -18,6 +21,7 @@ export class IngestionManager {
 
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
+    @inject(SERVICES.TRACER) public readonly tracer: Tracer,
     @inject(SERVICES.CONFIG) private readonly config: IConfig,
     @inject(SERVICES.JOB_MANAGER_CLIENT) private readonly jobManagerClient: JobManagerClient,
     @inject(SERVICES.PROVIDER) private readonly provider: Provider,
@@ -40,6 +44,7 @@ export class IngestionManager {
     this.maxConcurrency = this.config.get<number>('maxConcurrency');
   }
 
+  @withSpanAsyncV4
   public async createJob(payload: Payload): Promise<IngestionResponse> {
     const job: CreateJobBody = {
       resourceId: payload.modelId,
@@ -62,6 +67,11 @@ export class IngestionManager {
 
     const jobResponse = await this.jobManagerClient.createJob<JobParameters, TaskParameters>(job);
 
+    const spanActive = trace.getActiveSpan();
+    spanActive?.setAttributes({
+      [INFRA_CONVENTIONS.infra.jobManagement.jobId]: jobResponse.id
+    });
+
     const res: IngestionResponse = {
       jobID: jobResponse.id,
       status: OperationStatus.PENDING,
@@ -70,12 +80,18 @@ export class IngestionManager {
     return res;
   }
 
+  @withSpanAsyncV4
   public async createModel(payload: Payload, jobId: string): Promise<void> {
     this.logger.info({
       msg: 'Creating job for model',
       modelId: payload.modelId,
       modelName: payload.metadata.productName,
       provider: this.providerName,
+    });
+
+    const spanActive = trace.getActiveSpan();
+    spanActive?.setAttributes({
+      [INFRA_CONVENTIONS.infra.jobManagement.jobId]: jobId
     });
 
     this.logger.debug({ msg: 'Starts writing content to queue file', modelId: payload.modelId, modelName: payload.metadata.productName });
@@ -111,6 +127,7 @@ export class IngestionManager {
     }
   }
 
+  @withSpanAsyncV4
   private async createTasksForJob(jobId: string, tasks: ICreateTaskBody<TaskParameters>[], maxRequests: number): Promise<void> {
     const tempTasks = [...tasks];
 
@@ -120,6 +137,7 @@ export class IngestionManager {
     }
   }
 
+  @withSpanV4
   private createTasks(batchSize: number, modelId: string): ICreateTaskBody<TaskParameters>[] {
     const tasks: ICreateTaskBody<TaskParameters>[] = [];
     let chunk: string[] = [];
@@ -149,22 +167,23 @@ export class IngestionManager {
 
     return tasks;
   }
+  
+  @withSpanAsyncV4
+  private async updateFileCountAndStatusOfJob(jobId: string, fileCount: number): Promise<void> {
+    const job = await this.jobManagerClient.getJob<JobParameters, TaskParameters>(jobId, false);
+    const parameters: JobParameters = { ...job.parameters, filesCount: fileCount };
+    await this.jobManagerClient.updateJob(jobId, { status: OperationStatus.IN_PROGRESS, parameters });
+  }
 
   private buildTaskFromChunk(chunk: string[], modelId: string): ICreateTaskBody<TaskParameters> {
     const parameters: TaskParameters = { paths: chunk, modelId, lastIndexError: -1 };
     return { type: this.taskType, parameters };
   }
-
+  
   private isFileInBlackList(data: string): boolean {
     const blackList = this.config.get<string[]>('ingestion.blackList');
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     const fileExtension = data.split('.').slice(-1)[0];
     return blackList.includes(fileExtension);
-  }
-
-  private async updateFileCountAndStatusOfJob(jobId: string, fileCount: number): Promise<void> {
-    const job = await this.jobManagerClient.getJob<JobParameters, TaskParameters>(jobId, false);
-    const parameters: JobParameters = { ...job.parameters, filesCount: fileCount };
-    await this.jobManagerClient.updateJob(jobId, { status: OperationStatus.IN_PROGRESS, parameters });
   }
 }
