@@ -9,7 +9,7 @@ import { JobParameters, JobStatusResponse, TaskParameters } from '../../common/i
 export class JobStatusManager {
   public constructor(
     @inject(SERVICES.JOB_MANAGER_CLIENT) private readonly jobManagerClient: JobManagerClient,
-    @inject(SERVICES.TRACER) public readonly tracer: Tracer,
+    @inject(SERVICES.TRACER) public readonly tracer: Tracer
   ) {}
 
   @withSpanAsyncV4

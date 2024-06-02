@@ -168,7 +168,7 @@ export class IngestionManager {
 
     return tasks;
   }
-  
+
   @withSpanAsyncV4
   private async updateFileCountAndStatusOfJob(jobId: string, fileCount: number): Promise<void> {
     const job = await this.jobManagerClient.getJob<JobParameters, TaskParameters>(jobId, false);
@@ -180,7 +180,7 @@ export class IngestionManager {
     const parameters: TaskParameters = { paths: chunk, modelId, lastIndexError: -1 };
     return { type: this.taskType, parameters };
   }
-  
+
   private isFileInBlackList(data: string): boolean {
     const blackList = this.config.get<string[]>('ingestion.blackList');
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
