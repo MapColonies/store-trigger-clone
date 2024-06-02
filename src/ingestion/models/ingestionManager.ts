@@ -3,8 +3,9 @@ import { ICreateTaskBody, JobManagerClient, OperationStatus } from '@map-colonie
 import { inject, injectable } from 'tsyringe';
 import client from 'prom-client';
 import { withSpanAsyncV4, withSpanV4 } from '@map-colonies/telemetry';
-import { Tracer, trace } from '@opentelemetry/api';
-import { INFRA_CONVENTIONS } from '@map-colonies/telemetry/conventions';
+import { Tracer } from '@opentelemetry/api';
+// import { Tracer, trace } from '@opentelemetry/api';
+// import { INFRA_CONVENTIONS } from '@map-colonies/telemetry/dist/semanticConventions';
 import { JOB_TYPE, SERVICES } from '../../common/constants';
 import { CreateJobBody, IConfig, IngestionResponse, JobParameters, Provider, TaskParameters, Payload } from '../../common/interfaces';
 import { QueueFileHandler } from '../../handlers/queueFileHandler';
@@ -67,10 +68,10 @@ export class IngestionManager {
 
     const jobResponse = await this.jobManagerClient.createJob<JobParameters, TaskParameters>(job);
 
-    const spanActive = trace.getActiveSpan();
-    spanActive?.setAttributes({
-      [INFRA_CONVENTIONS.infra.jobManagement.jobId]: jobResponse.id
-    });
+    // const spanActive = trace.getActiveSpan();
+    // spanActive?.setAttributes({
+    //   [INFRA_CONVENTIONS.infra.jobManagement.jobId]: jobResponse.id
+    // });
 
     const res: IngestionResponse = {
       jobID: jobResponse.id,
@@ -89,10 +90,10 @@ export class IngestionManager {
       provider: this.providerName,
     });
 
-    const spanActive = trace.getActiveSpan();
-    spanActive?.setAttributes({
-      [INFRA_CONVENTIONS.infra.jobManagement.jobId]: jobId
-    });
+    // const spanActive = trace.getActiveSpan();
+    // spanActive?.setAttributes({
+    //   [INFRA_CONVENTIONS.infra.jobManagement.jobId]: jobId
+    // });
 
     this.logger.debug({ msg: 'Starts writing content to queue file', modelId: payload.modelId, modelName: payload.metadata.productName });
     await this.queueFileHandler.createQueueFile(payload.modelId);
