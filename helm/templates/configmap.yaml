@@ -1,0 +1,52 @@
+{{- $fullName := include "catalog.fullname" . -}}
+{{- $ca := (include "merged.ca" . ) | fromYaml }}
+{{- $tracing := (include "merged.tracing" . ) | fromYaml }}
+{{- $metrics := (include "merged.metrics" . ) | fromYaml }}
+{{- $jobManager := (include "merged.jobManager" . ) | fromYaml }}
+{{- $provider := include "provider" . -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $fullName }}
+data:
+  SERVER_PORT: {{ .Values.env.targetPort | quote }}
+  LOG_LEVEL: {{ .Values.env.logLevel | quote }}
+  REQUEST_PAYLOAD_LIMIT: {{ .Values.env.requestPayloadLimit | quote }}
+  RESPONSE_COMPRESSION_ENABLED: {{ .Values.env.responseCompressionEnabled | quote }}
+  LOG_PRETTY_PRINT_ENABLED: {{ .Values.env.logPrettyPrintEnabled | quote }}
+  {{ if $tracing.enabled }}
+  TELEMETRY_TRACING_ENABLED: 'true'
+  TELEMETRY_TRACING_URL: {{ $tracing.url }}
+  {{ end }}
+  {{ if $metrics.enabled }}
+  TELEMETRY_METRICS_ENABLED: 'true'
+  TELEMETRY_METRICS_URL: {{ $metrics.url }}
+  {{ end }}
+  {{- if $ca.enabled }}
+  REQUESTS_CA_BUNDLE: {{ printf "%s/%s" $ca.path $ca.key | quote }}
+  NODE_EXTRA_CA_CERTS: {{ printf "%s/%s" $ca.path $ca.key | quote }}
+  {{- end }}
+  BLACK_LIST: {{ .Values.env.blackList | quote }}
+  MAX_CONCURRENCY: {{ .Values.env.maxConcurrency | quote }}
+  {{ if eq $provider "S3" }}
+  {{- $S3 := (include "merged.S3" . ) | fromYaml }}
+  S3_SOURCE_ACCESS_KEY_ID: {{ $S3.accessKey | quote }}
+  S3_SOURCE_SECRET_ACCESS_KEY: {{ $S3.secretAccessKey | quote }}
+  S3_SOURCE_END_POINT_URL: "{{ $S3.serverProto }}://{{ $S3.server }}:{{ $S3.serverPort }}"
+  S3_SOURCE_BUCKET: {{ $S3.bucket | quote }}
+  S3_SOURCE_REGION: {{ $S3.region | quote }}
+  S3_SOURCE_FORCE_PATH_STYLE: {{ eq $S3.style "path" | ternary "true" "false" }}
+  S3_SOURCE_SSL_ENABLED: {{ $S3.sslEnabled | quote }}
+  S3_SOURCE_MAX_ATTEMPTS: {{ $S3.maxAttempts | quote }}
+  S3_SOURCE_SIG_VERSION: v{{ $S3.sigVersion }}
+  {{ end }}
+  {{ if eq $provider "NFS" }}
+  {{- $NFS := (include "merged.NFS" . ) | fromYaml }}
+  PV_SOURCE_PATH: {{ $NFS.pv_path | quote }}
+  {{ end }}
+  PROVIDER_FROM: {{ $provider | quote }}
+  JOB_MANAGER_URL: {{ $jobManager.url | quote }}
+  JOB_TYPE: {{ $jobManager.job.type | quote }}
+  TASK_BATCHES: {{ $jobManager.task.batches | quote}}
+  TASK_TYPE: {{ $jobManager.task.type | quote }}
+

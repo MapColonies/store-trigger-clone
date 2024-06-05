@@ -10,13 +10,17 @@
       "level": "info",
       "prettyPrint": false
     },
+    "tracing": {
+      "enabled": true,
+      "url": "http://localhost:4318/v1/traces"
+    },
     "metrics": {
       "enabled": true,
       "buckets": [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 15, 50, 250, 500]
     }
   },
   "server": {
-    "port": "8081",
+    "port": "8082",
     "request": {
       "payload": {
         "limit": "1mb"
@@ -32,7 +36,7 @@
   "S3": {
     "accessKeyId": "minio",
     "secretAccessKey": "minio",
-    "endpointUrl": "http://10.8.0.9:9000",
+    "endpointUrl": "http://127.0.0.1:9000",
     "bucket": "3dtiles-dest",
     "region": "us-east-1",
     "forcePathStyle": true,
@@ -40,7 +44,7 @@
     "maxAttempts": 3
   },
   "NFS": {
-    "pvPath": "/home/netanel/3DModels"
+    "pvPath": "/Path/To/Models"
   },
   "ingestion": {
     "provider": "NFS",
