@@ -107,9 +107,9 @@ spec:
         {{- if eq $provider "NFS" }}
         - name: ingestion-source-storage
           persistentVolumeClaim:
-        {{-  $NFS := (include "merged.NFS" . ) | fromYaml }}
+            {{-  $NFS := (include "merged.NFS" . ) | fromYaml }}
             claimName: {{ $NFS.name }}
-        {{- end }}
+            {{- end }}
         {{- if $ca.enabled }}
         - name: root-ca
           secret:

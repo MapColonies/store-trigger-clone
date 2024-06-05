@@ -9,6 +9,7 @@ kind: ConfigMap
 metadata:
   name: {{ $fullName }}
 data:
+  SERVER_PORT: {{ .Values.env.targetPort | quote }}
   LOG_LEVEL: {{ .Values.env.logLevel | quote }}
   REQUEST_PAYLOAD_LIMIT: {{ .Values.env.requestPayloadLimit | quote }}
   RESPONSE_COMPRESSION_ENABLED: {{ .Values.env.responseCompressionEnabled | quote }}
@@ -27,7 +28,6 @@ data:
   {{- end }}
   BLACK_LIST: {{ .Values.env.blackList | quote }}
   MAX_CONCURRENCY: {{ .Values.env.maxConcurrency | quote }}
-  {{- $providers := (include "common.providers.merged" . ) | fromYaml }}
   {{ if eq $provider "S3" }}
   {{- $S3 := (include "merged.S3" . ) | fromYaml }}
   S3_SOURCE_ACCESS_KEY_ID: {{ $S3.accessKey | quote }}
