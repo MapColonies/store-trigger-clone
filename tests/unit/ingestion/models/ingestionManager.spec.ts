@@ -34,7 +34,7 @@ describe('ingestionManager', () => {
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
       ],
     });
-    
+
     register.clear();
     ingestionManager = container.resolve(IngestionManager);
   });

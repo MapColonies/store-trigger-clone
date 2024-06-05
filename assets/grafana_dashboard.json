@@ -85,7 +85,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \"productName\", \"resourceId\" AS \"Model ID\", \"creationTime\", \"updateTime\", status, percentage, \"taskCount\", \"completedTasks\", \"inProgressTasks\", \"pendingTasks\", \"abortedTasks\", reason FROM \"Job\" WHERE (domain = '3D' AND type = 'Ingestion_New_3D') ORDER BY \"creationTime\" LIMIT 10 ",
+          "rawSql": "SELECT \"productName\", \"resourceId\" AS \"Model ID\", \"creationTime\", \"updateTime\", status, percentage, \"taskCount\", \"completedTasks\", \"inProgressTasks\", \"pendingTasks\", \"abortedTasks\", reason FROM \"Job\" WHERE (domain = '3D' AND type = 'Ingestion_New_3D') ORDER BY \"creationTime\" DESC LIMIT 10 ",
           "refId": "A",
           "sql": {
             "columns": [
@@ -215,6 +215,7 @@
               },
               "type": "property"
             },
+            "orderByDirection": "DESC",
             "whereJsonTree": {
               "children1": [
                 {
@@ -303,7 +304,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "working_tasks",
+          "expr": "working_tasks{namespace=\"$namespace\"}",
           "legendFormat": "{{pod}}",
           "range": true,
           "refId": "A"
@@ -429,7 +430,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "jobs_duration_seconds_sum/jobs_duration_seconds_count",
+          "expr": "jobs_duration_seconds_sum{namespace=\"$namespace\"}/jobs_duration_seconds_count{namespace=\"$namespace\"}",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -498,7 +499,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "http_request_duration_seconds_count{service_name=\"store-trigger\", method=\"POST\", status_code=\"201\"}",
+          "expr": "http_request_duration_seconds_count{namespace=\"$namespace\", service_name=\"store-trigger\", method=\"POST\", status_code=\"201\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -879,6 +880,6 @@
   "timezone": "",
   "title": "Ingestion",
   "uid": "3d_ingestion",
-  "version": 8,
+  "version": 10,
   "weekStart": ""
 }

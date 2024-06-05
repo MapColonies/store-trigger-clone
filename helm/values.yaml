@@ -81,7 +81,7 @@ sidecars: {}
 
 podAnnotations: {}
 
-provider: NFS
+provider: 
 
 S3:
   accessKey: ''

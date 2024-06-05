@@ -77,8 +77,8 @@ describe('NFSProvider tests', () => {
     });
 
     it('if queue file handler does not work, throws error', async () => {
-    register.clear();
-    getApp({
+      register.clear();
+      getApp({
         override: [
           { token: SERVICES.PROVIDER_CONFIG, provider: { useValue: nfsConfig } },
           { token: SERVICES.QUEUE_FILE_HANDLER, provider: { useValue: queueFileHandlerMock } },
