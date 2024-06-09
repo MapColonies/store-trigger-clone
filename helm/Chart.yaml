@@ -1,0 +1,6 @@
+apiVersion: v2
+name: store-trigger
+description: A Helm chart for store-trigger service
+type: application
+version: 3.0.0
+appVersion: 1.3.1
