@@ -1,11 +1,11 @@
 {{- $releaseName := .Release.Name -}}
 {{- $chartName := include "store-trigger.name" . -}}
 {{- $cloudProviderFlavor := include "store-trigger.cloudProviderFlavor" . -}}
-{{- $fullNeme := include "store-trigger.fullname" . -}}
+{{- $fullName := include "store-trigger.fullname" . -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ $fullNeme }}
+  name: {{ $fullName }}
   labels:
     app: {{ $chartName }}
     component: {{ $chartName }}
@@ -27,5 +27,5 @@ spec:
   selector:
     app: {{ $chartName }}
     release: {{ $releaseName }}
-    run: {{ $fullNeme }}
+    run: {{ $fullName }}
     {{- include "store-trigger.selectorLabels" . | nindent 4 }}

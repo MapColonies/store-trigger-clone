@@ -122,7 +122,7 @@ env:
     url: http://localhost:55681/v1/trace
   metrics:
     enabled: false
-    url: http://localhost:55681/v1/metrics
+    url: 'http://localhost:55681/v1/metrics'
   blackList: ["tar", "zip", "rar", "7z"]
   maxConcurrency: 5
 

@@ -1,4 +1,4 @@
-{{- $fullName := include "catalog.fullname" . -}}
+{{- $fullName := include "store-trigger.fullname" . -}}
 {{- $ca := (include "merged.ca" . ) | fromYaml }}
 {{- $tracing := (include "merged.tracing" . ) | fromYaml }}
 {{- $metrics := (include "merged.metrics" . ) | fromYaml }}
