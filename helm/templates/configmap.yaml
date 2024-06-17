@@ -38,7 +38,6 @@ data:
   S3_SOURCE_FORCE_PATH_STYLE: {{ eq $S3.style "path" | ternary "true" "false" }}
   S3_SOURCE_SSL_ENABLED: {{ $S3.sslEnabled | quote }}
   S3_SOURCE_MAX_ATTEMPTS: {{ $S3.maxAttempts | quote }}
-  S3_SOURCE_SIG_VERSION: v{{ $S3.sigVersion }}
   {{ end }}
   {{ if eq $provider "NFS" }}
   {{- $NFS := (include "merged.NFS" . ) | fromYaml }}

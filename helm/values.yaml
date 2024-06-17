@@ -23,7 +23,6 @@ global:
     style: ''
     sslEnabled: false
     maxAttempts: 
-    sigVersion: 
   
   NFS:  
     name: ''
@@ -94,7 +93,6 @@ S3:
   style: ''
   sslEnabled: false
   maxAttempts: 
-  sigVersion: 
 
 NFS:  
   name: ''
