@@ -4,7 +4,7 @@ import { inject, injectable } from 'tsyringe';
 import client from 'prom-client';
 import { withSpanAsyncV4, withSpanV4 } from '@map-colonies/telemetry';
 import { Tracer, trace } from '@opentelemetry/api';
-import { INFRA_CONVENTIONS } from '@map-colonies/telemetry/conventions';
+import { INFRA_CONVENTIONS, THREE_D_CONVENTIONS } from '@map-colonies/telemetry/conventions';
 import { JOB_TYPE, SERVICES } from '../../common/constants';
 import { CreateJobBody, IConfig, IngestionResponse, JobParameters, Provider, TaskParameters, Payload } from '../../common/interfaces';
 import { QueueFileHandler } from '../../handlers/queueFileHandler';
@@ -70,7 +70,8 @@ export class IngestionManager {
     const spanActive = trace.getActiveSpan();
     spanActive?.setAttributes({
       [INFRA_CONVENTIONS.infra.jobManagement.jobId]: jobResponse.id,
-      [INFRA_CONVENTIONS.infra.jobManagement.jobType]: JOB_TYPE
+      [INFRA_CONVENTIONS.infra.jobManagement.jobType]: JOB_TYPE,
+      [THREE_D_CONVENTIONS.three_d.catalogManager.catalogId]: payload.modelId
     });
 
     const res: IngestionResponse = {
@@ -93,7 +94,8 @@ export class IngestionManager {
     const spanActive = trace.getActiveSpan();
     spanActive?.setAttributes({
       [INFRA_CONVENTIONS.infra.jobManagement.jobId]: jobId,
-      [INFRA_CONVENTIONS.infra.jobManagement.jobType]: JOB_TYPE
+      [INFRA_CONVENTIONS.infra.jobManagement.jobType]: JOB_TYPE,
+      [THREE_D_CONVENTIONS.three_d.catalogManager.catalogId]: payload.modelId
     });
 
     this.logger.debug({ msg: 'Starts writing content to queue file', modelId: payload.modelId, modelName: payload.metadata.productName });
