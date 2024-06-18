@@ -1,7 +1,7 @@
 import jsLogger from '@map-colonies/js-logger';
 import { OperationStatus } from '@map-colonies/mc-priority-queue';
-import { randNumber } from '@ngneat/falso';
 import httpStatus from 'http-status-codes';
+import { faker } from '@faker-js/faker';
 import { container } from 'tsyringe';
 import { register } from 'prom-client';
 import { getApp } from '../../../../src/app';
@@ -12,7 +12,6 @@ import { IngestionManager } from '../../../../src/ingestion/models/ingestionMana
 import {
   configProviderMock,
   createPayload,
-  createUuid,
   jobManagerClientMock,
   queueFileHandlerMock,
   createFile,
@@ -69,9 +68,9 @@ describe('ingestionManager', () => {
   describe('createModel Service', () => {
     it('resolves without error when everything is ok', async () => {
       // Arrange
-      const jobId = createUuid();
+      const jobId = faker.string.uuid();
       const parameters = createJobParameters();
-      const filesAmount = randNumber({ min: 1, max: 8 });
+      const filesAmount = faker.number.int({ min: 1, max: 8 });
       queueFileHandlerMock.createQueueFile.mockResolvedValue(undefined);
       configProviderMock.streamModelPathsToQueueFile.mockResolvedValue(filesAmount);
       for (let i = 0; i < filesAmount; i++) {
@@ -92,7 +91,7 @@ describe('ingestionManager', () => {
 
     it(`rejects if couldn't createQueueFile queue file`, async () => {
       // Arrange
-      const jobId = createUuid();
+      const jobId = faker.string.uuid();
       queueFileHandlerMock.createQueueFile.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
 
       // Act && Assert
@@ -101,7 +100,7 @@ describe('ingestionManager', () => {
 
     it(`rejects if couldn't empty queue file`, async () => {
       // Arrange
-      const jobId = createUuid();
+      const jobId = faker.string.uuid();
       queueFileHandlerMock.deleteQueueFile.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
 
       // Act && Assert
@@ -110,7 +109,7 @@ describe('ingestionManager', () => {
 
     it('rejects if the provider failed', async () => {
       // Arrange
-      const jobId = createUuid();
+      const jobId = faker.string.uuid();
       queueFileHandlerMock.createQueueFile.mockResolvedValue(undefined);
       configProviderMock.streamModelPathsToQueueFile.mockRejectedValue(new AppError(httpStatus.INTERNAL_SERVER_ERROR, '', true));
 
@@ -120,8 +119,8 @@ describe('ingestionManager', () => {
 
     it(`rejects if couldn't read from queue file`, async () => {
       // Arrange
-      const jobId = createUuid();
-      const filesAmount = randNumber({ min: 1, max: 8 });
+      const jobId = faker.string.uuid();
+      const filesAmount = faker.number.int({ min: 1, max: 8 });
       queueFileHandlerMock.createQueueFile.mockResolvedValue(undefined);
       configProviderMock.streamModelPathsToQueueFile.mockResolvedValue(filesAmount);
       queueFileHandlerMock.readline.mockImplementation(() => {
@@ -135,8 +134,8 @@ describe('ingestionManager', () => {
 
     it('rejects if there is a problem with job manager', async () => {
       // Arrange
-      const jobId = createUuid();
-      const filesAmount = randNumber({ min: 1, max: 8 });
+      const jobId = faker.string.uuid();
+      const filesAmount = faker.number.int({ min: 1, max: 8 });
       queueFileHandlerMock.createQueueFile.mockResolvedValue(undefined);
       configProviderMock.streamModelPathsToQueueFile.mockResolvedValue(filesAmount);
       for (let i = 0; i < filesAmount; i++) {

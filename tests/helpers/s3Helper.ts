@@ -13,8 +13,8 @@ import {
   ListObjectsRequest,
   ListObjectsCommand,
 } from '@aws-sdk/client-s3';
-import { randSentence } from '@ngneat/falso';
 import { inject, injectable } from 'tsyringe';
+import { faker } from '@faker-js/faker';
 import { SERVICES } from '../../src/common/constants';
 import { S3Config } from '../../src/common/interfaces';
 
@@ -55,7 +55,7 @@ export class S3Helper {
     const params: PutObjectCommandInput = {
       Bucket: this.s3Config.bucket,
       Key: `${model}/${file}`,
-      Body: Buffer.from(randSentence()),
+      Body: Buffer.from(faker.word.words()),
     };
     const command = new PutObjectCommand(params);
     await this.s3.send(command);
