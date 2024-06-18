@@ -57,7 +57,7 @@
     },
     "task": {
       "batches": 100,
-      "type": "Ingestion"
+      "type": "tilesCopying"
     }
   },
   "maxConcurrency": 5
