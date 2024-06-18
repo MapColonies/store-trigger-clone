@@ -71,7 +71,7 @@ export class IngestionManager {
     spanActive?.setAttributes({
       [INFRA_CONVENTIONS.infra.jobManagement.jobId]: jobResponse.id,
       [INFRA_CONVENTIONS.infra.jobManagement.jobType]: JOB_TYPE,
-      [THREE_D_CONVENTIONS.three_d.catalogManager.catalogId]: payload.modelId
+      [THREE_D_CONVENTIONS.three_d.catalogManager.catalogId]: payload.modelId,
     });
 
     const res: IngestionResponse = {
@@ -95,7 +95,7 @@ export class IngestionManager {
     spanActive?.setAttributes({
       [INFRA_CONVENTIONS.infra.jobManagement.jobId]: jobId,
       [INFRA_CONVENTIONS.infra.jobManagement.jobType]: JOB_TYPE,
-      [THREE_D_CONVENTIONS.three_d.catalogManager.catalogId]: payload.modelId
+      [THREE_D_CONVENTIONS.three_d.catalogManager.catalogId]: payload.modelId,
     });
 
     this.logger.debug({ msg: 'Starts writing content to queue file', modelId: payload.modelId, modelName: payload.metadata.productName });
