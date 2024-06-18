@@ -2,8 +2,8 @@ import fs from 'fs';
 import os from 'os';
 import config from 'config';
 import jsLogger from '@map-colonies/js-logger';
-import { randNumber, randWord } from '@ngneat/falso';
 import { container } from 'tsyringe';
+import { faker } from '@faker-js/faker';
 import { AppError } from '../../../src/common/appError';
 import { S3Provider } from '../../../src/providers/s3Provider';
 import { getApp } from '../../../src/app';
@@ -46,13 +46,13 @@ describe('S3Provider tests', () => {
 
   describe('streamModelPathsToQueueFile', () => {
     it('returns all the files from S3', async () => {
-      const modelId = randWord();
-      const modelName = randWord();
-      const pathToTileset = randWord();
-      const fileLength = randNumber({ min: 1, max: 5 });
+      const modelId = faker.word.sample();
+      const modelName = faker.word.sample();
+      const pathToTileset = faker.word.sample();
+      const fileLength = faker.number.int({ min: 1, max: 5 });
       const expectedFiles: string[] = [];
       for (let i = 0; i < fileLength; i++) {
-        const file = randWord();
+        const file = faker.word.sample();
         await s3Helper.createFileOfModel(pathToTileset, file);
         expectedFiles.push(`${pathToTileset}/${file}`);
       }
@@ -70,10 +70,10 @@ describe('S3Provider tests', () => {
     });
 
     it('returns error string when model is not in the agreed folder', async () => {
-      const modelId = randWord();
+      const modelId = faker.word.sample();
       await queueFileHandler.createQueueFile(modelId);
-      const modelName = randWord();
-      const pathToTileset = randWord();
+      const modelName = faker.word.sample();
+      const pathToTileset = faker.word.sample();
 
       const result = async () => {
         await provider.streamModelPathsToQueueFile(modelId, pathToTileset, modelName);
