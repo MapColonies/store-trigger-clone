@@ -3,7 +3,7 @@ import { Logger } from '@map-colonies/js-logger';
 import httpStatus from 'http-status-codes';
 import { inject, injectable } from 'tsyringe';
 import { Tracer } from '@opentelemetry/api';
-import { withSpanAsyncV4 } from '@map-colonies/telemetry';
+import { withSpanAsyncV4, withSpanV4 } from '@map-colonies/telemetry';
 import { QueueFileHandler } from '../handlers/queueFileHandler';
 import { AppError } from '../common/appError';
 import { SERVICES } from '../common/constants';
@@ -15,9 +15,9 @@ export class S3Provider implements Provider {
   private filesCount: number;
 
   public constructor(
-    @inject(SERVICES.PROVIDER_CONFIG) protected readonly s3Config: S3Config,
     @inject(SERVICES.LOGGER) protected readonly logger: Logger,
     @inject(SERVICES.TRACER) public readonly tracer: Tracer,
+    @inject(SERVICES.PROVIDER_CONFIG) protected readonly s3Config: S3Config,
     @inject(SERVICES.QUEUE_FILE_HANDLER) protected readonly queueFileHandler: QueueFileHandler
   ) {
     const s3ClientConfig: S3ClientConfig = {
@@ -112,6 +112,7 @@ export class S3Provider implements Provider {
     }
   }
 
+  @withSpanV4
   private handleS3Error(s3Bucket: string, error: unknown): never {
     let statusCode = httpStatus.INTERNAL_SERVER_ERROR;
     let message = "Didn't throw a S3 exception in file";
