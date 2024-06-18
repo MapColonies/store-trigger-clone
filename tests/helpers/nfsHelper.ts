@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { randSentence } from '@ngneat/falso';
+import { faker } from '@faker-js/faker';
 import { NFSConfig } from '../../src/common/interfaces';
 
 export class NFSHelper {
@@ -13,7 +13,7 @@ export class NFSHelper {
     if (!fs.existsSync(dirPath)) {
       await this.createFolder(dirPath);
     }
-    const data = randSentence();
+    const data = faker.word.words();
     await fs.promises.writeFile(`${dirPath}/${fileName}`, data);
     return data;
   }

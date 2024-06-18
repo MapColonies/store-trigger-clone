@@ -1,10 +1,10 @@
 import fs from 'fs';
-import { randWord } from '@ngneat/falso';
+import { faker } from '@faker-js/faker';
 import { QueueFileHandler } from '../../../src/handlers/queueFileHandler';
 
 describe('QueueFileHandler', () => {
   let queueFileHandler: QueueFileHandler;
-  const model = randWord();
+  const model = faker.word.sample();
 
   beforeEach(async () => {
     queueFileHandler = new QueueFileHandler();

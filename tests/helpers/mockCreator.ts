@@ -1,6 +1,6 @@
 import config from 'config';
-import { randNumber, randPastDate, randSentence, randUuid, randWord } from '@ngneat/falso';
 import { Polygon } from 'geojson';
+import { faker } from '@faker-js/faker';
 import { Layer3DMetadata, ProductType, RecordStatus, RecordType } from '@map-colonies/mc-model-types';
 import { OperationStatus } from '@map-colonies/mc-priority-queue';
 import { CreateJobBody, JobParameters, Payload } from '../../src/common/interfaces';
@@ -11,12 +11,8 @@ const maxAccuracySE90 = 250;
 const maxRelativeAccuracyLEP90 = 100;
 const maxVisualAccuracy = 100;
 
-export const createUuid = (): string => {
-  return randUuid();
-};
-
 export const createFile = (isBlackFile = false, isHasSubDir = false): string => {
-  const file = isHasSubDir ? `${randWord()}/${randWord()}` : randWord();
+  const file = isHasSubDir ? `${faker.word.sample()}/${faker.word.sample()}` : faker.word.sample();
   return isBlackFile ? `${file}.zip` : `${file}.txt`;
 };
 
@@ -33,46 +29,46 @@ export const createMetadata = (): Layer3DMetadata => {
     ],
   };
   return {
-    productId: randUuid(),
-    productName: randWord(),
+    productId: faker.string.uuid(),
+    productName: faker.word.sample(),
     productType: ProductType.PHOTO_REALISTIC_3D,
-    description: randSentence(),
-    creationDate: randPastDate(),
-    sourceDateStart: randPastDate(),
-    sourceDateEnd: randPastDate(),
-    minResolutionMeter: randNumber({ max: maxResolutionMeter }),
-    maxResolutionMeter: randNumber({ max: maxResolutionMeter }),
-    maxAccuracyCE90: randNumber({ min: 0, max: noData }),
-    absoluteAccuracyLE90: randNumber({ min: 0, max: noData }),
-    accuracySE90: randNumber({ min: 0, max: maxAccuracySE90 }),
-    relativeAccuracySE90: randNumber({ min: 0, max: maxRelativeAccuracyLEP90 }),
-    visualAccuracy: randNumber({ min: 0, max: maxVisualAccuracy }),
-    sensors: [randWord()],
+    description: faker.word.words(),
+    creationDate: faker.date.past(),
+    sourceDateStart: faker.date.past(),
+    sourceDateEnd: faker.date.past(),
+    minResolutionMeter: faker.number.int({ max: maxResolutionMeter }),
+    maxResolutionMeter: faker.number.int({ max: maxResolutionMeter }),
+    maxAccuracyCE90: faker.number.int({ min: 0, max: noData }),
+    absoluteAccuracyLE90: faker.number.int({ min: 0, max: noData }),
+    accuracySE90: faker.number.int({ min: 0, max: maxAccuracySE90 }),
+    relativeAccuracySE90: faker.number.int({ min: 0, max: maxRelativeAccuracyLEP90 }),
+    visualAccuracy: faker.number.int({ min: 0, max: maxVisualAccuracy }),
+    sensors: [faker.word.sample()],
     footprint,
-    heightRangeFrom: randNumber(),
-    heightRangeTo: randNumber(),
-    srsId: randNumber().toString(),
-    srsName: randWord(),
-    region: [randWord()],
-    classification: randWord(),
-    productionSystem: randWord(),
-    productionSystemVer: randWord(),
-    producerName: randWord(),
-    minFlightAlt: randNumber(),
-    maxFlightAlt: randNumber(),
-    geographicArea: randWord(),
+    heightRangeFrom: faker.number.int(),
+    heightRangeTo: faker.number.int(),
+    srsId: faker.number.int().toString(),
+    srsName: faker.word.sample(),
+    region: [faker.word.sample()],
+    classification: faker.word.sample(),
+    productionSystem: faker.word.sample(),
+    productionSystemVer: faker.word.sample(),
+    producerName: faker.word.sample(),
+    minFlightAlt: faker.number.int(),
+    maxFlightAlt: faker.number.int(),
+    geographicArea: faker.word.sample(),
     productStatus: RecordStatus.UNPUBLISHED,
     productBoundingBox: undefined,
     productVersion: undefined,
     type: RecordType.RECORD_3D,
     updateDate: undefined,
-    productSource: randWord(),
+    productSource: faker.word.sample(),
   };
 };
 
 export const createPayload = (modelName: string): Payload => {
   return {
-    modelId: createUuid(),
+    modelId: faker.string.uuid(),
     pathToTileset: modelName,
     tilesetFilename: 'tileset.json',
     metadata: createMetadata(),
@@ -97,7 +93,7 @@ export const createJobPayload = (payload: Payload): CreateJobBody => {
 export const createJobParameters = (): JobParameters => {
   return {
     metadata: createMetadata(),
-    modelId: createUuid(),
+    modelId: faker.string.uuid(),
     tilesetFilename: 'tileset.json',
     filesCount: 0,
     pathToTileset: 'path/to/tileset',
