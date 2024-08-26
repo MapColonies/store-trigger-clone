@@ -2,11 +2,10 @@ openapi: 3.0.1
 info:
   title: 3d store-trigger
   description: Ingesting and exporting 3d model to S3/NFS
-  version: 1.0.0
+  version: 1.5.0
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-
 paths:
   /jobStatus/{jobID}:
     get:
@@ -17,19 +16,18 @@ paths:
       parameters:
         - $ref: '#/components/parameters/jobID'
       responses:
-        200:
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/jobStatus'
-        404:
+        '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-
   /ingestion:
     post:
       operationId: createModel
@@ -42,19 +40,19 @@ paths:
             schema:
               $ref: '#/components/schemas/payload'
       responses:
-        201:
+        '201':
           description: created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/createResponse'
-        400:
+        '400':
           description: Bad Request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-        '5XX':
+        5XX:
           description: Unexpected Error
           content:
             application/json:
@@ -89,17 +87,18 @@ components:
         modelId:
           type: string
           description: Model identifier
-          example: 'a2234fdf'
+          example: a2234fdf
         pathToTileset:
           type: string
           description: path to tileset
-          example: 'NewYork'
+          example: NewYork
         tilesetFilename:
           type: string
           description: Model tileset filename
-          example: 'tileset.json'
+          example: tileset.json
         metadata:
-          $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/ingestion-payload'
+          $ref: >-
+            ./Schema/3dCatalog/3dMetadata.yaml#/components/schemas/ingestion-payload
       additionalProperties: false
     createResponse:
       type: object
