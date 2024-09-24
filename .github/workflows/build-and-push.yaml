@@ -29,3 +29,10 @@ jobs:
       secrets: inherit
       with:
         scope: 3d
+
+  update_versions:
+      uses: MapColonies/shared-workflows/.github/workflows/ci-version-updater.yaml@feat/MAPCO-4702-image-updater
+      secrets: inherit
+      needs: [build_and_push_docker, build_and_push_helm]
+      with:
+        scope: 3d
