@@ -158,3 +158,4 @@ ingress:
   cors:
     enabled: true
     origin: '*'
+
