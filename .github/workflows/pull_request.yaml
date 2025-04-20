@@ -8,3 +8,7 @@ jobs:
     secrets: inherit
     with:
       openApiFilePath: './bundledApi.yaml'
+
+  helm_lint:
+      uses: MapColonies/shared-workflows/.github/workflows/lint-test.yaml@chore/add-chart-lint
+      secrets: inherit

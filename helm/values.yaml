@@ -1,6 +1,6 @@
 global:
   cloudProvider:
-    dockerRegistryUrl: 
+    dockerRegistryUrl:
     flavor: openshift
     imagePullSecretName: 
   imagePullPolicy: IfNotPresent
@@ -38,7 +38,7 @@ global:
       batches: 
 
 cloudProvider:
-    dockerRegistryUrl: 
+    dockerRegistryUrl: "test"
     flavor: 
     imagePullSecretName: 
 imagePullPolicy: 
