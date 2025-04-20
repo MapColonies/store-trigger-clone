@@ -4,3 +4,7 @@ description: A Helm chart for store-trigger servicesssss
 type: application
 version: 1.5.2
 appVersion: 1.5.2
+dependencies:
+  - name: helm-common
+    version: 1.0.1
+    repository: oci://acrarolibotnonprod.azurecr.io/helm
